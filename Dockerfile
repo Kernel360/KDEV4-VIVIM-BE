@@ -3,7 +3,7 @@ FROM gradle:8.5-jdk17 AS builder
 WORKDIR /app
 
 # Gradle wrapper 및 의존성 파일 캐싱
-COPY settings.gradle build.gradle gradle.properties gradlew ./
+COPY settings.gradle build.gradle gradlew ./
 COPY gradle gradle
 # 멀티모듈 환경에서는 전체 프로젝트 복사 필요
 COPY . .
