@@ -1,6 +1,10 @@
 <!-- 풀 리퀘스트 제목 형식은 "[type] 제목"으로 통일합니다. -->
 <!-- 사용하지 않는 항목은 지워주세요.-->
 
+>어떻게 써야 할지 고민될 땐 [Wiki Link](https://github.com/Kernel360/KDEV4-VIVIM-BE/wiki/PR-EXAMPLE-:-%ED%92%80-%EB%A6%AC%ED%80%98%EC%8A%A4%ED%8A%B8-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%93%B0%EB%A9%B4-%EC%A2%8B%EC%9D%84%EA%B9%8C%3F)를 참고해주세요.
+
+---
+
 ## 관련 이슈
 <!-- 기입 예 : #3 -->
 
