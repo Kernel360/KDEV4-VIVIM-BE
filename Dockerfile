@@ -2,14 +2,12 @@
 FROM gradle:8.5-jdk17 AS builder
 WORKDIR /app
 
-# Gradle wrapper 및 의존성 파일 캐싱
-COPY settings.gradle build.gradle gradlew ./
-COPY gradle gradle
 # 멀티모듈 환경에서는 전체 프로젝트 복사 필요
 COPY . .
 
-# 의존성 캐싱을 위한 빠른 빌드
-RUN ./gradlew clean :module-api:bootJar -x test
+# 의존하는 다른 모듈들까지 빌드
+RUN ./gradlew clean :module-api:bootJar --stacktrace --info --refresh-dependencies -x test
+
 
 # 🔹 2단계: 실행 환경 (최소 JDK 환경)
 FROM eclipse-temurin:17-jdk

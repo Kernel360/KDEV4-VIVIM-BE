@@ -24,8 +24,9 @@ repositories {
 }
 
 dependencies {
-
-
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -42,4 +43,3 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-tasks.register("prepareKotlinBuilderScriptModel")
