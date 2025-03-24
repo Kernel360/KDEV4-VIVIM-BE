@@ -3,10 +3,6 @@ package com.welcommu.moduledomain.user;
 import com.welcommu.moduledomain.company.Company;
 import jakarta.persistence.*;
 import lombok.*;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
@@ -30,12 +26,6 @@ public class User {
     @Column(length = 20, nullable = false)
     private String phone;
 
-@Data
-public class User {
-    private Long id;
-    private String name;
-    private String email;
-    private String phone;
     private LocalDateTime passwordModifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
