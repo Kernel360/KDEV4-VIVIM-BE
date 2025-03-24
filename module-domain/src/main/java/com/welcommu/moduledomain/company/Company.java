@@ -7,7 +7,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
-@Entity(name="companies")
+@Entity
 @Getter
 @Setter
 @ToString
