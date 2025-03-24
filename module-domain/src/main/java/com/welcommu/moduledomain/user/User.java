@@ -1,8 +1,6 @@
 package com.welcommu.moduledomain.user;
 
 import com.welcommu.moduledomain.company.Company;
-import jakarta.persistence.*;
-import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -36,7 +34,7 @@ public class User {
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
 
-    // Company 와의 연관 관계를 나타내는 필드
+    // Company와의 연관 관계를 나타내는 필드
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
