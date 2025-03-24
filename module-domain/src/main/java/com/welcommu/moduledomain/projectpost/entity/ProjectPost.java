@@ -1,6 +1,8 @@
-package com.welcommu.moduledomain.projectpost;
+package com.welcommu.moduledomain.projectpost.entity;
 
 import java.time.LocalDateTime;
+
+import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -56,5 +58,11 @@ public class ProjectPost {
 
     @Column(name="project_id")
     private Long projectId;
+
+    public void modify(String title, String content, ProjectPostStatus projectPostStatus) {
+        this.title = title;
+        this.content = content;
+        this.projectPostStatus = projectPostStatus;
+    }
 
 }
