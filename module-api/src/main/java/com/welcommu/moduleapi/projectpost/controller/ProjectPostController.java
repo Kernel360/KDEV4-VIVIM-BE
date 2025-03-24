@@ -35,4 +35,9 @@ public class ProjectPostController {
         List<ProjectPostListResult> resultList = projectPostService.getPostList(projectId);
         return ResponseEntity.ok(resultList);
     }
+
+    @DeleteMapping("/{postId}")
+    public Long deletePost(@PathVariable Long projectId, @PathVariable Long postId) {
+        return projectPostService.deletePost(postId);
+    }
 }

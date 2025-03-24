@@ -59,4 +59,9 @@ public class ProjectPostService {
                 .map(ProjectPostListResult::from)
                 .collect(Collectors.toList());
     }
+
+    public  Long deletePost(Long postId) {
+        projectPostRepository.deleteById(postId);
+        return postId;
+    }
 }
