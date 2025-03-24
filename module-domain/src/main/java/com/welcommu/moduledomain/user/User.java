@@ -3,6 +3,9 @@ package com.welcommu.moduledomain.user;
 import com.welcommu.moduledomain.company.Company;
 import jakarta.persistence.*;
 import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 import java.time.LocalDateTime;
 
