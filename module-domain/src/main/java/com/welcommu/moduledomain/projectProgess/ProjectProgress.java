@@ -23,7 +23,7 @@ public class ProjectProgress {
     @GeneratedValue
     private Long id;
 
-    private String name; //example: contract, development, test, release, maintenance
+    private String name; //예를들어, 계약 기획 개발 테스트 배포 유지보수에 해당합니다.
 
     private int order;
 
