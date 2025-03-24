@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.checklists;
+package com.welcommu.moduledomain.checklist;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
