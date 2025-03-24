@@ -28,7 +28,7 @@ public class ProjectPostService {
                 .build();
 
         projectPostRepository.save(newPost);
-        return 1L;
+        return newPost.getId();
     }
 
     @Transactional

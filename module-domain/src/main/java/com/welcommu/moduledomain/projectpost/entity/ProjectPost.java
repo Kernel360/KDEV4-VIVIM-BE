@@ -10,11 +10,11 @@ import lombok.*;
 
 @ToString
 @Table(name="project_posts")
+@Getter
 @Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 public class ProjectPost {
 
     @Id
