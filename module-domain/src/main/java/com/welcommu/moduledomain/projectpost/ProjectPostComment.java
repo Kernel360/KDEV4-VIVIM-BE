@@ -1,0 +1,46 @@
+package com.welcommu.moduledomain.projectpost;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+
+
+@Table(name = "project_post_comments")
+@Getter
+@Builder
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProjectPostComment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 200)
+    private String comment;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    @Column(name = "writer_ip", length = 50)
+    private String writerIp;
+
+    @Column(name = "creator_id", nullable = false)
+    private Long creatorId;
+
+    @Column(name = "project_post_id", nullable = false)
+    private Long projectId;
+
+    @Column(name = "parent_id")
+    private Long parentId;
+}
