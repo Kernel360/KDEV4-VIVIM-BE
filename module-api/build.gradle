@@ -31,8 +31,13 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Hibernate Validator 의존성 추가
+    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'  // 최신 버전으로 사용하세요.
+    // Jakarta Bean Validation API 의존성 추가
+    implementation 'jakarta.validation:jakarta.validation-api:2.0.2'  // 최신 버전으로 사용하세요.
+
 
     implementation project(':module-common')
     implementation project(':module-domain')
