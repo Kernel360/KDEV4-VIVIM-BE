@@ -1,10 +1,11 @@
 package com.welcommu.moduleapi.projectpost.controller;
 
-import com.welcommu.moduleapi.projectpost.dto.ProjectPostRequest;
-import com.welcommu.moduleservice.projectpost.dto.CreateProjectPostCommand;
+import com.welcommu.dto.ApiResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResult;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -19,15 +20,16 @@ public class ProjectPostController {
 
 
     @PostMapping
-    public Long createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request) {
-        CreateProjectPostCommand command = new CreateProjectPostCommand(projectId, request.getTitle(), request.getContent(), request.getProjectPostStatus());
-        return projectPostService.createPost(projectId, command);
+    public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request) {
+        projectPostService.createPost(projectId, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse(HttpStatus.CREATED.value(), "게시글이 생성되었습니다."));
     }
 
     @PutMapping("/{postId}")
-    public Long modifyPost(@PathVariable Long projectId, @PathVariable Long postId, @RequestBody ProjectPostRequest request) {
-        CreateProjectPostCommand command = new CreateProjectPostCommand(projectId, request.getTitle(), request.getContent(), request.getProjectPostStatus());
-        return projectPostService.modifyPost(projectId, postId, command);
+    public ResponseEntity<ApiResponse> modifyPost(@PathVariable Long projectId, @PathVariable Long postId, @RequestBody ProjectPostRequest request) {
+        projectPostService.modifyPost(projectId, postId, request);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 수정되었습니다."));
     }
 
     @GetMapping
@@ -37,7 +39,8 @@ public class ProjectPostController {
     }
 
     @DeleteMapping("/{postId}")
-    public Long deletePost(@PathVariable Long projectId, @PathVariable Long postId) {
-        return projectPostService.deletePost(postId);
+    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long projectId, @PathVariable Long postId) {
+        projectPostService.deletePost(postId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 삭제되었습니다."));
     }
 }

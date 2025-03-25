@@ -1,11 +1,10 @@
-package com.welcommu.moduleapi.projectpost.dto;
+package com.welcommu.moduleservice.projectpost.dto;
 
 
 import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
 import lombok.*;
 
 @Getter
-@Setter
 @ToString
 @Builder
 @NoArgsConstructor
