@@ -6,11 +6,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name="users")
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode
+@Table(name = "users")
 public class User {
 
     @Id
