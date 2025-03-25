@@ -3,6 +3,7 @@ package com.welcommu.moduleapi;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 )
 @EntityScan("com.welcommu.moduledomain")
 @EnableJpaRepositories("com.welcommu.modulerepository")
+@ComponentScan("com.welcommu")
 public class ModuleApiApplication {
 
     public static void main(String[] args) {

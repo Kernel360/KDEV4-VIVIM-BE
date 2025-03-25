@@ -1,11 +1,17 @@
 package com.welcommu.moduledomain.company;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.time.LocalDateTime;
 
-@Entity
-@Data
+@Entity(name="companies")
+@Getter
+@Setter
+@ToString
+@Table(name="companies")
 public class Company {
 
     @Id
