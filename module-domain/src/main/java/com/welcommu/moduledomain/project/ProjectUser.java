@@ -19,15 +19,14 @@ public class ProjectUser {
     private Long id;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProjectUserRole projectUserRole;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
-    private User userID;
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "preject_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
-    private Project projectId;
-
-
+    private Project project;
 }

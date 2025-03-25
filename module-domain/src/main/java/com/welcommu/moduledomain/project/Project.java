@@ -30,6 +30,7 @@ public class Project {
     private String description;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
     @Column(nullable = false)
@@ -51,15 +52,15 @@ public class Project {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
-    private User creatorId;
+    private User creator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modifire_id", referencedColumnName = "id") // 외래키 컬럼명 지정
-    private User modifierId;
+    private User modifier;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deleter_id", referencedColumnName = "id") // 외래키 컬럼명 지정
-    private User deleterId;
+    private User deleter;
 
 
 }
