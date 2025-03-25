@@ -59,10 +59,27 @@ public class ProjectPost {
     @Column(name="project_id")
     private Long projectId;
 
+
+    public static ProjectPost create(Long projectId, String title, String content, ProjectPostStatus projectPostStatus, Long creatorId) {
+        return ProjectPost.builder()
+                .projectId(projectId)
+                .title(title)
+                .content(content)
+                .projectPostStatus(projectPostStatus)
+                .creatorId(creatorId)
+                .build();
+
+    }
+
     public void modify(String title, String content, ProjectPostStatus projectPostStatus) {
         this.title = title;
         this.content = content;
         this.projectPostStatus = projectPostStatus;
+    }
+
+    public void delete(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+        this.isDeleted = true;
     }
 
 }

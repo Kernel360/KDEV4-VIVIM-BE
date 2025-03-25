@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,14 +20,12 @@ public class ProjectPostService {
     private final ProjectPostRepository projectPostRepository;
 
     public Long createPost(Long projectId, CreateProjectPostCommand command) {
-        ProjectPost newPost = ProjectPost.builder()
-                .projectId(projectId)
-                .title(command.title())
-                .content(command.content())
-                .projectPostStatus(command.projectPostStatus())
-                .creatorId(1L)
-                .build();
-
+        ProjectPost newPost = ProjectPost.create(
+                projectId, command.title(),
+                command.content(),
+                command.projectPostStatus(),
+                1L
+        );
         projectPostRepository.save(newPost);
         return newPost.getId();
     }
@@ -60,8 +59,11 @@ public class ProjectPostService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public  Long deletePost(Long postId) {
-        projectPostRepository.deleteById(postId);
+        ProjectPost existingPost = projectPostRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+        existingPost.delete(LocalDateTime.now());
         return postId;
     }
 }
