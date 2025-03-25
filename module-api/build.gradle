@@ -36,6 +36,12 @@ dependencies {
     // Jakarta Bean Validation API 의존성 추가
     implementation 'jakarta.validation:jakarta.validation-api:2.0.2'  // 최신 버전으로 사용하세요.
 
+    // Hibernate Validator 의존성 추가
+    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'  // 최신 버전으로 사용하세요.
+    // Jakarta Bean Validation API 의존성 추가
+    implementation 'jakarta.validation:jakarta.validation-api:2.0.2'  // 최신 버전으로 사용하세요.
+
+
     implementation project(':module-common')
     implementation project(':module-domain')
     implementation project(':module-repository')
