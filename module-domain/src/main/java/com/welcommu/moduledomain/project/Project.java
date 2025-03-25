@@ -15,7 +15,7 @@ import java.util.List;
 @Entity
 @Table(name = "projects")
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project {
