@@ -1,5 +1,6 @@
 package com.welcommu.moduledomain.project;
 
+import com.welcommu.moduledomain.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,52 +24,42 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private String description;
 
+    @Column(nullable = false)
+    private ProjectStatus status;
+
+    @Column(nullable = false)
+    private LocalDate startDate;
+
+    @Column(nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime modifiedAt;
 
     private LocalDateTime deletedAt;
 
+    @Column(nullable = false)
     private Boolean isDeleted;
 
-    // 🔹 참가자 연관관계
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserProject> userProjects = new ArrayList<>();
 
-    // 🔹 담당자 연관관계
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectManager> projectManagers = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
+    private User creatorId;
 
-    @Builder
-    public Project(String name, String description) {
-        this.name = name;
-        this.description = description;
-        this.createdAt = LocalDateTime.now();
-        this.isDeleted = false;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "modifire_id", referencedColumnName = "id") // 외래키 컬럼명 지정
+    private User modifierId;
 
-    // 🔸 설명 변경
-    public void updateDescription(String description) {
-        this.description = description;
-        this.modifiedAt = LocalDateTime.now();
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "deleter_id", referencedColumnName = "id") // 외래키 컬럼명 지정
+    private User deleterId;
 
-    // 🔸 삭제 처리
-    public void softDelete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
 
-    // 🔸 연관 엔티티 추가 메서드
-    public void addUserProject(UserProject userProject) {
-        this.userProjects.add(userProject);
-    }
-
-    public void addManager(ProjectManager manager) {
-        this.projectManagers.add(manager);
-    }
 }
