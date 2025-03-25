@@ -74,4 +74,6 @@ Temporary Items
 
 # End of https://www.toptal.com/developers/gitignore/api/macos
 
-ddl_with_auto_increment_and_fks.sql
+*.sql
+
+env
