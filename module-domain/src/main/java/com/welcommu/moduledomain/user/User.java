@@ -21,16 +21,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 50, nullable = true)
     private String name;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = true)
     private String password;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = true)
     private String email;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = true)
     private String phone;
     private LocalDateTime passwordModifiedAt;
     private LocalDateTime createdAt;
@@ -41,6 +41,6 @@ public class User {
 
     // Company와의 연관 관계를 나타내는 필드
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id", nullable = true)
     private Company company;
 }
