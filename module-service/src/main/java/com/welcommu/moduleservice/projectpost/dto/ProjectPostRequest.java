@@ -5,7 +5,6 @@ import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
 import lombok.*;
 
 @Getter
-@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

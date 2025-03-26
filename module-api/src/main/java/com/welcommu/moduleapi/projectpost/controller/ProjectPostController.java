@@ -1,7 +1,7 @@
 package com.welcommu.moduleapi.projectpost.controller;
 
 import com.welcommu.dto.ApiResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResult;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
 import lombok.RequiredArgsConstructor;
@@ -33,8 +33,8 @@ public class ProjectPostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectPostListResult>> getPost(@PathVariable Long projectId) {
-        List<ProjectPostListResult> resultList = projectPostService.getPostList(projectId);
+    public ResponseEntity<List<ProjectPostListResponse>> getPost(@PathVariable Long projectId) {
+        List<ProjectPostListResponse> resultList = projectPostService.getPostList(projectId);
         return ResponseEntity.ok(resultList);
     }
 

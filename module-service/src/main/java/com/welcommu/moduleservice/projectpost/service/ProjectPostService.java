@@ -2,7 +2,7 @@ package com.welcommu.moduleservice.projectpost.service;
 
 import com.welcommu.moduledomain.projectpost.entity.ProjectPost;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResult;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,10 +48,10 @@ public class ProjectPostService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectPostListResult> getPostList(Long projectId) {
+    public List<ProjectPostListResponse> getPostList(Long projectId) {
         List<ProjectPost> posts = projectPostRepository.findAllByProjectId(projectId);
         return posts.stream()
-                .map(ProjectPostListResult::from)
+                .map(ProjectPostListResponse::from)
                 .collect(Collectors.toList());
     }
 
