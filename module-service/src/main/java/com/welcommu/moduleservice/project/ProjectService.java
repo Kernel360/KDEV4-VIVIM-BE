@@ -7,6 +7,7 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.project.Dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,14 +24,14 @@ public class ProjectService {
     private final ProjectUserRepository projectUserRepository;
 
     @Transactional
-    public void createProject(ProjectCreateRequestDto dto) {
+    public void createProject(ProjectCreateRequest dto) {
         User creator = userRepository.findById(dto.getCreatorId())
                 .orElseThrow(() -> new IllegalArgumentException("프로젝트 생성자 ID 없음"));
 
         Project project = dto.toEntity(creator);
         projectRepository.save(project);
 
-        for (ProjectUserRequestDto userDto : dto.getUsers()) {
+        for (ProjectUserRequest userDto : dto.getUsers()) {
             User user = userRepository.findById(userDto.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
 
@@ -41,7 +42,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void updateProject(Long projectId, ProjectUpdateRequestDto dto) {
+    public void updateProject(Long projectId, ProjectUpdateRequest dto) {
         Project original = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
 
@@ -56,7 +57,7 @@ public class ProjectService {
         // 참여자 추가 후 재등록
         projectUserRepository.deleteByProject(original);
 
-        for (ProjectUserRequestDto userDto : dto.getUsers()) {
+        for (ProjectUserRequest userDto : dto.getUsers()) {
             User user = userRepository.findById(userDto.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
 
@@ -64,7 +65,7 @@ public class ProjectService {
         }
     }
 
-    public List<ProjectSummaryDto> readProjectsByUser(Long userId) {
+    public List<ProjectSummary> readProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
@@ -74,13 +75,13 @@ public class ProjectService {
                 .filter(pu -> pu.getProject().getStatus() == ProjectStatus.ACTIVE) // ACTIVE인 상태의 프로젝트만 필터링
                 .map(pu -> {
                     Project p = pu.getProject();
-                    return ProjectSummaryDto.of(p, pu);
+                    return ProjectSummary.of(p, pu);
                 })
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteProject(Long projectId, ProjectDeleteRequestDto dto) {
+    public void deleteProject(Long projectId, ProjectDeleteRequest dto) {
         Project original = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
 
