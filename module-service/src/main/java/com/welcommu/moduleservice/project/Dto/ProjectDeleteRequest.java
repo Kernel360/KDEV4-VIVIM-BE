@@ -33,16 +33,13 @@ public class ProjectDeleteRequest {
         private ProjectUserRole role;
     }
 
-    public Project toEntity(User deleter){
-        return Project.builder()
-                .name(this.getName())
-                .description(this.getDescription())
-                .status(this.getProjectStatus())
-                .startDate(this.getStartDate())
-                .endDate(this.getEndDate())
-                .deletedAt(LocalDateTime.now())
+    public Project deleteTo(Project project, User deleter) {
+        return project.toBuilder()
+                .id(project.getId()) // 기존 ID 유지
                 .isDeleted(true)
+                .deletedAt(LocalDateTime.now())
                 .deleter(deleter)
+                .modifiedAt(LocalDateTime.now())
                 .build();
     }
 }
