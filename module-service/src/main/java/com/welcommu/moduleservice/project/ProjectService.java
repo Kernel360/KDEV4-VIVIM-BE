@@ -89,9 +89,8 @@ public class ProjectService {
         User deleter = userRepository.findById(dto.getModifierId())
                 .orElseThrow(() -> new IllegalArgumentException("삭제자 없음"));
 
-        original.setIsDeleted(true);
-        original.setDeletedAt(LocalDateTime.now());
-        original.setDeleter(deleter);
+        Project deleted = dto.deleteTo(original, deleter);
+        projectRepository.save(deleted);
 
         //JPA는 @Transactional 범위 안에서 영속 상태(persistent state)인 엔티티의 필드가 변경되면
         //트랜잭션 커밋 시점에 자동으로 변경 사항을 감지하고 DB에 반영하기에 repository.save 필요 없음
