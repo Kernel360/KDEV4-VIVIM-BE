@@ -50,7 +50,8 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("수정자 없음"));
 
         // DTO를 통해 기존 객체 값 주입
-        dto.applyTo(original, modifier);
+        Project updated = dto.applyTo(original, modifier);
+        projectRepository.save(updated);
 
         //트랜잭션 커밋 시점에 자동으로 변경 사항을 감지하고 DB에 반영하기에 repository.save 필요 없음
 

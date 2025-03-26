@@ -33,13 +33,16 @@ public class ProjectUpdateRequest {
         private ProjectUserRole role;
     }
 
-    public void applyTo(Project project, User modifier) {
-        project.setName(this.name);
-        project.setDescription(this.description);
-        project.setStatus(this.projectStatus);
-        project.setStartDate(this.startDate);
-        project.setEndDate(this.endDate);
-        project.setModifiedAt(LocalDateTime.now());
-        project.setModifier(modifier);
+    public Project applyTo(Project project, User modifier) {
+        return project.toBuilder()
+                .id(project.getId())
+                .name(this.name)
+                .description(this.description)
+                .status(this.projectStatus)
+                .startDate(this.startDate)
+                .endDate(this.endDate)
+                .modifiedAt(LocalDateTime.now())
+                .modifier(modifier)
+                .build();
     }
 }
