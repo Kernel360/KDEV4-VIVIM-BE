@@ -19,14 +19,7 @@ public class ProjectPostService {
     private final ProjectPostRepository projectPostRepository;
 
     public void createPost(Long projectId, ProjectPostRequest request) {
-        ProjectPost newPost = ProjectPost.builder()
-                .projectId(projectId)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .projectPostStatus(request.getProjectPostStatus())
-                .creatorId(1L)
-                .build();
-
+        ProjectPost newPost = request.toEntity(projectId, request);
         projectPostRepository.save(newPost);
     }
 

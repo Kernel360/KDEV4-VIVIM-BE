@@ -17,8 +17,6 @@ public class ProjectPostListResponse {
     private ProjectPostStatus projectPostStatus;
     private LocalDateTime createdAt;
 
-
-
     public static ProjectPostListResponse from(ProjectPost post) {
         return new ProjectPostListResponse(
                 post.getTitle(),
