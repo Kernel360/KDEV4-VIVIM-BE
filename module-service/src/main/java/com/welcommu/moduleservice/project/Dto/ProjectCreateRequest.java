@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.project;
+package com.welcommu.moduleservice.project.Dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectStatus;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProjectUpdateRequestDto {
+public class ProjectCreateRequest {
 
     private String name;
     private String description;
@@ -22,9 +22,9 @@ public class ProjectUpdateRequestDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private Long modifierId; // 수정자 ID
+    private Long creatorId; // 생성자 ID
 
-    private List<ProjectUserRequestDto> users;
+    private List<ProjectUserRequest> users;
 
     @Getter
     @Setter
@@ -33,13 +33,17 @@ public class ProjectUpdateRequestDto {
         private ProjectUserRole role;
     }
 
-    public void applyTo(Project project, User modifier) {
-        project.setName(this.name);
-        project.setDescription(this.description);
-        project.setStatus(this.projectStatus);
-        project.setStartDate(this.startDate);
-        project.setEndDate(this.endDate);
-        project.setModifiedAt(LocalDateTime.now());
-        project.setModifier(modifier);
+    public Project toEntity(User creator){
+        return Project.builder()
+                .name(this.getName())
+                .description(this.getDescription())
+                .status(this.getProjectStatus())
+                .startDate(this.getStartDate())
+                .endDate(this.getEndDate())
+                .createdAt(LocalDateTime.now())
+                .isDeleted(false)
+                .creator(creator)
+                .build();
     }
+
 }

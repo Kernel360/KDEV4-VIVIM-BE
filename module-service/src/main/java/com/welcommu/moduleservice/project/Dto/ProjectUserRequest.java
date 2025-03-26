@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.project;
+package com.welcommu.moduleservice.project.Dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectUser;
@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProjectUserRequestDto {
+public class ProjectUserRequest {
     private Long userId;
     private ProjectUserRole role;
 

@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.project;
+package com.welcommu.moduleservice.project.Dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectStatus;
@@ -9,14 +9,14 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProjectSummaryDto {
+public class ProjectSummary {
     private Long projectId;
     private String projectName;
     private ProjectStatus status;
     private ProjectUserRole myRole;
 
-    public static ProjectSummaryDto of(Project project, ProjectUser projectUser) {
-        return new ProjectSummaryDto(
+    public static ProjectSummary of(Project project, ProjectUser projectUser) {
+        return new ProjectSummary(
                 project.getId(),
                 project.getName(),
                 project.getStatus(),

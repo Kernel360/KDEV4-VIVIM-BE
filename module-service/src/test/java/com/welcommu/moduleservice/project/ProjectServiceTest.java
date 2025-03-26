@@ -7,6 +7,7 @@ import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.project.Dto.ProjectSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -102,7 +103,7 @@ class ProjectServiceTest {
         when(projectUserRepository.findByUser(dev)).thenReturn(List.of(projectUser1, projectUser2));
 
         // when
-        List<ProjectSummaryDto> result = projectService.readProjectsByUser(dev.getId());
+        List<ProjectSummary> result = projectService.readProjectsByUser(dev.getId());
 
         // then
         assertThat(result).hasSize(2);

@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.project;
+package com.welcommu.moduleservice.project.Dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectStatus;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProjectDeleteRequestDto {
+public class ProjectDeleteRequest {
 
     private String name;
     private String description;
@@ -24,7 +24,7 @@ public class ProjectDeleteRequestDto {
 
     private Long modifierId; // 수정자 ID
 
-    private List<ProjectUserRequestDto> users; // 수정 후의 참여자 목록
+    private List<ProjectUserRequest> users; // 수정 후의 참여자 목록
 
     @Getter
     @Setter
