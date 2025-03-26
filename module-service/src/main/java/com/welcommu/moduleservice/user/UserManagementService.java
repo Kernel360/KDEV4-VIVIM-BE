@@ -1,8 +1,13 @@
 package com.welcommu.moduleservice.user;
 
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduledomain.user.dto.UserRequest;
+import com.welcommu.moduledomain.user.dto.UserResponse;
 import com.welcommu.modulerepository.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +20,6 @@ public class UserManagementService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Autowired
     public UserManagementService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -23,15 +27,25 @@ public class UserManagementService {
     }
 
     // 사용자 등록
-    public User createUser(User user) {
+    @Transactional
+    public UserResponse createUser(UserRequest userRequest) {
+        // UserRequest로부터 User 엔티티 생성
+        User user = new User();
+        user.setName(userRequest.getName());
+        user.setEmail(userRequest.getEmail());
+
         // 비밀번호 암호화
-        String encryptedPassword = passwordEncoder.encode(user.getPassword());
+        String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
         // 암호화된 비밀번호를 User 객체에 설정
         user.setPassword(encryptedPassword);
 
         // 사용자 저장
-        return userRepository.save(user);
+        User savedUser = userRepository.saveAndFlush(user);
+
+        // UserResponse 생성 후 반환
+        UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
+        return userResponse;
     }
 
 
