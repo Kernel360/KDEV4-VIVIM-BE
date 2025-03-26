@@ -47,9 +47,8 @@ public class ProjectController {
     @DeleteMapping("/{projectId}")
     public ResponseEntity<ApiResponse> DeleteProject(@PathVariable Long projectId,@RequestBody ProjectDeleteRequest dto) {
         projectService.deleteProject(projectId, dto);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제었습니다."));
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제되었습니다."));
     }
-
     // TODO
     // 모든 프로젝트 조회(관리자)
 
