@@ -1,6 +1,8 @@
 package com.welcommu.moduleapi.user;
 
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduledomain.user.dto.UserRequest;
+import com.welcommu.moduledomain.user.dto.UserResponse;
 import com.welcommu.moduleservice.user.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserManagementService userManagementService;
@@ -23,10 +25,14 @@ public class UserController {
 
     // 사용자 등록
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        System.out.println("Received user: " + user); // 요청 받은 데이터 출력
-        User createdUser = userManagementService.createUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+        System.out.println("Received user: " + userRequest); // 요청 받은 데이터 출력
+
+        // 서비스에서 사용자 등록 처리 후 응답 받기
+        UserResponse createdUserResponse = userManagementService.createUser(userRequest);
+
+        // 생성된 사용자 정보와 함께 HTTP 201 응답 반환
+        return new ResponseEntity<>(createdUserResponse, HttpStatus.CREATED);
     }
 
     // 전체 사용자 조회
