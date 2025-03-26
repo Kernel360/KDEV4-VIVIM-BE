@@ -33,7 +33,7 @@ public class ProjectUpdateRequest {
         private ProjectUserRole role;
     }
 
-    public Project applyTo(Project project, User modifier) {
+    public Project toEntity(Project project, User modifier) {
         return project.toBuilder()
                 .id(project.getId())
                 .name(this.name)
