@@ -49,7 +49,6 @@ public class ProjectPostCommentService {
         if (!existingComment.getProjectPostId().equals(postId)) {
             throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
         }
-        ProjectPostComment deleted=request.deleteTo(existingComment);
-        projectPostCommentRepository.save(deleted);
+        request.deleteTo(existingComment);
     }
 }
