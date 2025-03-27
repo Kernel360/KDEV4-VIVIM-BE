@@ -1,7 +1,8 @@
-package com.welcommu.moduleservice.projectpost;
+package com.welcommu.moduleservice.projectpost.service;
 
-import com.welcommu.moduledomain.projectpost.ProjectPostComment;
-import com.welcommu.modulerepository.projectpost.ProjectPostCommentRepository;
+import com.welcommu.moduledomain.projectpost.entity.ProjectPostComment;
+import com.welcommu.modulerepository.projectpost.repository.ProjectPostCommentRepository;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCommentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,6 @@ public class ProjectPostCommentService {
     public void createComment(Long postId, ProjectPostCommentRequest request){
         ProjectPostComment newComment= request.toEntity(postId, request);
         projectPostCommentRepository.save(newComment);
-
     }
+
 }

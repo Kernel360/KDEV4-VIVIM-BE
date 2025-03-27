@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.projectpost;
+package com.welcommu.moduledomain.projectpost.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

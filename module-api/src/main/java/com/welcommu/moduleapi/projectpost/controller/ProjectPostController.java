@@ -1,8 +1,10 @@
 package com.welcommu.moduleapi.projectpost.controller;
 
 import com.welcommu.dto.ApiResponse;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostDeleteRequest;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCreateRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostModifyRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,14 +22,14 @@ public class ProjectPostController {
 
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request) {
+    public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostCreateRequest request) {
         projectPostService.createPost(projectId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse(HttpStatus.CREATED.value(), "게시글이 생성되었습니다."));
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity<ApiResponse> modifyPost(@PathVariable Long projectId, @PathVariable Long postId, @RequestBody ProjectPostRequest request) {
+    public ResponseEntity<ApiResponse> modifyPost(@PathVariable Long projectId, @PathVariable Long postId, @RequestBody ProjectPostModifyRequest request) {
         projectPostService.modifyPost(projectId, postId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 수정되었습니다."));
     }
@@ -39,8 +41,8 @@ public class ProjectPostController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long projectId, @PathVariable Long postId) {
-        projectPostService.deletePost(projectId, postId);
+    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long projectId, @PathVariable Long postId, @RequestBody  ProjectPostDeleteRequest request) {
+        projectPostService.deletePost(projectId, postId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 삭제되었습니다."));
     }
 }

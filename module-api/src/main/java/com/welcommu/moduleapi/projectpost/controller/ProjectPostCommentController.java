@@ -1,8 +1,8 @@
-package com.welcommu.moduleapi.projectpost;
+package com.welcommu.moduleapi.projectpost.controller;
 
 import com.welcommu.dto.ApiResponse;
-import com.welcommu.moduleservice.projectpost.ProjectPostCommentRequest;
-import com.welcommu.moduleservice.projectpost.ProjectPostCommentService;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCommentRequest;
+import com.welcommu.moduleservice.projectpost.service.ProjectPostCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
