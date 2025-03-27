@@ -27,6 +27,6 @@ public class ProjectUser {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "preject_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
+    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
     private Project project;
 }
