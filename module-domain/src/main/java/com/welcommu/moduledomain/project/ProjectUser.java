@@ -18,9 +18,9 @@ public class ProjectUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "manage_role",nullable = false)
     @Enumerated(EnumType.STRING)
-    private ProjectUserRole projectUserRole;
+    private ProjectUserManageRole projectUserManageRole;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
