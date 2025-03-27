@@ -49,7 +49,7 @@ public class ProjectPostService {
     }
 
     @Transactional
-    public void deletePost(Long postId) {
+    public void deletePost(Long projectId, Long postId) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
         existingPost.delete(LocalDateTime.now());

@@ -40,7 +40,7 @@ public class ProjectPostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse> deletePost(@PathVariable Long projectId, @PathVariable Long postId) {
-        projectPostService.deletePost(postId);
+        projectPostService.deletePost(projectId, postId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 삭제되었습니다."));
     }
 }
