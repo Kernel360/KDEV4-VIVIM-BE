@@ -8,7 +8,6 @@ import lombok.*;
 
 
 
-@ToString
 @Table(name="project_posts")
 @Getter
 @Builder
