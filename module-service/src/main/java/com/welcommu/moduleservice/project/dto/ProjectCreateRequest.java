@@ -69,7 +69,7 @@ public class ProjectCreateRequest {
             result.add(ProjectUser.builder()
                     .project(project)
                     .user(userResolver.apply(dto.getUserId()))
-                    .projectUserManageRole(ProjectUserManageRole.DEVELOPER_MANGER)
+                    .projectUserManageRole(ProjectUserManageRole.DEVELOPER_MANAGER)
                     .build());
         }
         for (UserIdDto dto : devUsers) {
