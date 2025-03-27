@@ -2,12 +2,10 @@ package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectUser;
-import com.welcommu.moduledomain.project.ProjectUserManageRole;
 import com.welcommu.moduledomain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
