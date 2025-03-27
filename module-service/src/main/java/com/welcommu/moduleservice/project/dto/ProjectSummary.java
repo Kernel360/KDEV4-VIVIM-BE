@@ -1,9 +1,8 @@
-package com.welcommu.moduleservice.project.Dto;
+package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.project.ProjectStatus;
 import com.welcommu.moduledomain.project.ProjectUser;
-import com.welcommu.moduledomain.project.ProjectUserRole;
+import com.welcommu.moduledomain.project.ProjectUserManageRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,15 +11,13 @@ import lombok.Getter;
 public class ProjectSummary {
     private Long projectId;
     private String projectName;
-    private ProjectStatus status;
-    private ProjectUserRole myRole;
+    private ProjectUserManageRole myRole;
 
     public static ProjectSummary of(Project project, ProjectUser projectUser) {
         return new ProjectSummary(
                 project.getId(),
                 project.getName(),
-                project.getStatus(),
-                projectUser.getProjectUserRole()
+                projectUser.getProjectUserManageRole() // ✅ 역할 정보 포함
         );
     }
 }
