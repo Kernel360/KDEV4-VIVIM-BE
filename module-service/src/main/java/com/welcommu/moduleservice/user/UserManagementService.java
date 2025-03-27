@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.welcommu.modulerepository.user.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +21,7 @@ public class UserManagementService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+  
     @Autowired
     public UserManagementService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -27,7 +29,7 @@ public class UserManagementService {
     }
 
     // 사용자 등록
-    @Transactional
+  @Transactional
     public UserResponse createUser(UserRequest userRequest) {
         // UserRequest로부터 User 엔티티 생성
         User user = new User();
@@ -47,7 +49,6 @@ public class UserManagementService {
         UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
         return userResponse;
     }
-
 
     // 사용자 전체 목록 조회
     public List<User> getAllUsers() {

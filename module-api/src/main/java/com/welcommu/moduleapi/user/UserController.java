@@ -33,6 +33,10 @@ public class UserController {
 
         // 생성된 사용자 정보와 함께 HTTP 201 응답 반환
         return new ResponseEntity<>(createdUserResponse, HttpStatus.CREATED);
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        System.out.println("Received user: " + user); // 요청 받은 데이터 출력
+        User createdUser = userManagementService.createUser(user);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     // 전체 사용자 조회
