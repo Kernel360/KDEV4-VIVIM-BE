@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectProgressRepository extends JpaRepository<ProjectProgress, Long> {
 
-     float findMaxOrderByProjectId(Long projectId);
+     float findMaxPositionByProjectId(Long projectId);
 }
