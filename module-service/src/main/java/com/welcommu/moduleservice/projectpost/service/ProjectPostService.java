@@ -2,8 +2,10 @@ package com.welcommu.moduleservice.projectpost.service;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostDeleteRequest;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCreateRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostModifyRequest;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +20,13 @@ public class ProjectPostService {
 
     private final ProjectPostRepository projectPostRepository;
 
-    public void createPost(Long projectId, ProjectPostRequest request) {
+    public void createPost(Long projectId, ProjectPostCreateRequest request) {
         ProjectPost newPost = request.toEntity(projectId, request);
         projectPostRepository.save(newPost);
     }
 
     @Transactional
-    public void modifyPost(Long projectId, Long postId, ProjectPostRequest request) {
+    public void modifyPost(Long projectId, Long postId, ProjectPostModifyRequest request) {
 
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
@@ -32,12 +34,8 @@ public class ProjectPostService {
         if (!existingPost.getProjectId().equals(projectId)) {
             throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
         }
-
-        existingPost.modify(
-                request.getTitle(),
-                request.getContent(),
-                request.getProjectPostStatus()
-        );
+        ProjectPost updatedPost = request.toEntity(existingPost, request);
+        projectPostRepository.save(updatedPost);
     }
 
     @Transactional(readOnly = true)
@@ -49,9 +47,13 @@ public class ProjectPostService {
     }
 
     @Transactional
-    public void deletePost(Long projectId, Long postId) {
+    public void deletePost(Long projectId, Long postId, ProjectPostDeleteRequest request) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-        existingPost.delete(LocalDateTime.now());
+        if (!existingPost.getProjectId().equals(projectId)) {
+            throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
+        }
+        ProjectPost deleted=request.deleteTo(existingPost);
+        projectPostRepository.save(deleted);
     }
 }
