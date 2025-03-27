@@ -25,7 +25,7 @@ public class ProjectPostModifyRequest {
                 .title(request.getTitle())
                 .content(request.getContent())
                 .projectPostStatus(request.getProjectPostStatus())
-                .creatorId(1L)//1L는 테스트 용입니다.
+                .creatorId(originalPost.getCreatorId())
                 .createdAt(originalPost.getCreatedAt())
                 .modifiedAt(LocalDateTime.now())
                 .modifierId(1L)//1L는 테스트 용입니다.

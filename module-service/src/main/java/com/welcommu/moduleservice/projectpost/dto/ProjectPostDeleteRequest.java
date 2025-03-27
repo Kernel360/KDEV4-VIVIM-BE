@@ -22,7 +22,7 @@ public class ProjectPostDeleteRequest {
                 .title(originalPost.getTitle())
                 .content(originalPost.getContent())
                 .projectPostStatus(originalPost.getProjectPostStatus())
-                .creatorId(originalPost.getCreatorId())//1L는 테스트 용입니다.
+                .creatorId(originalPost.getCreatorId())
                 .createdAt(originalPost.getCreatedAt())
                 .modifiedAt(originalPost.getModifiedAt())
                 .deletedAt(LocalDateTime.now())
