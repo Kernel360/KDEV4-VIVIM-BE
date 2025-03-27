@@ -25,15 +25,16 @@ public class ProjectController {
 
     /*
     * {
-  "name": "프로젝트명",
-  "description": "설명",
-  "startDate": "2025-04-01",
-  "endDate": "2025-04-30",
-  "clientManagers": [ { "userId": 1 }, { "userId": 2 } ],
-  "clientUsers":    [ { "userId": 3 }, { "userId": 4 } ],
-  "devManagers":    [ { "userId": 5 } ],
-  "devUsers":       [ { "userId": 6 }, { "userId": 7 } ]
-}
+    * 아래와 같이 입력이 들어온다고 가정
+          "name": "프로젝트명",
+          "description": "설명",
+          "startDate": "2025-04-01",
+          "endDate": "2025-04-30",
+          "clientManagers": [ { "userId": 1 }, { "userId": 2 } ],
+          "clientUsers":    [ { "userId": 3 }, { "userId": 4 } ],
+          "devManagers":    [ { "userId": 5 } ],
+          "devUsers":       [ { "userId": 6 }, { "userId": 7 } ]
+        }
     *
     * */
     @PostMapping
