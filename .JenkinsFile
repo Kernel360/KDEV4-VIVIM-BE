@@ -1,0 +1,222 @@
+pipeline {
+    agent any
+    options {
+        timeout(time: 1, unit: 'HOURS')
+    }
+
+    environment {
+        TIME_ZONE = 'Asia/Seoul'
+
+        // GitHub
+        GIT_TARGET_BRANCH = 'develop'
+        GIT_REPOSITORY_URL = 'https://github.com/Kernel360/KDEV4-VIVIM-BE'
+        GIT_CREDENTIALS_ID = 'github-credentials'
+
+        // AWS ECR (placeholder)
+        AWS_ECR_CREDENTIAL_ID = 'aws-ec2-credentials'
+        AWS_ECR_IMAGE_NAME = 'vivim'
+        AWS_REGION = 'ap-northeast-2'
+
+        // EC2 배포 관련 정보 (placeholder)
+        EC2_USER = 'ubuntu'
+        EC2_SSH_CREDENTIALS_ID = 'ec2-ssh-key'
+        DOCKER_CONTAINER_NAME = 'vivim-container'
+
+        // Discord Webhook
+        DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1354406116846473236/S_V-Egi2unUbwyoAKTkfG6cnsJoLE0kmkPLskJUtXcRV2GCXVaQlZsdGGnKj6odipMse'
+    }
+
+    stages {
+        stage('Init') {
+            steps {
+                echo 'Init Stage: Cleaning workspace'
+                deleteDir()
+            }
+        }
+
+        stage('Set Secrets') {
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'ECR_URI', variable: 'SECRET_ECR_URI'),
+                        string(credentialsId: 'EC2_DEV', variable: 'SECRET_EC2_HOST')
+                    ]) {
+                        env.AWS_ECR_URI = SECRET_ECR_URI
+                        env.EC2_HOST = SECRET_EC2_HOST
+                    }
+                }
+            }
+        }
+
+        stage('Cloning Repository') {
+            steps {
+                echo 'Cloning Repository'
+                git branch: "${GIT_TARGET_BRANCH}",
+                    credentialsId: "${GIT_CREDENTIALS_ID}",
+                    url: "${GIT_REPOSITORY_URL}"
+            }
+        }
+
+        stage('Build Gradle') {
+            steps {
+                echo 'Building only module-api bootJar'
+                dir('.') {
+                    sh '''
+                        pwd
+                        chmod +x ./gradlew
+                        ./gradlew :module-api:bootJar --exclude-task test
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def imageTag = "${AWS_ECR_URI}/${AWS_ECR_IMAGE_NAME}:${BUILD_NUMBER}"
+                    sh """
+                        echo "Building Docker Image"
+                        docker build -t ${AWS_ECR_IMAGE_NAME} .
+                        docker tag ${AWS_ECR_IMAGE_NAME} ${imageTag}
+                    """
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_ECR_CREDENTIAL_ID}"]]) {
+                    script {
+                        def imageTag = "${AWS_ECR_URI}/${AWS_ECR_IMAGE_NAME}:${BUILD_NUMBER}"
+                        sh """
+                            echo "Logging into AWS ECR"
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_URI}
+
+                            echo "Pushing Docker Image to ECR"
+                            docker push ${imageTag}
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EC2') {
+            steps {
+                echo "Deploying to EC2 instance: ${EC2_HOST}"
+
+                withCredentials([
+                    string(credentialsId: 'RDS_URL', variable: 'DB_URL'),
+                    string(credentialsId: 'RDS_USERNAME', variable: 'DB_USERNAME'),
+                    string(credentialsId: 'RDS_PASSWORD', variable: 'DB_PASSWORD')
+                ]) {
+                    sshagent(credentials: ["${EC2_SSH_CREDENTIALS_ID}"]) {
+                        script {
+                            def imageTag = "${AWS_ECR_URI}/${AWS_ECR_IMAGE_NAME}:${BUILD_NUMBER}"
+                            sh """
+                                ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+
+                                echo "Ensuring AWS CLI and Docker permissions"
+                                if ! command -v aws &> /dev/null; then
+                                    echo "Installing AWS CLI..."
+                                    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                                    unzip awscliv2.zip
+                                    sudo ./aws/install
+                                fi
+
+                                if ! groups | grep -q "docker"; then
+                                    echo "Adding user to Docker group..."
+                                    sudo usermod -aG docker \$USER
+                                    echo "Rebooting system for permission changes to take effect..."
+                                    sudo reboot
+                                    exit 0
+                                fi
+
+                                echo "Logging into AWS ECR on EC2"
+                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ECR_URI}
+
+                                echo "Stopping and removing existing container"
+                                docker stop ${DOCKER_CONTAINER_NAME} || true
+                                docker rm ${DOCKER_CONTAINER_NAME} || true
+
+                                echo "Pulling latest Docker image"
+                                docker pull ${imageTag}
+
+                                echo "Running new container"
+                                docker run -d --name ${DOCKER_CONTAINER_NAME} -p 8080:8080 \\
+                                    -e SPRING_DATASOURCE_URL='${DB_URL}' \\
+                                    -e SPRING_DATASOURCE_USERNAME='${DB_USERNAME}' \\
+                                    -e SPRING_DATASOURCE_PASSWORD='${DB_PASSWORD}' \\
+                                    ${imageTag}
+
+                                echo "Deployment complete!"
+EOF
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Clean Up Docker Images on Jenkins Server') {
+            steps {
+                echo 'Cleaning up unused Docker images on Jenkins server'
+                sh "docker image prune -f --all"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Deployment to EC2 succeeded!'
+            sh '''
+              docker container prune -f
+              docker image prune -af
+              docker volume prune -f
+              docker builder prune -af
+            '''
+            sh """
+                curl -H "Content-Type: application/json" \
+                     -X POST \
+                     -d '{"content": "✅ Jenkins 빌드 #${BUILD_NUMBER} 성공!"}' \
+                     'https://discord.com/api/webhooks/1354406116846473236/S_V-Egi2unUbwyoAKTkfG6cnsJoLE0kmkPLskJUtXcRV2GCXVaQlZsdGGnKj6odipMse'
+            """
+        }
+
+        failure {
+            echo '❌ Deployment failed! Attempting rollback...'
+
+            withCredentials([
+                string(credentialsId: 'RDS_URL', variable: 'DB_URL'),
+                string(credentialsId: 'RDS_USERNAME', variable: 'DB_USERNAME'),
+                string(credentialsId: 'RDS_PASSWORD', variable: 'DB_PASSWORD')
+            ]) {
+                sshagent(credentials: ["${EC2_SSH_CREDENTIALS_ID}"]) {
+                    script {
+                        def previousBuildNumber = currentBuild.number.toInteger() - 1
+                        def previousImageTag = "${AWS_ECR_URI}/${AWS_ECR_IMAGE_NAME}:${previousBuildNumber}"
+
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+                            echo "⚠️ Rolling back to previous image: ${previousImageTag}"
+                            docker stop ${DOCKER_CONTAINER_NAME} || true
+                            docker rm ${DOCKER_CONTAINER_NAME} || true
+                            docker pull ${previousImageTag}
+                            docker run -d --name ${DOCKER_CONTAINER_NAME} -p 8080:8080 \
+                                -e SPRING_DATASOURCE_URL='${DB_URL}' \
+                                -e SPRING_DATASOURCE_USERNAME='${DB_USERNAME}' \
+                                -e SPRING_DATASOURCE_PASSWORD='${DB_PASSWORD}' \
+                                ${previousImageTag}
+                        '''
+                    }
+                }
+            }
+
+            sh """
+                curl -H "Content-Type: application/json" \
+                     -X POST \
+                     -d '{"content": "❌ Jenkins 빌드 #${BUILD_NUMBER} 실패... 롤백 시도 완료됨."}' \
+                     'https://discord.com/api/webhooks/1354406116846473236/S_V-Egi2unUbwyoAKTkfG6cnsJoLE0kmkPLskJUtXcRV2GCXVaQlZsdGGnKj6odipMse'
+            """
+        }
+    }
+}
