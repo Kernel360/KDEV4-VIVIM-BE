@@ -2,11 +2,7 @@ package com.welcommu.moduleservice.projectpost.dto;
 
 
 import com.welcommu.moduledomain.projectpost.entity.ProjectPost;
-import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
