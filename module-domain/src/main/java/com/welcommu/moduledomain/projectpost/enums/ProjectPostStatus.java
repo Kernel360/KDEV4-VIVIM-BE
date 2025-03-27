@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.projectpost;
+package com.welcommu.moduledomain.projectpost.enums;
 
 public enum ProjectPostStatus {
     NORMAL,
