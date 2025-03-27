@@ -36,8 +36,7 @@ public class User {
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
 
-
-    // Company와의 연관 관계를 나타내는 필드
+    // Company 와의 연관 관계를 나타내는 필드
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;

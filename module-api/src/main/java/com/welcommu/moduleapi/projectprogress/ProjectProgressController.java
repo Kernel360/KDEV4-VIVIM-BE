@@ -3,7 +3,7 @@ package com.welcommu.moduleapi.projectprogress;
 import com.welcommu.dto.ApiResponse;
 import com.welcommu.moduledomain.user.CustomUserDetails;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
-import com.welcommu.moduleservice.projectProgess.dto.ProjectProgressRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ public class ProjectProgressController {
     public ResponseEntity<ApiResponse> createProjectProgress(
         @AuthenticationPrincipal CustomUserDetails userDetails,
         @PathVariable Long projectId,
-        @RequestBody ProjectProgressRequest request
+        @RequestBody ProgressCreateRequest request
     ) {
 
         progressService.create(userDetails.getUser(), projectId, request);
