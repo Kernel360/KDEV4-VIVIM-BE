@@ -15,7 +15,7 @@ public class ProgressCreateRequest {
     public ProjectProgress toEntity(User user, Project project) {
         return ProjectProgress.builder()
             .name(this.name)
-            .creator(user)
+            .user(user)
             .project(project)
             .build();
     }
