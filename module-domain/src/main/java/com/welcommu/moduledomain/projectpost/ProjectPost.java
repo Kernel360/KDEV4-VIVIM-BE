@@ -27,10 +27,10 @@ public class ProjectPost {
     @Column(name = "project_post_status")
     private ProjectPostStatus projectPostStatus;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "modified_at", insertable = false, updatable = false)
+    @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
     @Column(name = "deleted_at")

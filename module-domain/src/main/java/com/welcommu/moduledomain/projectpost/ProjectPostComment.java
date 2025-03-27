@@ -20,7 +20,7 @@ public class ProjectPostComment {
     @Column(length = 200)
     private String comment;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at")
