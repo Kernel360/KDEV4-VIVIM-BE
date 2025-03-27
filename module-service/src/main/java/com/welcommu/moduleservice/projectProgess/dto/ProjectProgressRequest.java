@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.projectProgess.dto;
+package com.welcommu.moduleservice.projectProgess.dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;

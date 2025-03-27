@@ -1,9 +1,9 @@
-package com.welcommu.moduledomain.projectProgess;
+package com.welcommu.moduleservice.projectProgess;
 
 import com.welcommu.exception.CustomErrorCode;
 import com.welcommu.exception.CustomException;
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.projectProgess.dto.ProjectProgressRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProjectProgressRequest;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import lombok.RequiredArgsConstructor;

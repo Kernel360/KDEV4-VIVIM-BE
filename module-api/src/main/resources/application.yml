@@ -3,6 +3,9 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
+#    url: jdbc:mysql://vivim-dev.cpskewgac35o.ap-northeast-2.rds.amazonaws.com:3306/vivim?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+#    username: admin
+#    password: zjsjf360
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
