@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class ProjectProgressRequest {
+public class ProgressCreateRequest {
 
     @NotNull
     private String name;

@@ -7,7 +7,7 @@ import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
-import com.welcommu.moduleservice.projectProgess.dto.ProjectProgressRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class ProjectProgressService {
     public void create(
         User creator,
         Long projectId,
-        ProjectProgressRequest request
+        ProgressCreateRequest request
     ) {
 
         Project project = findProject(projectId);
@@ -38,6 +38,6 @@ public class ProjectProgressService {
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
     }
     private float findBiggestPosition(Long projectId) {
-        return progressRepository.findMaxOrderByProjectId(projectId);  // 프로젝트에 단계가 없다면 기본값 0
+        return progressRepository.findMaxPositionByProjectId(projectId);  // 프로젝트에 단계가 없다면 기본값 0
     }
 }
