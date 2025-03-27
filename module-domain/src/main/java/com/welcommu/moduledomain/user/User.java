@@ -6,7 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity(name="users")
+@Entity
 @Getter
 @Setter
 @ToString
