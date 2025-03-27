@@ -4,5 +4,5 @@ public enum ProjectUserManageRole {
     CLIENT_USER,
     CLIENT_MANAGER,
     DEVELOPER_USER,
-    DEVELOPER_MANGER
+    DEVELOPER_MANAGER
 }
