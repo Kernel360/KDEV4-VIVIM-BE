@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Table(name = "project_post_comments")
 @Getter
+@Setter
 @Builder
 @Entity
 @NoArgsConstructor
@@ -39,7 +40,7 @@ public class ProjectPostComment {
     private Long creatorId;
 
     @Column(name = "project_post_id", nullable = false)
-    private Long projectId;
+    private Long projectPostId;
 
     @Column(name = "parent_id")
     private Long parentId;

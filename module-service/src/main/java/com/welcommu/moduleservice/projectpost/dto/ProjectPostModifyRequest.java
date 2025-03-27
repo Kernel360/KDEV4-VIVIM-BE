@@ -1,17 +1,14 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
-
 import com.welcommu.moduledomain.projectpost.entity.ProjectPost;
 import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostModifyRequest {
@@ -19,18 +16,11 @@ public class ProjectPostModifyRequest {
     private String content;
     private ProjectPostStatus projectPostStatus;
 
-    public ProjectPost toEntity(ProjectPost originalPost, ProjectPostModifyRequest request) {
-        return originalPost.builder()
-                .id(originalPost.getId())
-                .title(request.getTitle())
-                .content(request.getContent())
-                .projectPostStatus(request.getProjectPostStatus())
-                .creatorId(originalPost.getCreatorId())
-                .createdAt(originalPost.getCreatedAt())
-                .modifiedAt(LocalDateTime.now())
-                .modifierId(1L)//1L는 테스트 용입니다.
-                .writerIp(originalPost.getWriterIp())
-                .projectId(originalPost.getProjectId())
-                .build();
+    public void updateProjectPost(ProjectPost originalPost, ProjectPostModifyRequest request) {
+        originalPost.setTitle(request.getTitle());
+        originalPost.setContent(request.getContent());
+        originalPost.setProjectPostStatus(request.getProjectPostStatus());
+        originalPost.setModifiedAt(LocalDateTime.now());
+        originalPost.setModifierId(1L);//테스트용
     }
 }

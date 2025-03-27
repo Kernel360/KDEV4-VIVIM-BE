@@ -11,26 +11,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ProjectPostDeleteRequest {
 
-    public ProjectPost deleteTo(ProjectPost originalPost) {
-        return originalPost.builder()
-                .id(originalPost.getId())
-                .title(originalPost.getTitle())
-                .content(originalPost.getContent())
-                .projectPostStatus(originalPost.getProjectPostStatus())
-                .creatorId(originalPost.getCreatorId())
-                .createdAt(originalPost.getCreatedAt())
-                .modifiedAt(originalPost.getModifiedAt())
-                .deletedAt(LocalDateTime.now())
-                .isDeleted(true)
-                .modifierId(originalPost.getModifierId())
-                .deleterId(1L)//1L는 테스트 용입니다.
-                .writerIp(originalPost.getWriterIp())
-                .projectId(originalPost.getProjectId())
-                .build();
+    public void deleteTo(ProjectPost originalPost) {
+
+        originalPost.setDeleted(true);
+        originalPost.setDeletedAt(LocalDateTime.now());
+        originalPost.setDeleterId(1L);//테스트용
+
     }
 }

@@ -31,11 +31,10 @@ public class ProjectPostService {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
 
-        if (!existingPost.getProjectId().equals(projectId)) {
+        if (!existingPost.getProjectId().equals(projectId) || !existingPost.getId().equals(postId)) {
             throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
         }
-        ProjectPost updatedPost = request.toEntity(existingPost, request);
-        projectPostRepository.save(updatedPost);
+        request.updateProjectPost(existingPost, request);
     }
 
     @Transactional(readOnly = true)
@@ -50,10 +49,9 @@ public class ProjectPostService {
     public void deletePost(Long projectId, Long postId, ProjectPostDeleteRequest request) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-        if (!existingPost.getProjectId().equals(projectId)) {
+        if (!existingPost.getProjectId().equals(projectId) || !existingPost.getId().equals(postId)) {
             throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
         }
-        ProjectPost deleted=request.deleteTo(existingPost);
-        projectPostRepository.save(deleted);
+        request.deleteTo(existingPost);
     }
 }

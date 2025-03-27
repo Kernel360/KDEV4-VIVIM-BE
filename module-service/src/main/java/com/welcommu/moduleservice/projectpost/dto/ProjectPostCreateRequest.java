@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostCreateRequest {
-    private Long id;
     private String title;
     private String content;
     private ProjectPostStatus projectPostStatus;
