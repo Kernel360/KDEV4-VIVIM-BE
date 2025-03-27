@@ -10,6 +10,7 @@ import lombok.*;
 
 @Table(name="project_posts")
 @Getter
+@Setter
 @Builder
 @Entity
 @AllArgsConstructor
