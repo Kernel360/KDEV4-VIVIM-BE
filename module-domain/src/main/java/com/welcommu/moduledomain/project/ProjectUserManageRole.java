@@ -1,8 +1,8 @@
 package com.welcommu.moduledomain.project;
 
-public enum ProjectUserRole {
-    CLIENT,
+public enum ProjectUserManageRole {
+    CLIENT_USER,
     CLIENT_MANAGER,
-    DEVELOPER,
+    DEVELOPER_USER,
     DEVELOPER_MANGER
 }

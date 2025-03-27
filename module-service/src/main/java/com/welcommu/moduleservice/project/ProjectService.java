@@ -1,18 +1,16 @@
 package com.welcommu.moduleservice.project;
 
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.project.ProjectStatus;
 import com.welcommu.moduledomain.project.ProjectUser;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.user.UserRepository;
-import com.welcommu.moduleservice.project.Dto.*;
+import com.welcommu.moduleservice.project.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,45 +23,37 @@ public class ProjectService {
 
     @Transactional
     public void createProject(ProjectCreateRequest dto) {
-        User creator = userRepository.findById(dto.getCreatorId())
-                .orElseThrow(() -> new IllegalArgumentException("프로젝트 생성자 ID 없음"));
-
-        Project project = dto.toEntity(creator);
+        // 프로젝트 생성
+        Project project = dto.toEntity();
         projectRepository.save(project);
 
-        for (ProjectUserRequest userDto : dto.getUsers()) {
-            User user = userRepository.findById(userDto.getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
-
-            ProjectUser projectUser = userDto.toEntity(project, user);
-
-            projectUserRepository.save(projectUser);
-        }
+        // 참여자 등록
+        List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
+                userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId))
+        );
+        projectUserRepository.saveAll(participants);
     }
 
     @Transactional
     public void updateProject(Long projectId, ProjectUpdateRequest dto) {
-        Project original = projectRepository.findById(projectId)
+        // 1. 기존 프로젝트 조회
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
 
-        User modifier = userRepository.findById(dto.getModifierId())
-                .orElseThrow(() -> new IllegalArgumentException("수정자 없음"));
+        // 2. 직접 dto 업데이트
+        dto.updateProject(project);
 
-        // DTO를 통해 기존 객체 값 주입
-        Project updated = dto.toEntity(original, modifier);
-        projectRepository.save(updated);
+        // 3. 기존 참여자 제거
+        projectUserRepository.deleteByProject(project);
 
-        //트랜잭션 커밋 시점에 자동으로 변경 사항을 감지하고 DB에 반영하기에 repository.save 필요 없음
+        // 4. 참여자 재등록
+        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
+                userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))
+        );
 
-        // 참여자 추가 후 재등록
-        projectUserRepository.deleteByProject(original);
-
-        for (ProjectUserRequest userDto : dto.getUsers()) {
-            User user = userRepository.findById(userDto.getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음"));
-
-            projectUserRepository.save(userDto.toEntity(original, user));
-        }
+        projectUserRepository.saveAll(updatedUsers);
     }
 
     public List<ProjectSummary> readProjectsByUser(Long userId) {
@@ -73,26 +63,16 @@ public class ProjectService {
         List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
 
         return projectUsers.stream()
-                .filter(pu -> pu.getProject().getStatus() == ProjectStatus.ACTIVE) // ACTIVE인 상태의 프로젝트만 필터링
-                .map(pu -> {
-                    Project p = pu.getProject();
-                    return ProjectSummary.of(p, pu);
-                })
+                .filter(pu -> !pu.getProject().getIsDeleted()) // 삭제되지 않은 프로젝트만 필터링
+                .map(pu -> ProjectSummary.of(pu.getProject(), pu))
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteProject(Long projectId, ProjectDeleteRequest dto) {
-        Project original = projectRepository.findById(projectId)
+    public void deleteProject(Long projectId) {
+        Project deleted = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
 
-        User deleter = userRepository.findById(dto.getModifierId())
-                .orElseThrow(() -> new IllegalArgumentException("삭제자 없음"));
-
-        Project deleted = dto.deleteTo(original, deleter);
-        projectRepository.save(deleted);
-
-        //JPA는 @Transactional 범위 안에서 영속 상태(persistent state)인 엔티티의 필드가 변경되면
-        //트랜잭션 커밋 시점에 자동으로 변경 사항을 감지하고 DB에 반영하기에 repository.save 필요 없음
+        ProjectDeleteRequest.deleteProject(deleted);
     }
 }
