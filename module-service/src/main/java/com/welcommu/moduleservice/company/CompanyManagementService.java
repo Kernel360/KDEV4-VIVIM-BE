@@ -6,6 +6,7 @@ import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,14 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyManagementService {
 
     private final CompanyRepository companyRepository;
-
-    @Autowired
-    public CompanyManagementService(CompanyRepository companyRepository) {
-        this.companyRepository = companyRepository;
-    }
 
     // 회사 생성
     public CompanyResponse createCompany(CompanyRequest companyRequest) {

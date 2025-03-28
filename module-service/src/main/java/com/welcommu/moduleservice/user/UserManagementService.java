@@ -7,6 +7,7 @@ import com.welcommu.moduleservice.user.dto.UserResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,18 +16,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserManagementService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompanyRepository companyRepository;
-
-    @Autowired
-    public UserManagementService(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyRepository companyRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.companyRepository = companyRepository;
-    }
 
     // 사용자 등록
     @Transactional
