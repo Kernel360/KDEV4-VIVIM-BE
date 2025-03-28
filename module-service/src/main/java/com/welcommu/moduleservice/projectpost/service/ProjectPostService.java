@@ -33,7 +33,7 @@ public class ProjectPostService {
         if (!existingPost.getProjectId().equals(projectId) || !existingPost.getId().equals(postId)) {
             throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
         }
-        request.updateProjectPost(existingPost, request);
+        request.modifyProjectPost(existingPost, request);
     }
 
     @Transactional(readOnly = true)
