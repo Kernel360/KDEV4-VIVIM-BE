@@ -5,6 +5,7 @@ import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.CompanyManagementService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,15 +17,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/companies")
+@RequiredArgsConstructor
 @Slf4j
 public class CompanyController {
 
     private final CompanyManagementService companyManagementService;
-
-    @Autowired
-    public CompanyController(CompanyManagementService companyManagementService) {
-        this.companyManagementService = companyManagementService;
-    }
 
     // 회사 등록
     @PostMapping
@@ -48,7 +45,7 @@ public class CompanyController {
 
     // 전체 회사 조회
     @GetMapping
-    public List<Company> getAllCompanies() {
+    public List<Company> getCompanyList() {
         log.info("전체 회사 조회 API 호출됨.");
         return companyManagementService.getAllCompanies();
     }
