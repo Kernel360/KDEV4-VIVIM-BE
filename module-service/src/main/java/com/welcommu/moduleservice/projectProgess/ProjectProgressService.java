@@ -8,6 +8,8 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +46,13 @@ public class ProjectProgressService {
 
         ProjectProgress projectProgress = returnIfIsMatchedProject(projectId, progressId);
         progressRepository.delete(projectProgress);
+    }
+
+    public ProgressListResponse getProgressList(Long projectId) {
+        Project project = findProject(projectId);
+        List<ProjectProgress> progressList = progressRepository.findByProject(project);
+
+        return ProgressListResponse.of(progressList);
     }
 
     private ProjectProgress returnIfIsMatchedProject(Long projectId, Long progressId) {

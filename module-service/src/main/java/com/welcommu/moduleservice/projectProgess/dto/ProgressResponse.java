@@ -2,8 +2,10 @@ package com.welcommu.moduleservice.projectProgess.dto;
 
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 @AllArgsConstructor
 public class ProgressResponse {

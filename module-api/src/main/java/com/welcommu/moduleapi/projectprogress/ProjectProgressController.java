@@ -4,6 +4,7 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.user.CustomUserDetails;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,5 +57,14 @@ public class ProjectProgressController {
     ) {
         progressService.deleteProgress(projectId, progressId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 삭제 성공"));
+    }
+
+    @GetMapping("/{projectId}/progress")
+    @Operation(summary = "프로젝트 단계 전체조회")
+    public ResponseEntity<ProgressListResponse> getProgressList(
+        @PathVariable Long projectId, @RequestBody ProgressListResponse request) {
+
+        ProgressListResponse progressList = progressService.getProgressList(projectId);
+        return ResponseEntity.ok(progressList);
     }
 }
