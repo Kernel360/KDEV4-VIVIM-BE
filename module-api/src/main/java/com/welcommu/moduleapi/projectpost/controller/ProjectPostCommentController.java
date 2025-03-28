@@ -19,7 +19,7 @@ public class ProjectPostCommentController {
     @PostMapping
     public ResponseEntity<ApiResponse> createComment(@PathVariable Long postId, @RequestBody ProjectPostCommentCreateRequest request){
         projectPostCommentService.createComment(postId,request);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "댓글 생성 완료"));
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "댓글 생성 완료"));
     }
 
     @PutMapping("/{commentId}")
