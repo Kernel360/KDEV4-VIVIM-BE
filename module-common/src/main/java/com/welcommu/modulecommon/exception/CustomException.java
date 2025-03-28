@@ -1,4 +1,4 @@
-package com.welcommu.exception;
+package com.welcommu.modulecommon.exception;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

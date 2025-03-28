@@ -1,9 +1,11 @@
 package com.welcommu.moduleapi.user;
 
+import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.moduledomain.user.dto.UserRequest;
-import com.welcommu.moduledomain.user.dto.UserResponse;
+import com.welcommu.moduleservice.user.dto.UserRequest;
+import com.welcommu.moduleservice.user.dto.UserResponse;
 import com.welcommu.moduleservice.user.UserManagementService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -25,18 +28,20 @@ public class UserController {
 
     // 사용자 등록
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
-        System.out.println("Received user: " + userRequest); // 요청 받은 데이터 출력
+    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest userRequest) {
+        log.info("Received user: {}", userRequest); // 요청 받은 데이터 출력
 
         // 서비스에서 사용자 등록 처리 후 응답 받기
         UserResponse createdUserResponse = userManagementService.createUser(userRequest);
 
+        // ApiResponse로 상태 코드와 메시지만 포함하여 반환
+        ApiResponse apiResponse = new ApiResponse(
+                HttpStatus.CREATED.value(),   // 상태 코드 (201)
+                "User created successfully"   // 상태 메시지
+        );
+
         // 생성된 사용자 정보와 함께 HTTP 201 응답 반환
-        return new ResponseEntity<>(createdUserResponse, HttpStatus.CREATED);
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        System.out.println("Received user: " + user); // 요청 받은 데이터 출력
-        User createdUser = userManagementService.createUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
     // 전체 사용자 조회
@@ -68,14 +73,17 @@ public class UserController {
 
     // 사용자 수정
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest updatedUserRequest) {
         try {
-            User user = userManagementService.updateUser(id, updatedUser);
+            System.out.println("사용자 수정 요청 받음, id=" + id);
+            User user = userManagementService.updateUser(id, updatedUserRequest);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
+            System.out.println("사용자 수정 실패: " + e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
+
 
     // 사용자 삭제
     @DeleteMapping("/{id}")
