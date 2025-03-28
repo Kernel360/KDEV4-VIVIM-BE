@@ -1,4 +1,4 @@
-package com.welcommu.dto;
+package com.welcommu.modulecommon.dto;
 
 import lombok.Getter;
 
