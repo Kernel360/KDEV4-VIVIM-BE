@@ -24,16 +24,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50, nullable = true)
+    @Column(length = 50, nullable = false)
     private String name;
 
-    @Column(length = 100, nullable = true)
+    @Column(length = 100, nullable = false)
     private String password;
 
-    @Column(length = 100, nullable = true)
+    @Column(length = 100, nullable = false)
     private String email;
 
-    @Column(length = 20, nullable = true)
+    @Column(length = 20, nullable = false)
     private String phone;
     private LocalDateTime passwordModifiedAt;
     private LocalDateTime createdAt;

@@ -5,6 +5,7 @@ import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.CompanyManagementService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/companies")
+@Slf4j
 public class CompanyController {
 
     private final CompanyManagementService companyManagementService;
@@ -27,7 +29,7 @@ public class CompanyController {
     // 회사 등록
     @PostMapping
     public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
-        System.out.println("Received company: " + companyRequest); // 요청 받은 데이터 출력
+        log.info("Received company: {}", companyRequest);
 
         // 서비스에서 회사 등록 처리 후 응답 받기
         CompanyResponse createdCompanyResponse = companyManagementService.createCompany(companyRequest);
@@ -47,7 +49,7 @@ public class CompanyController {
     // 전체 회사 조회
     @GetMapping
     public List<Company> getAllCompanies() {
-        System.out.println("전체 회사 조회 API 호출됨.");
+        log.info("전체 회사 조회 API 호출됨.");
         return companyManagementService.getAllCompanies();
     }
 

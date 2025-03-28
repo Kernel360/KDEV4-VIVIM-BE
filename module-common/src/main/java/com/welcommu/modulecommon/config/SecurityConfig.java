@@ -39,12 +39,7 @@ public class SecurityConfig {
                             .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
 
                             // 로그인 API는 인증 필요
-                            .requestMatchers("/api/login").authenticated() // 로그인 API는 인증 필요
-
-                            .requestMatchers("/api/**").permitAll()
-
-                            // 그 외 API는 인증 없이 허용
-                            .requestMatchers("/api/public/**").permitAll()
+                            .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 필요
 
                             // 다른 모든 요청은 인증 필요
                             .anyRequest().authenticated();
