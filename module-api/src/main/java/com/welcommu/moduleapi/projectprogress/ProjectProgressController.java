@@ -10,8 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -30,8 +32,28 @@ public class ProjectProgressController {
         @RequestBody ProgressCreateRequest request
     ) {
 
-        progressService.create(userDetails.getUser(), projectId, request);
+        progressService.createProgress(userDetails.getUser(), projectId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(),"프로젝트 단계 생성을 성공했습니다."));
     }
 
+    @PutMapping("/{projectId}/progress/{progressId}")
+    @Operation(summary = "프로젝트 단계 수정")
+    public ResponseEntity<ApiResponse> updateProgress(
+        @PathVariable Long projectId,
+        @PathVariable Long progressId,
+        @RequestBody ProgressCreateRequest request
+    ) {
+        progressService.updateProgress(projectId, progressId, request);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
+    }
+
+    @DeleteMapping("/{projectId}/progress/{progressId}")
+    @Operation(summary = "프로젝트 단계 삭제")
+    public ResponseEntity<ApiResponse> deleteProgress(
+        @PathVariable Long projectId,
+        @PathVariable Long progressId
+    ) {
+        progressService.deleteProgress(projectId, progressId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 삭제 성공"));
+    }
 }
