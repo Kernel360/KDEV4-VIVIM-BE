@@ -2,7 +2,7 @@ package com.welcommu.modulerepository.project;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectUser;
-import com.welcommu.moduledomain.project.ProjectUserRole;
+import com.welcommu.moduledomain.project.ProjectUserManageRole;
 import com.welcommu.moduledomain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -13,7 +13,7 @@ import java.util.List;
 public interface ProjectUserRepository extends JpaRepository<ProjectUser, Long> {
 
     // 1. 프로젝트 + 역할 기준으로 참여자 조회
-    List<ProjectUser> findByProjectAndProjectUserRole(Project project, ProjectUserRole role);
+    List<ProjectUser> findByProjectAndProjectUserManageRole(Project project, ProjectUserManageRole role);
 
     // 2. 프로젝트 기준으로 전체 참여자 조회
     List<ProjectUser> findByProject(Project project);
