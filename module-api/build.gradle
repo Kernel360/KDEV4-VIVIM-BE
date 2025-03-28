@@ -28,19 +28,23 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j:8.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
-    implementation 'org.springframework.boot:spring-boot-starter-security' //@AuthenticationPrincipal
 
+    // Swagger/OpenAPI dependencies
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-common:2.7.0'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     // Hibernate Validator 의존성 추가
-    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'  // 최신 버전으로 사용하세요.
+    implementation 'org.hibernate.validator:hibernate-validator'
     // Jakarta Bean Validation API 의존성 추가
-    implementation 'jakarta.validation:jakarta.validation-api:2.0.2'  // 최신 버전으로 사용하세요.
-
-    // Hibernate Validator 의존성 추가
-    implementation 'org.hibernate:hibernate-validator:6.2.0.Final'  // 최신 버전으로 사용하세요.
-    // Jakarta Bean Validation API 의존성 추가
-    implementation 'jakarta.validation:jakarta.validation-api:2.0.2'  // 최신 버전으로 사용하세요.
-
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 
     implementation project(':module-common')
     implementation project(':module-domain')

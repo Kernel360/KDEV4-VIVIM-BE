@@ -1,13 +1,13 @@
 package com.welcommu.moduleservice.user;
 
+import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.moduledomain.user.dto.UserRequest;
-import com.welcommu.moduledomain.user.dto.UserResponse;
+import com.welcommu.moduleservice.user.dto.UserRequest;
+import com.welcommu.moduleservice.user.dto.UserResponse;
+import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,20 +19,24 @@ public class UserManagementService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CompanyRepository companyRepository;
 
     @Autowired
-    public UserManagementService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserManagementService(UserRepository userRepository, PasswordEncoder passwordEncoder, CompanyRepository companyRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.companyRepository = companyRepository;
     }
 
     // 사용자 등록
     @Transactional
     public UserResponse createUser(UserRequest userRequest) {
         // UserRequest로부터 User 엔티티 생성
-        User user = new User();
-        user.setName(userRequest.getName());
-        user.setEmail(userRequest.getEmail());
+
+        User user = User.builder()
+                .name(userRequest.getName())
+                .email(userRequest.getEmail())
+                .build();
 
         // 비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
@@ -40,12 +44,18 @@ public class UserManagementService {
         // 암호화된 비밀번호를 User 객체에 설정
         user.setPassword(encryptedPassword);
 
+        // companyId가 전달되었다면, 해당 company를 조회하여 설정
+        Company company = companyRepository.findById(userRequest.getCompanyId())
+                .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
+
+        user.setCompany(company);
+
         // 사용자 저장
         User savedUser = userRepository.saveAndFlush(user);
 
         // UserResponse 생성 후 반환
-        UserResponse userResponse = new UserResponse(savedUser.getId(), savedUser.getName(), savedUser.getEmail());
-        return userResponse;
+        return UserResponse.from(savedUser);
+
     }
 
 
@@ -70,16 +80,22 @@ public class UserManagementService {
     }
 
     // 사용자 정보 수정
-    public User updateUser(Long id, User updatedUser) {
+    public User updateUser(Long id, UserRequest updatedUserRequest) {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            user.setName(updatedUser.getName());
-            user.setEmail(updatedUser.getEmail());
-            user.setPhone(updatedUser.getPhone());
-            user.setModifiedAt(updatedUser.getModifiedAt());
+            System.out.println("기존 사용자 데이터: " + user);  // 기존 데이터 확인
+
+            // 기존 객체를 수정
+            user.setName(updatedUserRequest.getName());  // 수정된 필드
+            user.setEmail(updatedUserRequest.getEmail());
+            user.setPhone(updatedUserRequest.getPhone());
+            user.setModifiedAt(updatedUserRequest.getModifiedAt());  // 수정된 날짜
+
+            // 수정된 객체 저장
             return userRepository.save(user);
         } else {
+            System.out.println("사용자 존재하지 않음: id=" + id);  // 잘못된 id 확인 가능
             throw new RuntimeException("User not found with id " + id);
         }
     }
