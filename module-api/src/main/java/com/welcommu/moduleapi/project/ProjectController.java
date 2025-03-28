@@ -40,9 +40,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ApiResponse> createProject(@RequestBody ProjectCreateRequest dto) {
         projectService.createProject(dto);
-        return ResponseEntity
-                .ok()
-                .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
     // 프로젝트 수정
