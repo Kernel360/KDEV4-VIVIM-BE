@@ -11,7 +11,7 @@ import lombok.Getter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class ProjectUserCreate {
+public class ProjectUserCreateRequest {
     private final Long userId;
     private final ProjectUserManageRole manageRole;
 
