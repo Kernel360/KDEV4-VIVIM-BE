@@ -1,10 +1,12 @@
-package com.welcommu.moduledomain.user.dto;
+package com.welcommu.moduleservice.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,4 +20,10 @@ public class UserRequest {
     private String password;
 
     private String name;
+
+    private String phone;
+
+    private Long companyId;
+
+    private LocalDateTime modifiedAt;
 }
