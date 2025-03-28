@@ -37,10 +37,14 @@ public class SecurityConfig {
 
                             .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
 
+                            // Swagger 테스트 시 사용. 배포할 때 삭제
+//                            .requestMatchers("/api/**").permitAll()
+
                             .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 필요
 
                             // 다른 모든 요청은 인증 필요
                             .anyRequest().authenticated();
+//                            .anyRequest().permitAll(); // 나머지 모든 요청도 인증 없이 허용
                 })
                 .formLogin(Customizer.withDefaults()); // 기본 로그인 폼 사용
         System.out.println("🔥 Security 설정 적용됨!");
