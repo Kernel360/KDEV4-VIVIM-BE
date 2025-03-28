@@ -1,6 +1,6 @@
 package com.welcommu.moduleapi.projectpost.controller;
 
-import com.welcommu.dto.ApiResponse;
+import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;

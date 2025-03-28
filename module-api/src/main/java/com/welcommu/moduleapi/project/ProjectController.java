@@ -1,6 +1,6 @@
 package com.welcommu.moduleapi.project;
 
-import com.welcommu.dto.ApiResponse;
+import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.project.*;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
