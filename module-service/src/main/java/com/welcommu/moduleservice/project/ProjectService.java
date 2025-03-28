@@ -56,7 +56,7 @@ public class ProjectService {
         projectUserRepository.saveAll(updatedUsers);
     }
 
-    public List<ProjectSummary> readProjectsByUser(Long userId) {
+    public List<ProjectSummaryResponse> readProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
@@ -64,7 +64,7 @@ public class ProjectService {
 
         return projectUsers.stream()
                 .filter(pu -> !pu.getProject().getIsDeleted()) // 삭제되지 않은 프로젝트만 필터링
-                .map(pu -> ProjectSummary.of(pu.getProject(), pu))
+                .map(pu -> ProjectSummaryResponse.of(pu.getProject(), pu))
                 .collect(Collectors.toList());
     }
 

@@ -1,25 +1,15 @@
 package com.welcommu.moduleservice.project;
 
-import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.project.*;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.user.UserRepository;
-import com.welcommu.moduleservice.project.dto.ProjectSummary;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
