@@ -1,7 +1,7 @@
 package com.welcommu.moduleservice.projectProgess;
 
-import com.welcommu.exception.CustomErrorCode;
-import com.welcommu.exception.CustomException;
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
