@@ -6,15 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostCommentModifyRequest {
     private String comment;
 
-    public void updateProjectPostComment(ProjectPostComment originalComment, ProjectPostCommentModifyRequest request) {
+    public void modifyProjectPostComment(ProjectPostComment originalComment, ProjectPostCommentModifyRequest request) {
         originalComment.setComment(request.comment);
 
     }

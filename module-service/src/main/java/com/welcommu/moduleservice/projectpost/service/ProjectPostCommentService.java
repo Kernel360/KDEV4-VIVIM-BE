@@ -31,7 +31,7 @@ public class ProjectPostCommentService {
         if (!existingComment.getProjectPostId().equals(postId) || existingComment.getId().equals(commentId)) {
             throw new IllegalArgumentException(" 커멘트 ID가 게시글과 일치하지 않습니다.");
         }
-        request.updateProjectPostComment(existingComment, request);
+        request.modifyProjectPostComment(existingComment, request);
     }
 
     @Transactional(readOnly = true)

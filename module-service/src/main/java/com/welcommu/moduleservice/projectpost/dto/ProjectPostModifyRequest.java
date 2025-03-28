@@ -16,7 +16,7 @@ public class ProjectPostModifyRequest {
     private String content;
     private ProjectPostStatus projectPostStatus;
 
-    public void updateProjectPost(ProjectPost originalPost, ProjectPostModifyRequest request) {
+    public void modifyProjectPost(ProjectPost originalPost, ProjectPostModifyRequest request) {
         originalPost.setTitle(request.getTitle());
         originalPost.setContent(request.getContent());
         originalPost.setProjectPostStatus(request.getProjectPostStatus());
