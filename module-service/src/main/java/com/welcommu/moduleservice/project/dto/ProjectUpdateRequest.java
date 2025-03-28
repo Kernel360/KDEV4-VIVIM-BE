@@ -23,10 +23,10 @@ public class ProjectUpdateRequest {
     private LocalDate endDate;
 
     // 참여자 정보
-    private List<UserRoleDto> clientManagers;
-    private List<UserRoleDto> clientUsers;
-    private List<UserRoleDto> devManagers;
-    private List<UserRoleDto> devUsers;
+    private List<ProjectUserRoleRequest> clientManagers;
+    private List<ProjectUserRoleRequest> clientUsers;
+    private List<ProjectUserRoleRequest> devManagers;
+    private List<ProjectUserRoleRequest> devUsers;
 
 
     public void updateProject(Project project) {
@@ -38,38 +38,22 @@ public class ProjectUpdateRequest {
     }
 
     // 참여자 변환
-    public List<com.welcommu.moduledomain.project.ProjectUser> toProjectUsers(Project project, Function<Long, User> userResolver) {
-        List<com.welcommu.moduledomain.project.ProjectUser> result = new java.util.ArrayList<>();
+    public List<ProjectUser> toProjectUsers(Project project, Function<Long, User> userResolver) {
+        List<ProjectUser> result = new java.util.ArrayList<>();
 
-        for (UserRoleDto dto : clientManagers) {
+        for (ProjectUserRoleRequest dto : clientManagers) {
             result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
         }
-        for (UserRoleDto dto : clientUsers) {
+        for (ProjectUserRoleRequest dto : clientUsers) {
             result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
         }
-        for (UserRoleDto dto : devManagers) {
+        for (ProjectUserRoleRequest dto : devManagers) {
             result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
         }
-        for (UserRoleDto dto : devUsers) {
+        for (ProjectUserRoleRequest dto : devUsers) {
             result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
         }
 
         return result;
-    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor
-    public static class UserRoleDto {
-        private Long userId;
-        private com.welcommu.moduledomain.project.ProjectUserManageRole role;
-
-        public ProjectUser toEntity(Project project, User user) {
-            return ProjectUser.builder()
-                    .project(project)
-                    .user(user)
-                    .projectUserManageRole(role)
-                    .build();
-        }
     }
 }
