@@ -48,9 +48,9 @@ public class CompanyController {
 
     // 전체 회사 조회
     @GetMapping
-    public List<Company> getAllCompanies() {
+    public List<Company> getAllCompany() {
         log.info("전체 회사 조회 API 호출됨.");
-        return companyManagementService.getAllCompanies();
+        return companyManagementService.getAllCompany();
     }
 
     // ID로 회사 조회

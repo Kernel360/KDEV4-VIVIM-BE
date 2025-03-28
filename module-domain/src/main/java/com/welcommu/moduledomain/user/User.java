@@ -43,7 +43,7 @@ public class User {
 
     // Company와의 연관 관계를 나타내는 필드
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = true)
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
 }
