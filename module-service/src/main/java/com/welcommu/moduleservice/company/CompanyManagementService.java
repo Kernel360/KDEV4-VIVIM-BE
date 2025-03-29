@@ -42,8 +42,6 @@ public class CompanyManagementService {
                 .build();
     }
 
-
-
     // 전체 회사 조회
     public List<Company> getAllCompany() {
         List<Company> companies = companyRepository.findAll();
@@ -64,7 +62,7 @@ public class CompanyManagementService {
 
         // Employee 엔티티를 UserResponse DTO로 변환하여 반환
         return employees.stream()
-                .map(employee -> new UserResponse(employee.getId(), employee.getEmail(), employee.getName()))
+                .map(employee -> new UserResponse(employee.getId(), employee.getEmail(), employee.getName(), employee.getCompany() != null ? employee.getCompany().getName() : null))
                 .collect(Collectors.toList());
     }
 
