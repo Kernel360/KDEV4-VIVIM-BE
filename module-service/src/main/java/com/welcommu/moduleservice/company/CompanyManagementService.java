@@ -10,6 +10,7 @@ import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CompanyManagementService {
 
     private final CompanyRepository companyRepository;
@@ -42,13 +44,11 @@ public class CompanyManagementService {
                 .build();
     }
 
-
-
     // 전체 회사 조회
     public List<Company> getAllCompany() {
         List<Company> companies = companyRepository.findAll();
         // 디버깅을 위한 로그
-        System.out.println("조회된 회사 수: " + companies.size());
+        log.info("조회된 회사 수: " + companies.size());
         return companies;
     }
 
@@ -64,7 +64,7 @@ public class CompanyManagementService {
 
         // Employee 엔티티를 UserResponse DTO로 변환하여 반환
         return employees.stream()
-                .map(employee -> new UserResponse(employee.getId(), employee.getEmail(), employee.getName()))
+                .map(employee -> new UserResponse(employee.getId(), employee.getEmail(), employee.getName(), employee.getCompany() != null ? employee.getCompany().getName() : null))
                 .collect(Collectors.toList());
     }
 
