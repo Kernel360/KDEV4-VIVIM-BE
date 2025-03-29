@@ -1,10 +1,10 @@
 package com.welcommu.moduleapi.project;
 
-import com.welcommu.dto.ApiResponse;
+import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.project.*;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
-import com.welcommu.moduleservice.project.dto.ProjectSummary;
+import com.welcommu.moduleservice.project.dto.ProjectSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,9 +40,7 @@ public class ProjectController {
     @PostMapping
     public ResponseEntity<ApiResponse> createProject(@RequestBody ProjectCreateRequest dto) {
         projectService.createProject(dto);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
     // 프로젝트 수정
@@ -55,8 +53,8 @@ public class ProjectController {
 
     // 특정 유저 별 프로젝트 조회
     @GetMapping()
-    public ResponseEntity<List<ProjectSummary>> readProjects(@RequestBody Long userId) {
-       List<ProjectSummary> projects = projectService.readProjectsByUser(userId);
+    public ResponseEntity<List<ProjectSummaryResponse>> readProjects(@RequestBody Long userId) {
+       List<ProjectSummaryResponse> projects = projectService.readProjectsByUser(userId);
        return ResponseEntity.ok(projects);
     }
 
