@@ -1,6 +1,7 @@
 package com.welcommu.moduledomain.company;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,10 +20,11 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private String name;
     private String businessNumber;
     private String address;
-    private String phoneNumber;
+    private String phone;
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -32,6 +34,7 @@ public class Company {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
+
 
     private String coOwner;
 

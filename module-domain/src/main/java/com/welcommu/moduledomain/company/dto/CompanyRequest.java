@@ -9,6 +9,7 @@ import lombok.Setter;
 public class CompanyRequest {
     private String name;
     private String address;
-    private String phoneNumber;
+    private String phone;
     private String email;
+    private String businessNumber;
 }

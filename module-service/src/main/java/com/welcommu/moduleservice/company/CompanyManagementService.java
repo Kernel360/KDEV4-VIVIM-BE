@@ -32,12 +32,12 @@ public class CompanyManagementService {
                 .id(savedCompany.getId())
                 .name(savedCompany.getName())
                 .address(savedCompany.getAddress())
-                .phoneNumber(savedCompany.getPhoneNumber())
+                .phone(savedCompany.getPhone())
                 .email(savedCompany.getEmail())
+                .coOwner(savedCompany.getCoOwner())
+
                 .build();
     }
-
-
 
     // 전체 회사 조회
     public List<Company> getAllCompany() {
@@ -61,8 +61,9 @@ public class CompanyManagementService {
         // 수정된 회사 정보로 업데이트
         existingCompany.setName(updatedCompany.getName());
         existingCompany.setAddress(updatedCompany.getAddress());
-        existingCompany.setPhoneNumber(updatedCompany.getPhoneNumber());
+        existingCompany.setPhone(updatedCompany.getPhone());
         existingCompany.setEmail(updatedCompany.getEmail());
+        existingCompany.setCoOwner(updatedCompany.getCoOwner());
 
         // 회사 저장
         return companyRepository.save(existingCompany);
