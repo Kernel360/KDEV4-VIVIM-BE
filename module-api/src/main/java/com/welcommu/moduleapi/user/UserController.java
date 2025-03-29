@@ -52,9 +52,16 @@ public class UserController {
 
     // ID로 사용자 조회
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long id) {
         Optional<User> user = userManagementService.getUserById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        // 사용자 존재 시 200 OK 응답 반환
+        if (user.isPresent()) {
+            return ResponseEntity.ok(new ApiResponse(200, "User found", user.get()));
+        } else {
+            // 사용자 존재하지 않으면 404 응답과 함께 메시지 반환
+            ApiResponse apiResponse = new ApiResponse(404, "User not found with id: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
+        }
     }
 
     // 이메일로 사용자 조회
