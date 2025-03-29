@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -43,18 +44,21 @@ public class CompanyController {
 
     // 전체 회사 조회
     @GetMapping
-    public List<Company> getCompanyList() {
+    public List<CompanyResponse> getCompanyList() {
         log.info("전체 회사 조회 API 호출됨.");
-        return companyManagementService.getAllCompany();
+        List<Company> companies = companyManagementService.getAllCompany();
+        return companies.stream()
+                .map(CompanyResponse::from) // Company -> CompanyResponse 변환
+                .collect(Collectors.toList());
     }
 
     // ID로 회사 조회
     @GetMapping("/{id}")
-    public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
+    public ResponseEntity<CompanyResponse> getCompanyById(@PathVariable Long id) {
         Optional<Company> company = companyManagementService.getCompanyById(id);
-        return company.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return company.map(c -> ResponseEntity.ok(CompanyResponse.from(c))) // Company -> CompanyResponse 변환
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
 
     // 회사별 직원 목록 조회
     @GetMapping("/{companyId}/employees")

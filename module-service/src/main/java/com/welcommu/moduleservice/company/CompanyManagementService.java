@@ -43,8 +43,9 @@ public class CompanyManagementService {
     }
 
 
+
     // 전체 회사 조회
-    public List<Company> getAllCompanies() {
+    public List<Company> getAllCompany() {
         List<Company> companies = companyRepository.findAll();
         // 디버깅을 위한 로그
         System.out.println("조회된 회사 수: " + companies.size());
