@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -55,8 +56,12 @@ public class UserManagementService {
 
 
     // 사용자 전체 목록 조회
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        // 모든 User를 조회한 후, UserResponse DTO로 변환
+        List<User> users = userRepository.findAll();  // 모든 User 조회
+        return users.stream()
+                .map(UserResponse::from)  // User -> UserResponse 변환
+                .collect(Collectors.toList());
     }
 
     // ID로 사용자 조회

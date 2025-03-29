@@ -41,12 +41,15 @@ public class UserController {
         );
 
         // 생성된 사용자 정보와 함께 HTTP 201 응답 반환
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)  // 상태 코드 201을 명시적으로 설정
+                .body(apiResponse);  // 응답 본문에 ApiResponse 객체 포함
     }
+
 
     // 전체 사용자 조회
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userManagementService.getAllUsers();
     }
 
