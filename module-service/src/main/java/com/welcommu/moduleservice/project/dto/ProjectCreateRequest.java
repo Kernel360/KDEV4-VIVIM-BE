@@ -25,16 +25,11 @@ public class ProjectCreateRequest {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private List<UserIdDto> clientManagers;
-    private List<UserIdDto> clientUsers;
-    private List<UserIdDto> devManagers;
-    private List<UserIdDto> devUsers;
+    private List<ProjectUserListCreate> clientManagers;
+    private List<ProjectUserListCreate> clientUsers;
+    private List<ProjectUserListCreate> devManagers;
+    private List<ProjectUserListCreate> devUsers;
 
-    @Getter
-    @AllArgsConstructor
-    public static class UserIdDto {
-        private Long userId;
-    }
 
     public Project toEntity() {
         return Project.builder()
@@ -51,28 +46,28 @@ public class ProjectCreateRequest {
     public List<ProjectUser> toProjectUsers(Project project, Function<Long, User> userResolver) {
         List<ProjectUser> result = new ArrayList<>();
 
-        for (UserIdDto dto : clientManagers) {
+        for (ProjectUserListCreate dto : clientManagers) {
             result.add(ProjectUser.builder()
                     .project(project)
                     .user(userResolver.apply(dto.getUserId()))
                     .projectUserManageRole(ProjectUserManageRole.CLIENT_MANAGER)
                     .build());
         }
-        for (UserIdDto dto : clientUsers) {
+        for (ProjectUserListCreate dto : clientUsers) {
             result.add(ProjectUser.builder()
                     .project(project)
                     .user(userResolver.apply(dto.getUserId()))
                     .projectUserManageRole(ProjectUserManageRole.CLIENT_USER)
                     .build());
         }
-        for (UserIdDto dto : devManagers) {
+        for (ProjectUserListCreate dto : devManagers) {
             result.add(ProjectUser.builder()
                     .project(project)
                     .user(userResolver.apply(dto.getUserId()))
                     .projectUserManageRole(ProjectUserManageRole.DEVELOPER_MANAGER)
                     .build());
         }
-        for (UserIdDto dto : devUsers) {
+        for (ProjectUserListCreate dto : devUsers) {
             result.add(ProjectUser.builder()
                     .project(project)
                     .user(userResolver.apply(dto.getUserId()))

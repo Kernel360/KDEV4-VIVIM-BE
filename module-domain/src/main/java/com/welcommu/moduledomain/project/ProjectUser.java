@@ -23,10 +23,10 @@ public class ProjectUser {
     private ProjectUserManageRole projectUserManageRole;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false) // 외래키 컬럼명 지정
+    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
     private Project project;
 }
