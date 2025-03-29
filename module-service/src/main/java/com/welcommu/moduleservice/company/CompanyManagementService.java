@@ -3,21 +3,25 @@ package com.welcommu.moduleservice.company;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduledomain.user.User;
+import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
+import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CompanyManagementService {
 
     private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
 
     // 회사 생성
     public CompanyResponse createCompany(CompanyRequest companyRequest) {
@@ -50,6 +54,17 @@ public class CompanyManagementService {
     // ID로 회사 조회
     public Optional<Company> getCompanyById(Long id) {
         return companyRepository.findById(id);
+    }
+
+    // 회사별 직원 목록 조회
+    public List<UserResponse> getEmployeesByCompany(Long companyId) {
+        // 회사 ID에 해당하는 직원 목록 조회
+        List<User> employees = userRepository.findByCompanyId(companyId);
+
+        // Employee 엔티티를 UserResponse DTO로 변환하여 반환
+        return employees.stream()
+                .map(employee -> new UserResponse(employee.getId(), employee.getEmail(), employee.getName()))
+                .collect(Collectors.toList());
     }
 
     // 회사 수정
