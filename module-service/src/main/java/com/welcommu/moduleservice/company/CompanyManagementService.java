@@ -35,12 +35,12 @@ public class CompanyManagementService {
                 .phone(savedCompany.getPhone())
                 .email(savedCompany.getEmail())
                 .coOwner(savedCompany.getCoOwner())
-
                 .build();
     }
 
+
     // 전체 회사 조회
-    public List<Company> getAllCompany() {
+    public List<Company> getAllCompanies() {
         List<Company> companies = companyRepository.findAll();
         // 디버깅을 위한 로그
         System.out.println("조회된 회사 수: " + companies.size());
@@ -64,7 +64,6 @@ public class CompanyManagementService {
         existingCompany.setPhone(updatedCompany.getPhone());
         existingCompany.setEmail(updatedCompany.getEmail());
         existingCompany.setCoOwner(updatedCompany.getCoOwner());
-
         // 회사 저장
         return companyRepository.save(existingCompany);
     }

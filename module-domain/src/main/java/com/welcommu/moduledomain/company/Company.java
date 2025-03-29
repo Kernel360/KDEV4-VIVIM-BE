@@ -24,7 +24,7 @@ public class Company {
     private String name;
     private String businessNumber;
     private String address;
-    private String phone;
+    private String phoneNumber;
     private String email;
 
     @Enumerated(EnumType.STRING)

@@ -16,6 +16,7 @@ public class CompanyRequest {
     private String businessNumber;
     private CompanyRole companyRole;
 
+
     // DTO를 Entity로 변환하는 toEntity 메서드
     public Company toEntity() {
         return Company.builder()

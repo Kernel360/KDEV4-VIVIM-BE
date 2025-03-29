@@ -12,4 +12,5 @@ public class CompanyRequest {
     private String phone;
     private String email;
     private String businessNumber;
+    private String email;
 }

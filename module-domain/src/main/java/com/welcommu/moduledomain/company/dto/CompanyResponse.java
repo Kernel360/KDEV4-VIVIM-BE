@@ -1,5 +1,6 @@
 package com.welcommu.moduledomain.company.dto;
 
+
 import lombok.Getter;
 import lombok.Setter;
 
