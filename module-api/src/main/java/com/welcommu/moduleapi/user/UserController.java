@@ -85,11 +85,11 @@ public class UserController {
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest updatedUserRequest) {
         try {
-            System.out.println("사용자 수정 요청 받음, id=" + id);
+            log.info("사용자 수정 요청 받음, id=" + id);
             User user = userManagementService.updateUser(id, updatedUserRequest);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            System.out.println("사용자 수정 실패: " + e.getMessage());
+            log.info("사용자 수정 실패: " + e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
