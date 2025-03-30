@@ -8,15 +8,18 @@ import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserManagementService {
 
     private final UserRepository userRepository;
@@ -55,8 +58,12 @@ public class UserManagementService {
 
 
     // 사용자 전체 목록 조회
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        // 모든 User를 조회한 후, UserResponse DTO로 변환
+        List<User> users = userRepository.findAll();  // 모든 User 조회
+        return users.stream()
+                .map(UserResponse::from)  // User -> UserResponse 변환
+                .collect(Collectors.toList());
     }
 
     // ID로 사용자 조회
@@ -79,7 +86,7 @@ public class UserManagementService {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            System.out.println("기존 사용자 데이터: " + user);  // 기존 데이터 확인
+            log.info("기존 사용자 데이터: " + user);  // 기존 데이터 확인
 
             // 기존 객체를 수정
             user.setName(updatedUserRequest.getName());  // 수정된 필드
@@ -90,7 +97,7 @@ public class UserManagementService {
             // 수정된 객체 저장
             return userRepository.save(user);
         } else {
-            System.out.println("사용자 존재하지 않음: id=" + id);  // 잘못된 id 확인 가능
+            log.info("사용자 존재하지 않음: id=" + id);  // 잘못된 id 확인 가능
             throw new RuntimeException("User not found with id " + id);
         }
     }
