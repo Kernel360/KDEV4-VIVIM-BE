@@ -5,27 +5,25 @@ import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.CompanyManagementService;
+import com.welcommu.moduleservice.user.dto.UserResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/companies")
+@RequiredArgsConstructor
 @Slf4j
 public class CompanyController {
 
     private final CompanyManagementService companyManagementService;
-
-    @Autowired
-    public CompanyController(CompanyManagementService companyManagementService) {
-        this.companyManagementService = companyManagementService;
-    }
-
+  
     // 회사 등록
     @PostMapping
     public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
@@ -44,21 +42,38 @@ public class CompanyController {
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
-
-
     // 전체 회사 조회
     @GetMapping
-    public List<Company> getAllCompanies() {
+    public List<CompanyResponse> getCompanyList() {
         log.info("전체 회사 조회 API 호출됨.");
-        return companyManagementService.getAllCompanies();
+        List<Company> companies = companyManagementService.getAllCompany();
+        return companies.stream()
+                .map(CompanyResponse::from) // Company -> CompanyResponse 변환
+                .collect(Collectors.toList());
     }
 
     // ID로 회사 조회
     @GetMapping("/{id}")
-    public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
+    public ResponseEntity<CompanyResponse> getCompanyById(@PathVariable Long id) {
         Optional<Company> company = companyManagementService.getCompanyById(id);
-        return company.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return company.map(c -> ResponseEntity.ok(CompanyResponse.from(c))) // Company -> CompanyResponse 변환
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    // 회사별 직원 목록 조회
+    @GetMapping("/{companyId}/employees")
+    public ResponseEntity<ApiResponse> getEmployeesByCompany(@PathVariable Long companyId) {
+        log.info("회사 ID {}에 속한 직원 목록 조회 API 호출됨.", companyId);
+
+        List<UserResponse> employeeList = companyManagementService.getEmployeesByCompany(companyId);
+
+        if (employeeList == null || employeeList.isEmpty()) {
+            return ResponseEntity.status(404).body(new ApiResponse(404, "No employees found for the company"));
+        }
+
+        return ResponseEntity.ok(new ApiResponse(200, "Employees retrieved successfully", employeeList));
+    }
+
 
     // 회사 수정
     @PutMapping("/{id}")
