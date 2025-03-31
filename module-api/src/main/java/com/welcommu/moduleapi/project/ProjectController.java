@@ -9,6 +9,7 @@ import com.welcommu.moduleservice.project.dto.*;
 import java.util.List;
 import java.util.Optional;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
+@Tag(name = "프로젝트 API", description = "프로젝트를 셍성, 수정, 삭제시킬 수 있습니다.")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -54,7 +56,7 @@ public class ProjectController {
         @PathVariable Long projectId,
         @RequestBody ProjectUpdateRequest dto
     ) {
-        projectService.updateProject(projectId, dto);
+        projectService.modifyProject(projectId, dto);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
     }
 

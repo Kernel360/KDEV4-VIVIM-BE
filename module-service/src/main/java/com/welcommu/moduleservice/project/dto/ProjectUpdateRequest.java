@@ -22,7 +22,6 @@ public class ProjectUpdateRequest {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    // 참여자 정보
     private List<ProjectUserRoleRequest> clientManagers;
     private List<ProjectUserRoleRequest> clientUsers;
     private List<ProjectUserRoleRequest> devManagers;
@@ -37,7 +36,6 @@ public class ProjectUpdateRequest {
         project.setModifiedAt(LocalDateTime.now());
     }
 
-    // 참여자 변환
     public List<ProjectUser> toProjectUsers(Project project, Function<Long, User> userResolver) {
         List<ProjectUser> result = new java.util.ArrayList<>();
 
