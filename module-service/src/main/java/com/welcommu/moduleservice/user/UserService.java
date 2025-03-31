@@ -69,8 +69,7 @@ public class UserService {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            System.out.println("기존 사용자 데이터: " + user);
-
+            log.info("기존 사용자 데이터: " + user);  
             user.setName(updatedUserRequest.getName());
             user.setEmail(updatedUserRequest.getEmail());
             user.setPhone(updatedUserRequest.getPhone());
@@ -78,7 +77,7 @@ public class UserService {
 
             return userRepository.save(user);
         } else {
-            log.info("기존 사용자 데이터: " + user);  // 기존 데이터 확인
+            log.info("사용자 존재하지 않음: id=" + id); 
             throw new RuntimeException("User not found with id " + id);
         }
     }
