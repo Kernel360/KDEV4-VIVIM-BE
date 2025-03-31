@@ -40,7 +40,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void updateProject(Long projectId, ProjectUpdateRequest dto) {
+    public void modifyProject(Long projectId, ProjectUpdateRequest dto) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
         dto.updateProject(project);
@@ -61,14 +61,14 @@ public class ProjectService {
 
         return projectUsers.stream()
                 .filter(pu -> !pu.getProject().getIsDeleted())
-                .map(pu -> ProjectUserSummaryResponse.of(pu.getProject(), pu))
+                .map(pu -> ProjectUserSummaryResponse.toEntity(pu.getProject(), pu))
                 .collect(Collectors.toList());
     }
 
     public List<ProjectAdminSummaryResponse> readProjects() {
         List<Project> projects = projectRepository.findAll();
         return projects.stream()
-                .map(ProjectAdminSummaryResponse::of)
+                .map(ProjectAdminSummaryResponse::toEntity)
                 .collect(Collectors.toList());
     }
 

@@ -13,11 +13,11 @@ public class ProjectUserSummaryResponse {
     private String projectName;
     private ProjectUserManageRole myRole;
 
-    public static ProjectUserSummaryResponse of(Project project, ProjectUser projectUser) {
+    public static ProjectUserSummaryResponse toEntity(Project project, ProjectUser projectUser) {
         return new ProjectUserSummaryResponse(
                 project.getId(),
                 project.getName(),
-                projectUser.getProjectUserManageRole() // ✅ 역할 정보 포함
+                projectUser.getProjectUserManageRole()
         );
     }
 }
