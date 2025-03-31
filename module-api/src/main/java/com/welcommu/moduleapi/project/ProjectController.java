@@ -1,13 +1,14 @@
 package com.welcommu.moduleapi.project;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.user.CustomUserDetails;
 import com.welcommu.moduleservice.project.ProjectService;
-import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
-import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
-import com.welcommu.moduleservice.project.dto.ProjectSummaryResponse;
-import com.welcommu.moduleservice.project.dto.ProjectUpdateRequest;
+import com.welcommu.moduleservice.project.dto.*;
+
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,16 @@ public class ProjectController {
         @RequestBody ProjectCreateRequest dto
     ) {
 
-        projectService.createProject(userDetails.getUser(), dto);
+        //projectService.createProject(userDetails.getUser(), dto);
+        projectService.createProject(dto);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
+    }
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<Optional<Project>> readProject(@PathVariable Long projectId
+    ) {
+        Optional<Project> project = projectService.readProject(projectId);
+        return ResponseEntity.ok(project);
     }
 
     @PutMapping("/{projectId}")
@@ -50,8 +59,8 @@ public class ProjectController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<ProjectSummaryResponse>> readProjects(@RequestParam Long userId) {
-       List<ProjectSummaryResponse> projects = projectService.readProjectsByUser(userId);
+    public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(@RequestParam Long userId) {
+       List<ProjectUserSummaryResponse> projects = projectService.readProjectsByUser(userId);
        return ResponseEntity.ok(projects);
     }
 
@@ -64,8 +73,11 @@ public class ProjectController {
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제되었습니다."));
     }
 
-    // TODO
-    // 모든 프로젝트 조회(관리자)
+    @GetMapping("/all")
+    public ResponseEntity<List<ProjectAdminSummaryResponse>> getAllProjectsForAdmin(){
+        List<ProjectAdminSummaryResponse> projects = projectService.readProjects();
+        return ResponseEntity.ok(projects);
+    }
 
 
 
