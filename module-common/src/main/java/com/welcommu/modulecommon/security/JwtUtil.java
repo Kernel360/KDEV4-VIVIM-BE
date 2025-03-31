@@ -18,9 +18,9 @@ import java.time.Instant;
 @Slf4j
 public class JwtUtil {
 
-//    @Value("${token.secret.key}")
-//    private String secretKey;  // application.yml에서 secretKey를 주입받음
-    private String secretKey = "cgxz5nCh3+4g1p5pLlCeDft6gT4zqPdc9Vr2vym8NE0=";
+    @Value("${token.secret.key}")
+    private String secretKey;  // application.yml에서 secretKey를 주입받음
+//   private String secretKey = "cgxz5nCh3+4g1p5pLlCeDft6gT4zqPdc9Vr2vym8NE0=";
 
     private long expirationTime = 3600000; // 1 hour in milliseconds
 
