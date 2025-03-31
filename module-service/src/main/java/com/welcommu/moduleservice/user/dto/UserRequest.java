@@ -12,7 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class UserRequest {
-    @NotBlank
+
+    @NotBlank(message = "이메일은 필수 입력값입니다.")
     @Email
     private String email;
 

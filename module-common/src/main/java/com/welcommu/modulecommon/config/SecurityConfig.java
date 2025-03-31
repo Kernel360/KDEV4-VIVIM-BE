@@ -11,8 +11,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity // security 활성화
 public class SecurityConfig {
@@ -27,29 +25,21 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .cors(Customizer.withDefaults()) // CORS 설정 추가
-                .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (deprecated)
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())  
                 .authorizeHttpRequests(it -> {
                     it
                             .requestMatchers(
                                     PathRequest.toStaticResources().atCommonLocations()
-                            ).permitAll() // 정적 리소스 허용
-
-                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-
-                            // Swagger 테스트 시 사용. 배포할 때 삭제
-//                            .requestMatchers("/api/**").permitAll()
-
+                            ).permitAll(
+                                
                             // Swagger 관련 URL 허용 (GET 요청)
                             .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-
-                            .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 필요
-
-                            // 다른 모든 요청은 인증 필요
+                            .requestMatchers("/api/login").permitAll()
                             .anyRequest().authenticated();
-//                            .anyRequest().permitAll(); // 나머지 모든 요청도 인증 없이 허용
+//                            .anyRequest().permitAll();
                 })
-                .formLogin(Customizer.withDefaults()); // 기본 로그인 폼 사용
+                .formLogin(Customizer.withDefaults());
         System.out.println("🔥 Security 설정 적용됨!");
 
         return httpSecurity.build();
