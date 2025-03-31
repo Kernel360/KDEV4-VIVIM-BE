@@ -30,7 +30,7 @@ public class ProjectProgressService {
         float biggestPosition = findBiggestPosition(projectId);
 
         ProjectProgress projectProgress = request.toEntity(creator, project);
-        projectProgress.setPosition(biggestPosition + 1);  // position 값을 기존 최대값 +1로 설정
+        projectProgress.setPosition(biggestPosition + 1);
 
         progressRepository.save(projectProgress);
     }
