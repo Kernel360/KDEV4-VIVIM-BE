@@ -62,7 +62,7 @@ public class ProjectProgressController {
     @GetMapping("/{projectId}/progress")
     @Operation(summary = "프로젝트 단계 전체조회")
     public ResponseEntity<ProgressListResponse> getProgressList(
-        @PathVariable Long projectId, @RequestBody ProgressListResponse request) {
+        @PathVariable Long projectId) {
 
         ProgressListResponse progressList = progressService.getProgressList(projectId);
         return ResponseEntity.ok(progressList);
