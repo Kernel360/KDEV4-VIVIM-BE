@@ -1,9 +1,11 @@
 package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.project.ProjectUser;
-import com.welcommu.moduledomain.project.ProjectUserManageRole;
+import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import com.welcommu.moduledomain.user.User;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,16 +22,20 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ProjectCreateRequest {
 
+    @NotBlank
     private String name;
     private String description;
+
+    @NotNull
     private LocalDate startDate;
+
+    @NotNull
     private LocalDate endDate;
 
     private List<ProjectUserListCreate> clientManagers;
     private List<ProjectUserListCreate> clientUsers;
     private List<ProjectUserListCreate> devManagers;
     private List<ProjectUserListCreate> devUsers;
-
 
     public Project toEntity() {
         return Project.builder()

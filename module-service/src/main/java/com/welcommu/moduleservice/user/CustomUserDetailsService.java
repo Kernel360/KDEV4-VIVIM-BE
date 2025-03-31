@@ -1,13 +1,13 @@
 package com.welcommu.moduleservice.user;
 
-import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduledomain.user.CustomUserDetails;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
