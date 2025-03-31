@@ -30,17 +30,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest userRequest) {
 
         log.info("Received user: {}", userRequest);
-
         UserResponse createdUserResponse = userService.createUser(userRequest);
-
-        ApiResponse apiResponse = new ApiResponse(
-                HttpStatus.CREATED.value(),
-                "User created successfully"
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(apiResponse);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "사용자 생성에 성공했습니다."));
     }
 
     @GetMapping
@@ -61,29 +52,26 @@ public class UserController {
         }
     }
 
-    // 이메일로 사용자 조회
     @GetMapping("/email/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         Optional<User> user = userService.getUserByEmail(email);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // 전화번호로 사용자 조회
     @GetMapping("/phone/{phone}")
     public ResponseEntity<User> getUserByPhone(@PathVariable String phone) {
         Optional<User> user = userService.getUserByPhone(phone);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // 사용자 수정
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest updatedUserRequest) {
         try {
-            System.out.println("사용자 수정 요청 받음, id=" + id);
+            log.info("사용자 수정 요청 받음, id=" + id);
             User user = userService.updateUser(id, updatedUserRequest);
             return ResponseEntity.ok(user);
         } catch (RuntimeException e) {
-            System.out.println("사용자 수정 실패: " + e.getMessage());
+            log.info("사용자 수정 실패: " + e.getMessage());
             return ResponseEntity.notFound().build();
         }
     }
