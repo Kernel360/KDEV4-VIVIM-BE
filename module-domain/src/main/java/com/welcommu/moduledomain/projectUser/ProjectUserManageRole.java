@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.project;
+package com.welcommu.moduledomain.projectUser;
 
 public enum ProjectUserManageRole {
     CLIENT_USER,
