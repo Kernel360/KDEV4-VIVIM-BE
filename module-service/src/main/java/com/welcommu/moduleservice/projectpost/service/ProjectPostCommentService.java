@@ -25,12 +25,14 @@ public class ProjectPostCommentService {
     @Transactional
     public void modifyComment(Long postId, Long commentId, ProjectPostCommentModifyRequest request) {
 
-        ProjectPostComment existingComment = projectPostCommentRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+        ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다."));
 
-        if (!existingComment.getProjectPostId().equals(postId) || existingComment.getId().equals(commentId)) {
-            throw new IllegalArgumentException(" 커멘트 ID가 게시글과 일치하지 않습니다.");
+        if (!existingComment.getProjectPostId().equals(postId) ) {
+            throw new IllegalArgumentException("게시글의 Id가 댓글과 일치하지 않습니다.");
         }
+
+
         request.modifyProjectPostComment(existingComment, request);
     }
 
@@ -44,10 +46,10 @@ public class ProjectPostCommentService {
 
     @Transactional
     public void deleteComment(Long postId, Long commentId, ProjectPostCommentDeleteRequest request) {
-        ProjectPostComment existingComment = projectPostCommentRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+        ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다."));
         if (!existingComment.getProjectPostId().equals(postId)) {
-            throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
+            throw new IllegalArgumentException("게시글의 ID가 댓글과 일치하지 않습니다.");
         }
         request.deleteTo(existingComment);
     }

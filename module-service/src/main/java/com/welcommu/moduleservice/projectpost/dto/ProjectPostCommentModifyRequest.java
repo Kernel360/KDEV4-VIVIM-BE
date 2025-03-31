@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +16,6 @@ public class ProjectPostCommentModifyRequest {
 
     public void modifyProjectPostComment(ProjectPostComment originalComment, ProjectPostCommentModifyRequest request) {
         originalComment.setComment(request.comment);
-
+        originalComment.setModifiedAt(LocalDateTime.now());
     }
 }

@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 @Getter
 public class ProjectPostCommentDeleteRequest {
     public void deleteTo(ProjectPostComment originalComment) {
+
         originalComment.setDeletedAt(LocalDateTime.now());
+        originalComment.setIsDeleted(true);
     }
 }
