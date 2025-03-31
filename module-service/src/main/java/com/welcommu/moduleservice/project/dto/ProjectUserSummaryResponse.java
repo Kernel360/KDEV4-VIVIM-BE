@@ -8,13 +8,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProjectSummaryResponse {
+public class ProjectUserSummaryResponse {
     private Long projectId;
     private String projectName;
     private ProjectUserManageRole myRole;
 
-    public static ProjectSummaryResponse of(Project project, ProjectUser projectUser) {
-        return new ProjectSummaryResponse(
+    public static ProjectUserSummaryResponse of(Project project, ProjectUser projectUser) {
+        return new ProjectUserSummaryResponse(
                 project.getId(),
                 project.getName(),
                 projectUser.getProjectUserManageRole() // ✅ 역할 정보 포함
