@@ -1,8 +1,8 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
 
-import com.welcommu.moduledomain.projectpost.entity.ProjectPost;
-import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
+import com.welcommu.moduledomain.projectpost.ProjectPost;
+import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
 import lombok.*;
 
 @Getter

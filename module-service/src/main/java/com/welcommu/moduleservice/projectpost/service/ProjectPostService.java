@@ -1,6 +1,6 @@
 package com.welcommu.moduleservice.projectpost.service;
 
-import com.welcommu.moduledomain.projectpost.entity.ProjectPost;
+import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;

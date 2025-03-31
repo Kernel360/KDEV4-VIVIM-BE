@@ -66,9 +66,11 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // 비밀번호 암호화 처리
+
+        // hash로 암호화
         return new BCryptPasswordEncoder();
     }
 

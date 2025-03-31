@@ -1,8 +1,7 @@
-package com.welcommu.moduledomain.projectpost.entity;
+package com.welcommu.moduledomain.projectpost;
 
 import java.time.LocalDateTime;
 
-import com.welcommu.moduledomain.projectpost.enums.ProjectPostStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

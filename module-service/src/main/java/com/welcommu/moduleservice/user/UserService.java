@@ -2,107 +2,87 @@ package com.welcommu.moduleservice.user;
 
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.moduleservice.user.dto.UserRequest;
-import com.welcommu.moduleservice.user.dto.UserResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.user.dto.UserRequest;
+import com.welcommu.moduleservice.user.dto.UserResponse;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class UserManagementService {
+@RequiredArgsConstructor
+public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompanyRepository companyRepository;
 
-    // 사용자 등록
     @Transactional
     public UserResponse createUser(UserRequest userRequest) {
-        // UserRequest로부터 User 엔티티 생성
+        Company company = companyRepository.findById(userRequest.getCompanyId())
+                .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
         User user = User.builder()
                 .name(userRequest.getName())
                 .email(userRequest.getEmail())
+                .phone(userRequest.getPhone())
+                .password(userRequest.getPassword())  // 이 부분은 나중에 암호화됩니다.
+                .company(company)
                 .build();
 
         // 비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
-
-        // 암호화된 비밀번호를 User 객체에 설정
         user.setPassword(encryptedPassword);
 
-        // companyId가 전달되었다면, 해당 company를 조회하여 설정
-        Company company = companyRepository.findById(userRequest.getCompanyId())
-                .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
-
-        user.setCompany(company);
-
-        // 사용자 저장
         User savedUser = userRepository.saveAndFlush(user);
-
-        // UserResponse 생성 후 반환
         return UserResponse.from(savedUser);
-
     }
 
 
     // 사용자 전체 목록 조회
     public List<UserResponse> getAllUsers() {
-        // 모든 User를 조회한 후, UserResponse DTO로 변환
-        List<User> users = userRepository.findAll();  // 모든 User 조회
+        List<User> users = userRepository.findAll();
         return users.stream()
-                .map(UserResponse::from)  // User -> UserResponse 변환
+                .map(UserResponse::from)
                 .collect(Collectors.toList());
     }
 
-    // ID로 사용자 조회
     public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    // 이메일로 사용자 조회
     public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);  // Optional<User> 자체 반환
+        return userRepository.findByEmail(email);
     }
 
-    // 전화번호로 사용자 조회
     public Optional<User> getUserByPhone(String phone) {
-        return userRepository.findByPhone(phone);  // Optional<User> 자체 반환
+        return userRepository.findByPhone(phone);
     }
 
-    // 사용자 정보 수정
     public User updateUser(Long id, UserRequest updatedUserRequest) {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
-            log.info("기존 사용자 데이터: " + user);  // 기존 데이터 확인
-
-            // 기존 객체를 수정
-            user.setName(updatedUserRequest.getName());  // 수정된 필드
+            log.info("기존 사용자 데이터: " + user);
+            user.setName(updatedUserRequest.getName());
             user.setEmail(updatedUserRequest.getEmail());
             user.setPhone(updatedUserRequest.getPhone());
-            user.setModifiedAt(updatedUserRequest.getModifiedAt());  // 수정된 날짜
+            user.setModifiedAt(updatedUserRequest.getModifiedAt());
 
-            // 수정된 객체 저장
             return userRepository.save(user);
         } else {
-            log.info("사용자 존재하지 않음: id=" + id);  // 잘못된 id 확인 가능
+            log.info("사용자 존재하지 않음: id=" + id);
             throw new RuntimeException("User not found with id " + id);
         }
     }
 
-    // 사용자 삭제
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
