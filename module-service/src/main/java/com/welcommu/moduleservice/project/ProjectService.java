@@ -79,4 +79,17 @@ public class ProjectService {
 
         ProjectDeleteRequest.deleteProject(deleted);
     }
+
+    @Transactional(readOnly = true)
+    public List<ProjectUserListResponse> readUserListByProject(Long projectId) {
+        Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+
+        List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
+
+        return projectUsers.stream()
+                .map(ProjectUserListResponse::of)
+                .collect(Collectors.toList());
+    }
+
 }

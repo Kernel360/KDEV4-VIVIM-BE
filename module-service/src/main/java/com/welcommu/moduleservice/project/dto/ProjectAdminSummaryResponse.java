@@ -1,7 +1,6 @@
 package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

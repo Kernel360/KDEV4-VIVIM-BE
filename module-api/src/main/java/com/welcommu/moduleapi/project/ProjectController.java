@@ -74,11 +74,16 @@ public class ProjectController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<ProjectAdminSummaryResponse>> getAllProjectsForAdmin(){
+    public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin(){
         List<ProjectAdminSummaryResponse> projects = projectService.readProjects();
         return ResponseEntity.ok(projects);
     }
 
+    @GetMapping("/{projectId}/users")
+    public ResponseEntity<List<ProjectUserListResponse>> readProjectUsers(@PathVariable Long projectId){
+        List<ProjectUserListResponse> projects = projectService.readUserListByProject(projectId);
+        return ResponseEntity.ok(projects);
+    }
 
 
 
