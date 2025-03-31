@@ -78,7 +78,7 @@ public class UserService {
 
             return userRepository.save(user);
         } else {
-            System.out.println("사용자 존재하지 않음: id=" + id);
+            log.info("기존 사용자 데이터: " + user);  // 기존 데이터 확인
             throw new RuntimeException("User not found with id " + id);
         }
     }
