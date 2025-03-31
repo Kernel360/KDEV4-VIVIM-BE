@@ -4,8 +4,6 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

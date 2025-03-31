@@ -1,4 +1,4 @@
-package com.welcommu.config;
+package com.welcommu.modulecommon.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,13 +11,13 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 @Configuration
 public class S3Config {
-    @Value("${cloud.aws.credentials.access-key}")
+    @Value("${S3_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${cloud.aws.credentials.secret-key}")
+    @Value("${S3_SECRET_KEY}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.static}")
+    @Value("${cloud.aws.region.static}")//서울코드
     private String region;
 
     @Bean
