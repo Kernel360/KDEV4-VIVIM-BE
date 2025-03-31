@@ -1,5 +1,6 @@
-package com.welcommu.moduledomain.project;
+package com.welcommu.moduledomain.projectUser;
 
+import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
