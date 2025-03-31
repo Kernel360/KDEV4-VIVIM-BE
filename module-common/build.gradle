@@ -36,7 +36,7 @@ dependencies {
     // Spring Cloud AWS 사용
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
     //AWS S3설정
-    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.643'
 
     // Validation dependencies
