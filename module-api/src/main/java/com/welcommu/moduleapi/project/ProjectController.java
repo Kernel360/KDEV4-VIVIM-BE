@@ -53,7 +53,7 @@ public class ProjectController {
 
     // 특정 유저 별 프로젝트 조회
     @GetMapping()
-    public ResponseEntity<List<ProjectSummaryResponse>> readProjects(@RequestBody Long userId) {
+    public ResponseEntity<List<ProjectSummaryResponse>> readProjects(@RequestParam Long userId) {
        List<ProjectSummaryResponse> projects = projectService.readProjectsByUser(userId);
        return ResponseEntity.ok(projects);
     }
