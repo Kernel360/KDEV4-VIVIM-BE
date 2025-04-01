@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 .env
+*.p12
 
 ### STS ###
 .apt_generated

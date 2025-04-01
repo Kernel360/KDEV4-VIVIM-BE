@@ -38,7 +38,7 @@ public class SecurityConfig {
                                     PathRequest.toStaticResources().atCommonLocations()
                             ).permitAll()
 
-                                    // Swagger 관련 URL 허용 (GET 요청)
+                            // Swagger 관련 URL 허용 (GET 요청)
                             .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
                             .requestMatchers("/api/login").permitAll()
 //                            .anyRequest().authenticated();
