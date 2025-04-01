@@ -1,8 +1,11 @@
-package com.welcommu.moduleapi.projectpost;
+package com.welcommu.moduleapi.projectpost.controller;
+
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostDeleteRequest;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCreateRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostModifyRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,11 @@ public class ProjectPostController {
     public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request) {
         projectPostService.createPost(projectId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "게시글 생성 완료"));
+    public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest) {
+        String clientIp = getClientIp(httpRequest);
+        projectPostService.createPost(projectId, request, clientIp);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse(HttpStatus.CREATED.value(), "게시글이 생성되었습니다."));
     }
 
     @PutMapping("/{postId}")

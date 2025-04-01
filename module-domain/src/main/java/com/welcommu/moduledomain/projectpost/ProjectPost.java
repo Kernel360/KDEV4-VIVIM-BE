@@ -9,7 +9,6 @@ import lombok.*;
 
 @Table(name="project_posts")
 @Getter
-@Setter
 @Builder
 @Entity
 @AllArgsConstructor
@@ -28,10 +27,10 @@ public class ProjectPost {
     @Column(name = "project_post_status")
     private ProjectPostStatus projectPostStatus;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "modified_at")
+    @Column(name = "modified_at", updatable = false)
     private LocalDateTime modifiedAt;
 
     @Column(name = "deleted_at")
@@ -57,4 +56,15 @@ public class ProjectPost {
 
     @Column(name="project_id")
     private Long projectId;
+
+    public void modify(String title, String content, ProjectPostStatus projectPostStatus) {
+        this.title = title;
+        this.content = content;
+        this.projectPostStatus = projectPostStatus;
+    }
+
+    public void delete(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+        this.isDeleted = true;
+    }
 }

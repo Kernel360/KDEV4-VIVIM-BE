@@ -11,21 +11,20 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectPostCreateRequest {
+public class ProjectPostRequest {
     private String title;
     private String content;
     private ProjectPostStatus projectPostStatus;
 
-    public ProjectPost toEntity(Long projectId, ProjectPostCreateRequest request) {
+    public ProjectPost toEntity(Long projectId, ProjectPostRequest request, String clientIp) {
         return ProjectPost.builder()
+                .projectId(projectId)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .projectPostStatus(request.getProjectPostStatus())
                 .createdAt(LocalDateTime.now())
-                .creatorId(1L)//1L는 테스트 용입니다
-                .writerIp("102.176.0.0") //테스트 용입니다.
-                .projectId(projectId)
+                .creatorId(1L)//1L는 테스트 용입니다.
+                .writerIp(clientIp)//테스트 용입니다.
                 .build();
     }
-
 }

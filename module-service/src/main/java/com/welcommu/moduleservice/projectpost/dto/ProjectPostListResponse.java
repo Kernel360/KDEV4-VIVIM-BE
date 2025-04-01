@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProjectPostListResponse {
     private String title;
+    private String content;
     private Long creatorId;
     private ProjectPostStatus projectPostStatus;
     private LocalDateTime createdAt;
@@ -19,6 +20,7 @@ public class ProjectPostListResponse {
     public static ProjectPostListResponse from(ProjectPost post) {
         return new ProjectPostListResponse(
                 post.getTitle(),
+                post.getContent(),
                 post.getCreatorId(),
                 post.getProjectPostStatus(),
                 post.getCreatedAt()
