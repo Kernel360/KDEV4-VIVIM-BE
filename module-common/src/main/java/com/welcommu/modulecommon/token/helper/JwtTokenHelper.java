@@ -47,7 +47,6 @@ public class JwtTokenHelper {
         logger.info("Refresh Token 만료 시간: {}시간", this.refreshTokenPlusHour);
     }
 
-    // Access Token 발급
     public TokenDto issueAccessToken(Map<String, Object> data) {
         LocalDateTime expiredLocalDateTime = LocalDateTime.now().plusHours(accessTokenPlusHour);
         Date expiredAt = Date.from(expiredLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -58,14 +57,12 @@ public class JwtTokenHelper {
                 .setExpiration(expiredAt) // 만료 시간 설정
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256) // 서명
                 .compact();
-        // 토큰 생성 로그 추가
         logger.info("생성된 Access Token: {}", jwtToken);
         logger.info("Access Token 만료 시간: {}", expiredLocalDateTime);
 
         return new TokenDto(jwtToken, expiredLocalDateTime);
     }
 
-    // Refresh Token 발급
     public TokenDto issueRefreshToken(Map<String, Object> data) {
         LocalDateTime expiredLocalDateTime = LocalDateTime.now().plusHours(refreshTokenPlusHour);
         Date expiredAt = Date.from(expiredLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -81,9 +78,7 @@ public class JwtTokenHelper {
         return new TokenDto(jwtToken, expiredLocalDateTime);
     }
 
-    // 토큰 유효성 검증
     public Map<String, Object> validationTokenWithThrow(String token) {
-        // 받은 JWT 토큰 형식 검증
         if (token == null || !token.contains(".")) {
             logger.error("잘못된 JWT 토큰 형식. 토큰은 반드시 '.' 구분자를 포함해야 합니다.");
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);

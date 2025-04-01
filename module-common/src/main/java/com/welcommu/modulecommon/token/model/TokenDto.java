@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TokenDto {
 
-    private String token; // JWT 토큰
-    private LocalDateTime expiredAt; // 토큰 만료 시간
+    private String token;
+    private LocalDateTime expiredAt;
 
 }

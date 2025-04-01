@@ -33,7 +33,7 @@ public class UserService {
                 .name(userRequest.getName())
                 .email(userRequest.getEmail())
                 .phone(userRequest.getPhone())
-                .password(userRequest.getPassword())  // 이 부분은 나중에 암호화됩니다.
+                .password(userRequest.getPassword())
                 .company(company)
                 .build();
 

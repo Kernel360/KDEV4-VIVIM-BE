@@ -4,7 +4,7 @@ import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import com.welcommu.modulecommon.token.model.TokenDto;
 import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduledomain.user.User;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,45 +16,36 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final JwtTokenHelper jwtTokenHelper;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    public AuthController(JwtTokenHelper jwtTokenHelper, UserService userService, PasswordEncoder passwordEncoder) {
-        this.jwtTokenHelper = jwtTokenHelper;
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-    }
-
     // 로그인 API
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password) {
         try {
-            // 이메일로 사용자 조회
             User user = userService.getUserByEmail(email)
                     .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-            // 비밀번호 확인
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new BadCredentialsException("Invalid email or password");
             }
 
             // 비밀번호가 일치하면 JWT 토큰 생성
             Map<String, Object> claims = new HashMap<>();
-            claims.put("email", user.getEmail());  // 클레임에 이메일 정보 추가
+            claims.put("email", user.getEmail());
 
-            // Access Token 발급
-            TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims); // JWT 토큰 생성
-            // Refresh Token 발급
-            TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims); // Refresh Token 생성
+            TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
+
+            TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // 토큰을 JSON 형식으로 반환
             Map<String, String> response = new HashMap<>();
             response.put("access_token", "Bearer " + accessToken.getToken());
-            response.put("refresh_token", "Bearer " + refreshToken.getToken()); // Refresh Token도 응답에 포함
+            response.put("refresh_token", "Bearer " + refreshToken.getToken());
 
             return ResponseEntity.ok(response);
 
@@ -67,7 +58,6 @@ public class AuthController {
 
     @GetMapping("/user")
     public ResponseEntity<Map<String, String>> getUserInfo(@AuthenticationPrincipal String username) {
-        // 사용자의 이메일 정보 또는 username을 통해 사용자 정보 반환
         Map<String, String> response = new HashMap<>();
         response.put("authenticatedUser", username);
         return ResponseEntity.ok(response);
@@ -76,13 +66,10 @@ public class AuthController {
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestParam String refreshToken) {
         try {
-            // Refresh Token 검증
-            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);  // 유효성 검사
+            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
 
-            // 새로운 Access Token 발급
             TokenDto newAccessToken = jwtTokenHelper.issueAccessToken(claims);
 
-            // 새로운 Access Token 반환
             Map<String, String> response = new HashMap<>();
             response.put("access_token", "Bearer " + newAccessToken.getToken());
 
