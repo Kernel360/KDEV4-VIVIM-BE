@@ -76,7 +76,7 @@ public class ProjectController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin(){
-        List<ProjectAdminSummaryResponse> projects = projectService.getProjects();
+        List<ProjectAdminSummaryResponse> projects = projectService.getProjectList();
         return ResponseEntity.ok(projects);
     }
 

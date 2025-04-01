@@ -64,7 +64,7 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
-    public List<ProjectAdminSummaryResponse> getProjects() {
+    public List<ProjectAdminSummaryResponse> getProjectList() {
         List<Project> projects = projectRepository.findAll();
         return projects.stream()
                 .map(ProjectAdminSummaryResponse::from)
