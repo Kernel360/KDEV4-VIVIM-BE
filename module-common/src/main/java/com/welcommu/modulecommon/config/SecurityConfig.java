@@ -1,6 +1,7 @@
 package com.welcommu.modulecommon.config;
 
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
 
     private static final String[] SWAGGER = {
@@ -34,7 +36,6 @@ public class SecurityConfig {
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
-    // Constructor-based injection of JwtTokenHelper
     public SecurityConfig(JwtTokenHelper jwtTokenHelper) {
         this.jwtTokenHelper = jwtTokenHelper;
     }
@@ -57,7 +58,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        System.out.println("🔥 Security 설정 적용됨!");
+        log.info("🔥 Security 설정 적용됨!");
 
         return httpSecurity.build();
     }
@@ -66,7 +67,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));  // 허용된 Origin 목록
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
