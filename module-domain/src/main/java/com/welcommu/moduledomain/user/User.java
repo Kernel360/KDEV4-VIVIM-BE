@@ -1,6 +1,5 @@
 package com.welcommu.moduledomain.user;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.welcommu.moduledomain.company.Company;
 import jakarta.persistence.*;
 import lombok.*;
