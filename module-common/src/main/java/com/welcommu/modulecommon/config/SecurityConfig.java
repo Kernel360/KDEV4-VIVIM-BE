@@ -47,13 +47,12 @@ public class SecurityConfig {
                   .requestMatchers(
                       PathRequest.toStaticResources().atCommonLocations()
                   ).permitAll() // 정적 리소스 허용
-
                             // Swagger 테스트 시 사용. 배포할 때 삭제
-                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
+                    .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
 
-                            .requestMatchers("/api/login").permitAll() // 로그인 경로 허용
+                    .requestMatchers("/api/login").permitAll() // 로그인 경로 허용
 
-                            .anyRequest().authenticated(); // 나머지 경로는 인증 필요
+                    .anyRequest().authenticated(); // 나머지 경로는 인증 필요
                 });
 
         // JWT 인증 필터 추가
