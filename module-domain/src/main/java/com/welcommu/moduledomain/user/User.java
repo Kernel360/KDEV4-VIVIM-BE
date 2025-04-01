@@ -43,7 +43,6 @@ public class User {
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
 
-    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
