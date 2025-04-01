@@ -5,11 +5,13 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.file.dto.FileCreateRequest;
 import com.welcommu.moduleservice.file.service.FileService;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -26,22 +28,22 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping("/posts/{postId}/file/stream")
-    public ResponseEntity<ApiResponse>  createPostFile(@PathVariable Long postId, @RequestParam("fileName") String fileName,HttpServletRequest request) throws IOException {
+    public ResponseEntity<ApiResponse>  createPostFile(@PathVariable Long postId, @RequestParam("fileName") String fileName, @RequestParam("file") @Schema(type = "string", format = "binary")MultipartFile file) throws IOException {
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType(request.getContentType());
-        metadata.setContentLength(request.getContentLengthLong());
+        metadata.setContentType(file.getContentType());
+        metadata.setContentLength(file.getSize());
 
 
         String bucketName = "vivim-s3";
         String today = LocalDate.now().toString();
         String uuid = UUID.randomUUID().toString();
-        String extension = getExtensionFromContentType(request.getContentType()); // 예: .jpg
+        String extension = getExtensionFromContentType(file.getContentType()); // 예: .jpg
         String objectKey = "uploads/" + today + "/" + uuid + extension;
 
-        amazonS3Client.putObject(bucketName, objectKey, request.getInputStream(), metadata);
+        amazonS3Client.putObject(bucketName, objectKey, file.getInputStream(), metadata);
         String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
 
-        fileService.createPostFile(fileName, fileUrl, request.getContentLengthLong(), postId);
+        fileService.createPostFile(fileName, fileUrl, file.getSize(), postId);
 
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "이미지 업로드가 완료되었습니다."));
     }
