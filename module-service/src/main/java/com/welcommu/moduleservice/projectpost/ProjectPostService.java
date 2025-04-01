@@ -40,7 +40,6 @@ public class ProjectPostService {
         );
     }
 
-    @Transactional(readOnly = true)
     public List<ProjectPostListResponse> getPostList(Long projectId) {
         List<ProjectPost> posts = projectPostRepository.findAllByProjectId(projectId);
         return posts.stream()
