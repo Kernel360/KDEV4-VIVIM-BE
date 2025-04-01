@@ -1,7 +1,6 @@
 package com.welcommu.modulecommon.config;
 
-import com.welcommu.modulecommon.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
-@EnableWebSecurity // security 활성화
+@EnableWebSecurity
 public class SecurityConfig {
 
     private static final String[] SWAGGER = {
@@ -30,19 +29,26 @@ public class SecurityConfig {
             "/v3/api-docs/**"
     };
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtTokenHelper jwtTokenHelper;
 
-    // application.properties에서 CORS 허용 도메인 목록을 주입
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
+    // Constructor-based injection of JwtTokenHelper
+    public SecurityConfig(JwtTokenHelper jwtTokenHelper) {
+        this.jwtTokenHelper = jwtTokenHelper;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtil);
+        // JwtAuthenticationFilter에 JwtTokenHelper 주입
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenHelper);
+
         httpSecurity
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 .authorizeHttpRequests(it -> {it
                   .requestMatchers(
                       PathRequest.toStaticResources().atCommonLocations()
@@ -52,6 +58,22 @@ public class SecurityConfig {
                   .requestMatchers("/v3/api-docs/**").authenticated()  // API 문서는 인증 필요
 
                   .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 없이 허용
+=======
+=======
+>>>>>>> Stashed changes
+                .authorizeHttpRequests(it -> it
+                        .requestMatchers(
+                                PathRequest.toStaticResources().atCommonLocations()
+                        ).permitAll()
+                        // Swagger 테스트 시 사용. 배포할 때 삭제
+                        .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
+                        .requestMatchers("/api/login").permitAll()
+                        .anyRequest().authenticated()
+                );
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
                   .anyRequest().authenticated();                 
                   })
@@ -64,6 +86,8 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -78,9 +102,12 @@ public class SecurityConfig {
     }
 
 
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         // hash로 암호화
         return new BCryptPasswordEncoder();
     }

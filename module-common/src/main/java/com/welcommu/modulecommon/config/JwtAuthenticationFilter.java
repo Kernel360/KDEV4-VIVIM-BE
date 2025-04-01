@@ -1,6 +1,6 @@
 package com.welcommu.modulecommon.config;
 
-import com.welcommu.modulecommon.security.JwtUtil;
+import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,12 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-    private final JwtUtil jwtUtil;
+    private final JwtTokenHelper jwtTokenHelper;
 
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui", "/swagger-ui/", "/swagger-ui.html", "/swagger-ui/index.html", "/v3/api-docs"
@@ -38,6 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        if ("/api/login".equals(request.getRequestURI())) {
+            filterChain.doFilter(request, response); // 토큰 검사 없이 다음 필터로 진행
+            return;
+        }
 
         // Authorization 헤더에서 JWT 토큰을 추출
         String token = getTokenFromRequest(request);
@@ -52,28 +57,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 유효한지 확인하고 인증 정보 설정
         try {
-            if (token != null && jwtUtil.validateToken(token)) {
-                String username = jwtUtil.extractUsername(token);
+            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token); // 토큰 유효성 검증
 
-                // 유효한 토큰이 있을 때 로그
-                logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
+            // 유효한 토큰이 있을 때 로그
+            String username = (String) claims.get("email"); // 클레임에서 이메일을 추출
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, null);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } else if (token != null && jwtUtil.isTokenExpired(token)) {
-                // 만료된 토큰 처리
-                logger.warn("JWT 토큰이 만료되었습니다.");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-                response.getWriter().write("JWT token has expired");
-                return;
-            } else {
-                // 유효하지 않은 토큰에 대한 경고
-                logger.warn("유효하지 않은 JWT 토큰입니다.");
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-                response.getWriter().write("Invalid or expired JWT token");
-                return;
-            }
+            logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
+
+            // 인증 정보 설정
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(username, null, null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             logger.error("JWT 처리 중 오류 발생", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized

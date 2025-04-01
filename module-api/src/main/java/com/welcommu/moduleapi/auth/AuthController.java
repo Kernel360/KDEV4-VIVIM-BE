@@ -1,6 +1,7 @@
 package com.welcommu.modulecommon.controller;
 
-import com.welcommu.modulecommon.security.JwtUtil;
+import com.welcommu.modulecommon.token.helper.JwtTokenHelper; // JwtTokenHelper import
+import com.welcommu.modulecommon.token.model.TokenDto;
 import com.welcommu.moduleservice.user.UserService; // UserService import
 import com.welcommu.moduledomain.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +16,13 @@ import java.util.Map;
 @RequestMapping("/api")
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
+    private final JwtTokenHelper jwtTokenHelper;  // JwtUtil -> JwtTokenHelper로 변경
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AuthController(JwtUtil jwtUtil, UserService userService, PasswordEncoder passwordEncoder) {
-        this.jwtUtil = jwtUtil;
+    public AuthController(JwtTokenHelper jwtTokenHelper, UserService userService, PasswordEncoder passwordEncoder) {
+        this.jwtTokenHelper = jwtTokenHelper;  // JwtUtil -> JwtTokenHelper로 변경
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
@@ -46,11 +47,13 @@ public class AuthController {
             }
 
             // 비밀번호가 일치하면 JWT 토큰 생성
-            String token = jwtUtil.generateToken(user.getEmail()); // JWT 토큰 생성
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("email", user.getEmail());  // 클레임에 이메일 정보 추가
+            TokenDto tokenDto = jwtTokenHelper.issueAccessToken(claims); // JWT 토큰 생성
 
             // 토큰을 JSON 형식으로 반환
             Map<String, String> response = new HashMap<>();
-            response.put("token", "Bearer " + token);
+            response.put("token", "Bearer " + tokenDto.getToken());
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
