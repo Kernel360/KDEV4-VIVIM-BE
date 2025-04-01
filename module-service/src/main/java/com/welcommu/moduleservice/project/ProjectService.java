@@ -39,10 +39,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public void modifyProject(Long projectId, ProjectUpdateRequest dto) {
+    public void modifyProject(Long projectId, ProjectModifyRequest dto) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
-        dto.updateProject(project);
+        dto.modifyProject(project);
         projectUserRepository.deleteByProject(project);
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
                 userRepository.findById(userId)

@@ -53,7 +53,7 @@ public class ProjectController {
     @PutMapping("/{projectId}")
     public ResponseEntity<ApiResponse> modifyProject(
         @PathVariable Long projectId,
-        @RequestBody ProjectUpdateRequest dto
+        @RequestBody ProjectModifyRequest dto
     ) {
         projectService.modifyProject(projectId, dto);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
