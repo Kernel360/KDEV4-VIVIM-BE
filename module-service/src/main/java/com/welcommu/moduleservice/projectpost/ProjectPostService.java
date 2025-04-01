@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.projectpost.service;
+package com.welcommu.moduleservice.projectpost;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
