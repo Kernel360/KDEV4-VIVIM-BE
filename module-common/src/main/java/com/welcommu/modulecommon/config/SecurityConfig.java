@@ -41,57 +41,32 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        // JwtAuthenticationFilter에 JwtTokenHelper 주입
+
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenHelper);
 
         httpSecurity
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-                .authorizeHttpRequests(it -> {it
-                  .requestMatchers(
-                      PathRequest.toStaticResources().atCommonLocations()
-                  ).permitAll() // 정적 리소스 허용
-
-                  .requestMatchers("/swagger-ui/**").permitAll()  // Swagger UI 페이지 접근 가능
-                  .requestMatchers("/v3/api-docs/**").authenticated()  // API 문서는 인증 필요
-
-                  .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 없이 허용
-=======
-=======
->>>>>>> Stashed changes
                 .authorizeHttpRequests(it -> it
                         .requestMatchers(
                                 PathRequest.toStaticResources().atCommonLocations()
                         ).permitAll()
-                        // Swagger 테스트 시 사용. 배포할 때 삭제
                         .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
                         .requestMatchers("/api/login").permitAll()
                         .anyRequest().authenticated()
-                );
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-
-                  .anyRequest().authenticated();                 
-                  })
-          
-        // JWT 인증 필터 추가
-        httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         System.out.println("🔥 Security 설정 적용됨!");
 
         return httpSecurity.build();
     }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 앱의 주소
+
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));  // 허용된 Origin 목록
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -101,29 +76,8 @@ public class SecurityConfig {
         return source;
     }
 
-
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // hash로 암호화
         return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // application.properties에서 CORS 허용 도메인 목록 주입
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 }
