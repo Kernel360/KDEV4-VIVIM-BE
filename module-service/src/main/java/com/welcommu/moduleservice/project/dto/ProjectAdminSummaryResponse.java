@@ -17,7 +17,7 @@ public class ProjectAdminSummaryResponse {
     private boolean isDeleted;
     private LocalDateTime deletedAt;
 
-    public static ProjectAdminSummaryResponse toEntity(Project p) {
+    public static ProjectAdminSummaryResponse from(Project p) {
         return new ProjectAdminSummaryResponse(
                 p.getId(),
                 p.getName(),

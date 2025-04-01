@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,7 +33,7 @@ public class ProjectService {
         projectUserRepository.saveAll(participants);
     }
 
-    public Project readProject(Long projectId){
+    public Project getProject(Long projectId){
         return projectRepository.findByIdAndIsDeletedFalse(projectId);
 
     }
@@ -53,7 +52,7 @@ public class ProjectService {
         projectUserRepository.saveAll(updatedUsers);
     }
 
-    public List<ProjectUserSummaryResponse> readProjectsByUser(Long userId) {
+    public List<ProjectUserSummaryResponse> getProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
@@ -61,14 +60,14 @@ public class ProjectService {
 
         return projectUsers.stream()
                 .filter(pu -> !pu.getProject().getIsDeleted())
-                .map(pu -> ProjectUserSummaryResponse.toEntity(pu.getProject(), pu))
+                .map(pu -> ProjectUserSummaryResponse.of(pu.getProject(), pu))
                 .collect(Collectors.toList());
     }
 
-    public List<ProjectAdminSummaryResponse> readProjects() {
+    public List<ProjectAdminSummaryResponse> getProjects() {
         List<Project> projects = projectRepository.findAll();
         return projects.stream()
-                .map(ProjectAdminSummaryResponse::toEntity)
+                .map(ProjectAdminSummaryResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -81,13 +80,13 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectUserListResponse> readUserListByProject(Long projectId) {
+    public List<ProjectUserListResponse> getUserListByProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
 
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()
-                .map(ProjectUserListResponse::of)
+                .map(ProjectUserListResponse::from)
                 .collect(Collectors.toList());
     }
 
