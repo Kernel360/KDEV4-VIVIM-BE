@@ -25,11 +25,6 @@ public class CompanyController {
 
     private final CompanyManagementService companyManagementService;
 
-    @Autowired
-    public CompanyController(CompanyManagementService companyManagementService) {
-        this.companyManagementService = companyManagementService;
-    }
-
     // 회사 등록
     @PostMapping
     public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
