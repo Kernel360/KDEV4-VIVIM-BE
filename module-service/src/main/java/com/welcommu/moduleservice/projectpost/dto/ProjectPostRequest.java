@@ -24,7 +24,7 @@ public class ProjectPostRequest {
                 .projectPostStatus(request.getProjectPostStatus())
                 .createdAt(LocalDateTime.now())
                 .creatorId(1L)//1L는 테스트 용입니다.
-                .writerIp(clientIp)//테스트 용입니다.
+                .writerIp(clientIp)
                 .build();
     }
 }

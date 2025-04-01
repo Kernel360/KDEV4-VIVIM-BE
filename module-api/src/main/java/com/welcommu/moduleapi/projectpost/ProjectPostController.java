@@ -1,9 +1,10 @@
 package com.welcommu.moduleapi.projectpost.controller;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
-import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
+import com.welcommu.moduleservice.projectpost.ProjectPostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,9 +38,15 @@ public class ProjectPostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectPostListResponse>> getPost(@PathVariable Long projectId) {
+    public ResponseEntity<List<ProjectPostListResponse>> getPostList(@PathVariable Long projectId) {
         List<ProjectPostListResponse> resultList = projectPostService.getPostList(projectId);
         return ResponseEntity.ok(resultList);
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<ProjectPostDetailResponse> getPostDetail(@PathVariable Long projectId, @PathVariable Long postId) {
+        ProjectPostDetailResponse result = projectPostService.getPostDetail(projectId, postId);
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{postId}")

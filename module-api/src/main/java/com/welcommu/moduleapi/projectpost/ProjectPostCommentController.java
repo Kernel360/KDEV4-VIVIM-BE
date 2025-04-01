@@ -2,7 +2,7 @@ package com.welcommu.moduleapi.projectpost.controller;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.projectpost.dto.*;
-import com.welcommu.moduleservice.projectpost.service.ProjectPostCommentService;
+import com.welcommu.moduleservice.projectpost.ProjectPostCommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

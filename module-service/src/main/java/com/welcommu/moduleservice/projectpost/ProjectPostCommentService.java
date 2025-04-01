@@ -1,9 +1,10 @@
-package com.welcommu.moduleservice.projectpost.service;
+package com.welcommu.moduleservice.projectpost;
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.projectpost.ProjectPostComment;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostCommentRepository;
 import com.welcommu.moduleservice.projectpost.dto.*;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +27,10 @@ public class ProjectPostCommentService {
     public void modifyComment(Long postId, Long commentId, ProjectPostCommentRequest request) {
 
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
 
         if (!existingComment.getProjectPostId().equals(postId) ) {
-            throw new IllegalArgumentException("게시글의 Id가 댓글과 일치하지 않습니다.");
+            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_COMMENT);
         }
 
         existingComment.setComment(request.getComment());
@@ -48,10 +49,12 @@ public class ProjectPostCommentService {
     @Transactional
     public void deleteComment(Long postId, Long commentId) {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다."));
-        if (!existingComment.getProjectPostId().equals(postId)) {
-            throw new IllegalArgumentException("게시글의 ID가 댓글과 일치하지 않습니다.");
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
+
+        if (!existingComment.getProjectPostId().equals(postId) ) {
+            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_COMMENT);
         }
         existingComment.setDeletedAt();
+        existingComment.setDeleterId(1L);//테스트용
     }
 }

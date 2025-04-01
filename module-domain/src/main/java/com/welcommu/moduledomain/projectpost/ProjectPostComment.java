@@ -29,9 +29,6 @@ public class ProjectPostComment {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name = "is_deleted")
-    private Boolean isDeleted;
-
     @Column(name = "writer_ip", length = 50)
     private String writerIp;
 
@@ -54,13 +51,10 @@ public class ProjectPostComment {
         this.comment = comment;
     }
 
-    public void setWriterIp(String writerIp) {
-        this.writerIp = writerIp;
-    }
-
     public void setModifiedAt() {
         this.modifiedAt = LocalDateTime.now();
     }
+
     public void setModifierId(Long modifierId) {
         this.modifierId = modifierId;
     }
@@ -69,4 +63,7 @@ public class ProjectPostComment {
         this.deletedAt = LocalDateTime.now();
     }
 
+    public void setDeleterId(Long deleterId) {
+        this.deleterId = deleterId;
+    }
 }
