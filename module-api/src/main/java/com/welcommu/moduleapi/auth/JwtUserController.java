@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.controller;
+package com.welcommu.moduleapi.auth;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -13,6 +13,7 @@ public class UserResponse {
     private String name;
     private String companyName;  // 회사 이름을 추가
 
+    // User 객체를 UserResponse로 변환하는 정적 메서드
     public static UserResponse from(User user) {
         return new UserResponse(
                 user.getId(),

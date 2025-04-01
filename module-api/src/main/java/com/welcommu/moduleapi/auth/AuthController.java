@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.controller;
+package com.welcommu.moduleapi.auth;
 
 import com.welcommu.modulecommon.security.JwtUtil;
 import com.welcommu.moduleservice.user.UserService; // UserService import

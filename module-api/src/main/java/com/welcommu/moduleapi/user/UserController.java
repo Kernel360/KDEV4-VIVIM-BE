@@ -44,7 +44,9 @@ public class UserController {
 
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
-            return ResponseEntity.ok(new ApiResponse(200, "User found", user.get()));
+            // User를 UserResponse로 변환
+            UserResponse userResponse = UserResponse.from(user.get());
+            return ResponseEntity.ok(new ApiResponse(200, "User found", userResponse));
         } else {
             // 사용자 존재하지 않으면 404 응답과 함께 메시지 반환
             ApiResponse apiResponse = new ApiResponse(404, "User not found with id: " + id);

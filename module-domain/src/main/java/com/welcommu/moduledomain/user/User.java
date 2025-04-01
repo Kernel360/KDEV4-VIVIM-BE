@@ -1,5 +1,6 @@
 package com.welcommu.moduledomain.user;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.welcommu.moduledomain.company.Company;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,6 +43,7 @@ public class User {
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
 
+    @JsonManagedReference
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;

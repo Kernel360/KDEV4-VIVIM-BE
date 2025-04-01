@@ -48,33 +48,20 @@ public class SecurityConfig {
                       PathRequest.toStaticResources().atCommonLocations()
                   ).permitAll() // 정적 리소스 허용
 
-                  .requestMatchers("/swagger-ui/**").permitAll()  // Swagger UI 페이지 접근 가능
-                  .requestMatchers("/v3/api-docs/**").authenticated()  // API 문서는 인증 필요
+                            // Swagger 테스트 시 사용. 배포할 때 삭제
+                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
 
-                  .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 없이 허용
+                            .requestMatchers("/api/login").permitAll() // 로그인 경로 허용
 
-                  .anyRequest().authenticated();                 
-                  })
-          
+                            .anyRequest().authenticated(); // 나머지 경로는 인증 필요
+                });
+
         // JWT 인증 필터 추가
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         System.out.println("🔥 Security 설정 적용됨!");
 
         return httpSecurity.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 앱의 주소
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
 
