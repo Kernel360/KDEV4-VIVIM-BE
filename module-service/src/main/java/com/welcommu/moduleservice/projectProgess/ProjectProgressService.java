@@ -4,11 +4,11 @@ import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
-import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressUpdateRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,6 @@ public class ProjectProgressService {
     private final ProjectProgressRepository progressRepository;
 
     public void createProgress(
-        User creator,
         Long projectId,
         ProgressCreateRequest request
     ) {
@@ -29,16 +28,17 @@ public class ProjectProgressService {
         Project project = findProject(projectId);
         float biggestPosition = findBiggestPosition(projectId);
 
-        ProjectProgress projectProgress = request.toEntity(creator, project);
-        projectProgress.setPosition(biggestPosition + 1);
+        ProjectProgress projectProgress = request.toEntity(project);
+        projectProgress.setPosition(biggestPosition);
 
         progressRepository.save(projectProgress);
     }
 
-    public void updateProgress(Long projectId, Long progressId, ProgressCreateRequest request) {
+    public void updateProgress(Long projectId, Long progressId, ProgressUpdateRequest request) {
 
         ProjectProgress projectProgress = returnIfIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
+        projectProgress.setPosition(request.getPosition());
         progressRepository.save(projectProgress);
     }
 
@@ -56,10 +56,11 @@ public class ProjectProgressService {
     }
 
     private ProjectProgress returnIfIsMatchedProject(Long projectId, Long progressId) {
+
         Project project = findProject(projectId);
         ProjectProgress projectProgress = findProgress(progressId);
 
-        if (!projectProgress.getProject().getName().equals(project.getName()) && !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
+        if (!projectProgress.getProject().getName().equals(project.getName()) || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
             throw new CustomException(CustomErrorCode.MISMATCH_PROJECT_PROGRESS);
         }
         return projectProgress;
@@ -76,6 +77,6 @@ public class ProjectProgressService {
     }
 
     private float findBiggestPosition(Long projectId) {
-        return progressRepository.findMaxPositionByProjectId(projectId);  // 프로젝트에 단계가 없다면 기본값 0
+        return progressRepository.findMaxPositionByProjectId(projectId).orElse(0.0f);
     }
 }
