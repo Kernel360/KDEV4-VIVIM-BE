@@ -15,7 +15,7 @@ import java.util.function.Function;
 @Getter
 @Builder
 @AllArgsConstructor
-public class ProjectUpdateRequest {
+public class ProjectModifyRequest {
 
     private String name;
     private String description;
@@ -28,7 +28,7 @@ public class ProjectUpdateRequest {
     private List<ProjectUserRoleRequest> devUsers;
 
 
-    public void updateProject(Project project) {
+    public void modifyProject(Project project) {
         project.setName(this.name);
         project.setDescription(this.description);
         project.setStartDate(this.startDate);
