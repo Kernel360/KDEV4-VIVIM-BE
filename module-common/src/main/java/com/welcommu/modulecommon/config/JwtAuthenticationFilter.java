@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,18 +14,30 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtUtil jwtUtil;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui", "/swagger-ui/", "/swagger-ui.html", "/swagger-ui/index.html", "/v3/api-docs"
+    };
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String requestURI = request.getRequestURI();
+
+        // Swagger UI 및 API 문서 관련 요청은 JWT 필터를 적용하지 않음
+        for (String swaggerPath : SWAGGER_WHITELIST) {
+            if (requestURI.startsWith(swaggerPath)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        }
+
 
         // Authorization 헤더에서 JWT 토큰을 추출
         String token = getTokenFromRequest(request);
