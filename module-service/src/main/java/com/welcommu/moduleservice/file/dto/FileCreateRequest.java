@@ -9,12 +9,5 @@ import java.time.LocalDateTime;
 
 public class FileCreateRequest {
 
-    public static File toEntity(MultipartFile file, String fileUrl) {
-        return File.builder()
-                .fileName(file.getOriginalFilename())
-                .fileUrl(fileUrl)
-                .fileSize(file.getSize())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
+
 }

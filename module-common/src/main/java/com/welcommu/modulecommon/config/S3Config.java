@@ -17,8 +17,9 @@ public class S3Config {
     @Value("${S3_SECRET_KEY}")
     private String secretKey;
 
-    @Value("${cloud.aws.region.static}")//서울코드
+    @Value("${S3_REGION}")
     private String region;
+
 
     @Bean
     public AmazonS3 amazonS3() {

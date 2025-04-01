@@ -38,4 +38,17 @@ public class File {
 
     @Column(name="reference_id", nullable = false)
     private Long referenceId;
+
+    public static File create(String fileName, String fileUrl, Long fileSize, ReferenceType referenceType, Long referenceId) {
+        return File.builder()
+                .fileName(fileName)
+                .fileUrl(fileUrl)
+                .fileSize(fileSize)
+                .referenceType(referenceType)
+                .referenceId(referenceId)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+
 }
