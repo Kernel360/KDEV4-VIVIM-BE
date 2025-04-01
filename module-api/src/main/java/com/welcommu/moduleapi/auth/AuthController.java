@@ -2,10 +2,11 @@ package com.welcommu.moduleapi.auth;
 
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import com.welcommu.modulecommon.token.model.TokenDto;
-import com.welcommu.moduleservice.user.UserService; 
+import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduledomain.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ import java.util.Map;
 @RequestMapping("/api")
 public class AuthController {
 
-    private final JwtTokenHelper jwtTokenHelper; 
+    private final JwtTokenHelper jwtTokenHelper;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
@@ -27,12 +28,13 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // 로그인 API
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password) {
         try {
             User user = userService.getUserByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Invalid credentials"));
-            
+
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
             }
@@ -50,5 +52,14 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of("message", "Internal server error", "error", e.getMessage()));
         }
+    }
+
+    // 사용자 정보 조회 API
+    @GetMapping("/user")
+    public ResponseEntity<Map<String, String>> getUserInfo(@AuthenticationPrincipal String username) {
+        // 사용자의 이메일 정보 또는 username을 통해 사용자 정보 반환
+        Map<String, String> response = new HashMap<>();
+        response.put("authenticatedUser", username);
+        return ResponseEntity.ok(response);
     }
 }
