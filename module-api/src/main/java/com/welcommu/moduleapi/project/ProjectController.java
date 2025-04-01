@@ -45,9 +45,9 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<Optional<Project>> readProject(@PathVariable Long projectId
+    public ResponseEntity<Project> readProject(@PathVariable Long projectId
     ) {
-        Optional<Project> project = projectService.readProject(projectId);
+        Project project = projectService.readProject(projectId);
         return ResponseEntity.ok(project);
     }
 

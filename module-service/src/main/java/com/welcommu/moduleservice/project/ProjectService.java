@@ -34,7 +34,7 @@ public class ProjectService {
         projectUserRepository.saveAll(participants);
     }
 
-    public Optional<Project> readProject(Long projectId){
+    public Project readProject(Long projectId){
         return projectRepository.findByIdAndIsDeletedFalse(projectId);
 
     }
@@ -82,8 +82,7 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public List<ProjectUserListResponse> readUserListByProject(Long projectId) {
-        Project project = projectRepository.findByIdAndIsDeletedFalse(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+        Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
 
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
