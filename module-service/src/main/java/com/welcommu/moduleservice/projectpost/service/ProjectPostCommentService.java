@@ -1,6 +1,6 @@
 package com.welcommu.moduleservice.projectpost.service;
 
-import com.welcommu.moduledomain.projectpost.entity.ProjectPostComment;
+import com.welcommu.moduledomain.projectpost.ProjectPostComment;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostCommentRepository;
 import com.welcommu.moduleservice.projectpost.dto.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,13 +17,13 @@ public class ProjectPostCommentService {
     private final ProjectPostCommentRepository projectPostCommentRepository;
 
     @Transactional
-    public void createComment(Long postId, ProjectPostCommentCreateRequest request){
-        ProjectPostComment newComment= request.toEntity(postId, request);
+    public void createComment(Long postId, ProjectPostCommentRequest request, String clientIp) {
+        ProjectPostComment newComment= request.toEntity(postId, request, clientIp);
         projectPostCommentRepository.save(newComment);
     }
 
     @Transactional
-    public void modifyComment(Long postId, Long commentId, ProjectPostCommentModifyRequest request) {
+    public void modifyComment(Long postId, Long commentId, ProjectPostCommentRequest request) {
 
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다."));
@@ -32,8 +32,9 @@ public class ProjectPostCommentService {
             throw new IllegalArgumentException("게시글의 Id가 댓글과 일치하지 않습니다.");
         }
 
-
-        request.modifyProjectPostComment(existingComment, request);
+        existingComment.setComment(request.getComment());
+        existingComment.setModifiedAt();
+        existingComment.setModifierId(1L);//테스트용
     }
 
     @Transactional(readOnly = true)
@@ -45,12 +46,12 @@ public class ProjectPostCommentService {
     }
 
     @Transactional
-    public void deleteComment(Long postId, Long commentId, ProjectPostCommentDeleteRequest request) {
+    public void deleteComment(Long postId, Long commentId) {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 댓글을 찾을 수 없습니다."));
         if (!existingComment.getProjectPostId().equals(postId)) {
             throw new IllegalArgumentException("게시글의 ID가 댓글과 일치하지 않습니다.");
         }
-        request.deleteTo(existingComment);
+        existingComment.setDeletedAt();
     }
 }

@@ -1,17 +1,17 @@
 package com.welcommu.moduleapi.projectpost.controller;
 
-
 import com.welcommu.modulecommon.dto.ApiResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostDeleteRequest;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostCreateRequest;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostModifyRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.service.ProjectPostService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
+import static com.welcommu.modulecommon.util.IpUtil.getClientIp;
 
 
 @RestController
@@ -23,9 +23,6 @@ public class ProjectPostController {
 
 
     @PostMapping
-    public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request) {
-        projectPostService.createPost(projectId, request);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "게시글 생성 완료"));
     public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest) {
         String clientIp = getClientIp(httpRequest);
         projectPostService.createPost(projectId, request, clientIp);

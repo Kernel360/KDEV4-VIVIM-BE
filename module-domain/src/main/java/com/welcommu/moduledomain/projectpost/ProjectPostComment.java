@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Table(name = "project_post_comments")
 @Getter
-@Setter
 @Builder
 @Entity
 @NoArgsConstructor
@@ -39,9 +38,35 @@ public class ProjectPostComment {
     @Column(name = "creator_id", nullable = false)
     private Long creatorId;
 
+    @Column(name="modifier_id")
+    private Long modifierId;
+
+    @Column(name="deleter_id")
+    private Long deleterId;
+
     @Column(name = "project_post_id", nullable = false)
     private Long projectPostId;
 
     @Column(name = "parent_id")
     private Long parentId;
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public void setWriterIp(String writerIp) {
+        this.writerIp = writerIp;
+    }
+
+    public void setModifiedAt() {
+        this.modifiedAt = LocalDateTime.now();
+    }
+    public void setModifierId(Long modifierId) {
+        this.modifierId = modifierId;
+    }
+
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
 }

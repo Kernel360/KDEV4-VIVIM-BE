@@ -8,7 +8,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +32,13 @@ public class ProjectPostService {
             throw new IllegalArgumentException("프로젝트 ID가 게시글과 일치하지 않습니다.");
         }
 
-        existingPost.modify(
-                request.getTitle(),
-                request.getContent(),
-                request.getProjectPostStatus()
-        );
+        existingPost.setTitle(request.getTitle());
+        existingPost.setContent(request.getContent());
+        existingPost.setProjectPostStatus(request.getProjectPostStatus());
+        existingPost.setModifiedAt();
+        existingPost.setModifierId(1L);//테스트용
+
+
     }
 
     @Transactional(readOnly = true)
@@ -52,6 +53,6 @@ public class ProjectPostService {
     public void deletePost(Long projectId, Long postId) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-        existingPost.delete(LocalDateTime.now());
+        existingPost.setDeletedAt();
     }
 }
