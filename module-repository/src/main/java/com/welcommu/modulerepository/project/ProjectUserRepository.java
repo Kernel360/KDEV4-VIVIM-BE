@@ -13,6 +13,7 @@ public interface ProjectUserRepository extends JpaRepository<ProjectUser, Long> 
 
     List<ProjectUser> findByUser(User user);
     void deleteByProject(Project project);
+    List<ProjectUser> findByProject(Project project);
     Optional<ProjectUser> findByProjectIdAndUserId(Long projectId, Long userId);
     Optional<ProjectUser> findByUserAndProject(User user, Project project);
 }

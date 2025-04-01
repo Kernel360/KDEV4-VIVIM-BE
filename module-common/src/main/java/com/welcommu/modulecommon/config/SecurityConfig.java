@@ -10,6 +10,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity // security 활성화
@@ -31,18 +36,31 @@ public class SecurityConfig {
                     it
                             .requestMatchers(
                                     PathRequest.toStaticResources().atCommonLocations()
-                            ).permitAll(
+                            ).permitAll()
 
-                            // Swagger 관련 URL 허용 (GET 요청)
+                                    // Swagger 관련 URL 허용 (GET 요청)
                             .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
                             .requestMatchers("/api/login").permitAll()
-                            .anyRequest().authenticated();
-//                            .anyRequest().permitAll();
+//                            .anyRequest().authenticated();
+                            .anyRequest().permitAll();
                 })
                 .formLogin(Customizer.withDefaults());
         System.out.println("🔥 Security 설정 적용됨!");
 
         return httpSecurity.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 앱의 주소
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 
