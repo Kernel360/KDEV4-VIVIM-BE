@@ -38,27 +38,11 @@ public class SecurityConfig {
                                     PathRequest.toStaticResources().atCommonLocations()
                             ).permitAll()
 
-<<<<<<< HEAD
-                                    // Swagger 관련 URL 허용 (GET 요청)
+                            // Swagger 관련 URL 허용 (GET 요청)
                             .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
                             .requestMatchers("/api/login").permitAll()
 //                            .anyRequest().authenticated();
                             .anyRequest().permitAll();
-=======
-                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-
-                            // Swagger 테스트 시 사용. 배포할 때 삭제
-//                            .requestMatchers("/api/**").permitAll()
-
-                            // Swagger 관련 URL 허용 (GET 요청)
-                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-
-                            .requestMatchers("/api/login").permitAll() // 로그인 API는 인증 필요
-
-                            // 다른 모든 요청은 인증 필요
-                            .anyRequest().authenticated();
-//                            .anyRequest().permitAll(); // 나머지 모든 요청도 인증 없이 허용
->>>>>>> 7a2cb0b ([feature] Company별 직원조회 추가 (#43))
                 })
                 .formLogin(Customizer.withDefaults());
         System.out.println("🔥 Security 설정 적용됨!");
