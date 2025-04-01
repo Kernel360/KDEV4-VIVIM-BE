@@ -7,7 +7,6 @@ import com.welcommu.moduleservice.project.ProjectService;
 import com.welcommu.moduleservice.project.dto.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -47,12 +46,12 @@ public class ProjectController {
     @GetMapping("/{projectId}")
     public ResponseEntity<Project> readProject(@PathVariable Long projectId
     ) {
-        Project project = projectService.readProject(projectId);
+        Project project = projectService.getProject(projectId);
         return ResponseEntity.ok(project);
     }
 
     @PutMapping("/{projectId}")
-    public ResponseEntity<ApiResponse> updateProject(
+    public ResponseEntity<ApiResponse> modifyProject(
         @PathVariable Long projectId,
         @RequestBody ProjectUpdateRequest dto
     ) {
@@ -62,7 +61,7 @@ public class ProjectController {
 
     @GetMapping()
     public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(@RequestParam Long userId) {
-       List<ProjectUserSummaryResponse> projects = projectService.readProjectsByUser(userId);
+       List<ProjectUserSummaryResponse> projects = projectService.getProjectsByUser(userId);
        return ResponseEntity.ok(projects);
     }
 
@@ -77,13 +76,13 @@ public class ProjectController {
 
     @GetMapping("/all")
     public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin(){
-        List<ProjectAdminSummaryResponse> projects = projectService.readProjects();
+        List<ProjectAdminSummaryResponse> projects = projectService.getProjects();
         return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/{projectId}/users")
     public ResponseEntity<List<ProjectUserListResponse>> readProjectUsers(@PathVariable Long projectId){
-        List<ProjectUserListResponse> projects = projectService.readUserListByProject(projectId);
+        List<ProjectUserListResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
     }
 
