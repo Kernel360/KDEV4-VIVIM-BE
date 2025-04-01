@@ -1,13 +1,14 @@
 package com.welcommu.moduleapi.project;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.user.CustomUserDetails;
 import com.welcommu.moduleservice.project.ProjectService;
-import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
-import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
-import com.welcommu.moduleservice.project.dto.ProjectSummaryResponse;
-import com.welcommu.moduleservice.project.dto.ProjectUpdateRequest;
+import com.welcommu.moduleservice.project.dto.*;
+
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
+@Tag(name = "프로젝트 API", description = "프로젝트를 셍성, 수정, 삭제시킬 수 있습니다.")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -36,22 +38,30 @@ public class ProjectController {
         @RequestBody ProjectCreateRequest dto
     ) {
 
-        projectService.createProject(userDetails.getUser(), dto);
+        //projectService.createProject(userDetails.getUser(), dto);
+        projectService.createProject(dto);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
-    @PutMapping("/{projectId}")
-    public ResponseEntity<ApiResponse> updateProject(
-        @PathVariable Long projectId,
-        @RequestBody ProjectUpdateRequest dto
+    @GetMapping("/{projectId}")
+    public ResponseEntity<Project> readProject(@PathVariable Long projectId
     ) {
-        projectService.updateProject(projectId, dto);
+        Project project = projectService.getProject(projectId);
+        return ResponseEntity.ok(project);
+    }
+
+    @PutMapping("/{projectId}")
+    public ResponseEntity<ApiResponse> modifyProject(
+        @PathVariable Long projectId,
+        @RequestBody ProjectModifyRequest dto
+    ) {
+        projectService.modifyProject(projectId, dto);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
     }
 
     @GetMapping()
-    public ResponseEntity<List<ProjectSummaryResponse>> readProjects(@RequestParam Long userId) {
-       List<ProjectSummaryResponse> projects = projectService.readProjectsByUser(userId);
+    public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(@RequestParam Long userId) {
+       List<ProjectUserSummaryResponse> projects = projectService.getProjectsByUser(userId);
        return ResponseEntity.ok(projects);
     }
 
@@ -64,9 +74,17 @@ public class ProjectController {
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제되었습니다."));
     }
 
-    // TODO
-    // 모든 프로젝트 조회(관리자)
+    @GetMapping("/all")
+    public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin(){
+        List<ProjectAdminSummaryResponse> projects = projectService.getProjectList();
+        return ResponseEntity.ok(projects);
+    }
 
+    @GetMapping("/{projectId}/users")
+    public ResponseEntity<List<ProjectUserListResponse>> readProjectUsers(@PathVariable Long projectId){
+        List<ProjectUserListResponse> projects = projectService.getUserListByProject(projectId);
+        return ResponseEntity.ok(projects);
+    }
 
 
 
