@@ -17,7 +17,8 @@ public enum CustomErrorCode {
 
     // project progress
     NOT_FOUND_PROGRESS("PG001", "찾을 수 없는 프로젝트 단계입니다."),
-    MISMATCH_PROJECT_PROGRESS("P002", "프로젝트와 일치하지 않는 단계입니다.");
+    MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
+    NOT_FOUND_PROGRESS_POSITION("PG003", "프로젝트 단계를 찾을 수 없습니다.");
 
     private final String code;
     private final String errorMessage;
