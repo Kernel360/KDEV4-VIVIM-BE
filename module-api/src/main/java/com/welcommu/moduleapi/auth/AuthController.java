@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.controller;
+package com.welcommu.moduleapi.auth;
 
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import com.welcommu.modulecommon.token.model.TokenDto;
