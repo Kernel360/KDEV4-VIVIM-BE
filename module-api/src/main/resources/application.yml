@@ -24,3 +24,12 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+
+server:
+  port: 443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: ${sslPassword}  # openssl에서 설정한 비밀번호
+    key-store-type: PKCS12
+    key-alias: mycert
