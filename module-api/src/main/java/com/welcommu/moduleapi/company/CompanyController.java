@@ -25,7 +25,6 @@ public class CompanyController {
 
     private final CompanyManagementService companyManagementService;
 
-    // 회사 등록
     @PostMapping
     public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
         log.info("Received company: {}", companyRequest);
