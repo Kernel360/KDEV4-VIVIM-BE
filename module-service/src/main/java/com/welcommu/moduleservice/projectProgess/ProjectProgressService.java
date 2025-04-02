@@ -8,7 +8,7 @@ import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
-import com.welcommu.moduleservice.projectProgess.dto.ProgressUpdateRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
-    public void updateProgress(Long projectId, Long progressId, ProgressUpdateRequest request) {
+    public void modifyProgress(Long projectId, Long progressId, ProgressModifyRequest request) {
 
         ProjectProgress projectProgress = returnIfIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());

@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProgressUpdateRequest {
+public class ProgressModifyRequest {
 
     private String name;
     private float position;

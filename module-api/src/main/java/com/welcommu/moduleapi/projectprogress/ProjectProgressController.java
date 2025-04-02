@@ -4,7 +4,7 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
-import com.welcommu.moduleservice.projectProgess.dto.ProgressUpdateRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -47,11 +47,11 @@ public class ProjectProgressController {
     public ResponseEntity<ApiResponse> updateProgress(
         @PathVariable Long projectId,
         @PathVariable Long progressId,
-        @RequestBody ProgressUpdateRequest request
+        @RequestBody ProgressModifyRequest request
     ) {
 
         log.info("프로젝트 단계 수정 요청: projectId={}, progressId={}, request={}", projectId, progressId, request);
-        progressService.updateProgress(projectId, progressId, request);
+        progressService.modifyProgress(projectId, progressId, request);
         log.info("프로젝트 단계 수정 완료: projectId={}, progressId={}", projectId, progressId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
     }

@@ -15,7 +15,7 @@ import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
-import com.welcommu.moduleservice.projectProgess.dto.ProgressUpdateRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -86,11 +86,11 @@ class ProjectProgressServiceTest {
     }
 
     @Test
-    public void testUpdateProgress_Success() {
+    public void testModifyProgress_Success() {
         Long projectId = 1L;
         Long progressId = 1L;
 
-        ProgressUpdateRequest request = new ProgressUpdateRequest();
+        ProgressModifyRequest request = new ProgressModifyRequest();
 
         request.setName("매칭되는 상황에서 수정된 단계");
         request.setPosition(4.5f);
@@ -101,7 +101,7 @@ class ProjectProgressServiceTest {
         log.info("Before update: projectProgress name = {}", projectProgress.getName());
         log.info("Before update: projectProgress position = {}", projectProgress.getPosition());
 
-        projectProgressService.updateProgress(projectId, progressId, request);
+        projectProgressService.modifyProgress(projectId, progressId, request);
 
         log.info("After update: projectProgress name = {}", projectProgress.getName());
         log.info("After update: projectProgress position = {}", projectProgress.getPosition());
@@ -111,10 +111,10 @@ class ProjectProgressServiceTest {
     }
 
     @Test
-    public void testUpdateProgress_Mismatch() {
+    public void testModifyProgress_Mismatch() {
         Long projectId = 1L;
         Long progressId = 1L;
-        ProgressUpdateRequest request = new ProgressUpdateRequest();
+        ProgressModifyRequest request = new ProgressModifyRequest();
         projectProgress.setName(request.getName());
 
         Project differentProject = new Project();
@@ -127,7 +127,7 @@ class ProjectProgressServiceTest {
         when(progressRepository.findById(progressId)).thenReturn(Optional.of(projectProgress));
 
         CustomException exception = assertThrows(CustomException.class, () -> {
-            projectProgressService.updateProgress(projectId, progressId, request);
+            projectProgressService.modifyProgress(projectId, progressId, request);
         });
         assertEquals(CustomErrorCode.MISMATCH_PROJECT_PROGRESS, exception.getErrorCode());
     }
