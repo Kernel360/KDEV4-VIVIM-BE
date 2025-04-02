@@ -15,7 +15,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity
 public class SwaggerConfig implements WebMvcConfigurer {
 
-    // API 그룹을 정의하여 Swagger UI에서 API를 관리
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
@@ -26,16 +25,23 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .build();
     }
 
-    // Springdoc에서 JWT Bearer 토큰을 설정하는 부분
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info().title("API Documentation")
                         .description("This is the API documentation for the JWT-based authentication system.")
                         .version("1.0"))
-                .components(new Components().addSecuritySchemes("Bearer",
-                        new SecurityScheme().type(SecurityScheme.Type.APIKEY)
-                                .in(SecurityScheme.In.HEADER).name("Authorization"))) // API Key 설정
-                .addSecurityItem(new SecurityRequirement().addList("Bearer")); // 모든 API에 Bearer 보안 적용
+                .components(new Components()
+                        .addSecuritySchemes("Bearer",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                                        .in(SecurityScheme.In.HEADER)
+                                        .name("Authorization")
+                        )
+                )
+                .addSecurityItem(new SecurityRequirement().addList("Bearer"));
     }
+
 }
