@@ -47,16 +47,18 @@ class ProjectProgressServiceTest {
     @BeforeEach
     public void setUp() {
 
-        project = new Project();
-        project.setId(1L);
-        project.setName("임의의 프로젝트");
-        project.setCreatedAt(LocalDateTime.now());
+        project = Project.builder()
+            .id(1L)
+            .name("임의의 프로젝트")
+            .createdAt(LocalDateTime.now())
+            .build();
 
-        projectProgress = new ProjectProgress();
-        projectProgress.setId(1L);
-        projectProgress.setName("임의의 프로젝트 단계");
-        projectProgress.setProject(project);
-        projectProgress.setPosition(1.0f);
+        projectProgress = ProjectProgress.builder()
+            .id(1L)
+            .name("임의의 프로젝트 단계")
+            .project(project)
+            .position(1.0f)
+            .build();
 
         log.info("\n테스트 : Setup complete, project id {} and initial progress created", project.getId());
     }
