@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
 public interface ProjectProgressRepository extends JpaRepository<ProjectProgress, Long> {
 
      @Query("select max(p.position) from ProjectProgress p where p.project.id = :projectId")
-     Optional<Float> findMaxPositionByProjectId(@Param("Long projectId") Long projectId);
+     Optional<Float> findMaxPositionByProjectId(@Param("projectId") Long projectId);
      List<ProjectProgress> findByProject(Project project);
 }
