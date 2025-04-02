@@ -87,6 +87,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+
+        // hash로 암호화
         return new BCryptPasswordEncoder();
     }
 }
