@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProjectService {
     private final ProjectRepository projectRepository;
-    protected final ProjectProgressRepository progressRepository;
+    private final ProjectProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
 
