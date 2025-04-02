@@ -1,4 +1,4 @@
-package com.welcommu.moduleapi.projectpost.controller;
+package com.welcommu.moduleapi.projectpost;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
