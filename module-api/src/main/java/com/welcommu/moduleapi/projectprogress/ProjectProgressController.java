@@ -7,7 +7,7 @@ import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 @Controller
 @RequestMapping("/api/projects")
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Tag(name = "프로젝트 단계 API", description = "프로젝트 단계를 셍성, 수정, 삭제, 이동시킬 수 있습니다.")
 public class ProjectProgressController {
 
