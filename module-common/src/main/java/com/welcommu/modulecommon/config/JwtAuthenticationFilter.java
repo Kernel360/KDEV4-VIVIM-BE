@@ -39,7 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        if ("/api/login".equals(request.getRequestURI())) {
+        // 로그인 요청은 JWT 필터를 건너뛰어야 하므로 처리
+        if ("/api/login".equals(request.getRequestURI()) || "/login".equals(request.getRequestURI())) {
             filterChain.doFilter(request, response); // 토큰 검사 없이 다음 필터로 진행
             return;
         }

@@ -29,17 +29,17 @@ public class UserService {
         Company company = companyRepository.findById(userRequest.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
+
+        // 비밀번호 암호화
+        String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
+
         User user = User.builder()
                 .name(userRequest.getName())
                 .email(userRequest.getEmail())
                 .phone(userRequest.getPhone())
-                .password(userRequest.getPassword())
+                .password(encryptedPassword)
                 .company(company)
                 .build();
-
-        // 비밀번호 암호화
-        String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
-        user.setPassword(encryptedPassword);
 
         User savedUser = userRepository.saveAndFlush(user);
         return UserResponse.from(savedUser);
