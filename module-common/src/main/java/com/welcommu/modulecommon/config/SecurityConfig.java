@@ -81,11 +81,24 @@ public class SecurityConfig {
                                 response.setStatus(HttpServletResponse.SC_OK);
                             }
                         })
-                );
-                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         log.info("🔥 Security 설정 적용됨!");
+                .authorizeHttpRequests(it -> {
+                    it
+                            .requestMatchers(
+                                    PathRequest.toStaticResources().atCommonLocations()
+                            ).permitAll()
 
+                            // Swagger 관련 URL 허용 (GET 요청)
+                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
+                            .requestMatchers("/api/login").permitAll()
+//                            .anyRequest().authenticated();
+                            .anyRequest().permitAll();
+                })
+                .formLogin(Customizer.withDefaults());
+        System.out.println("🔥 Security 설정 적용됨!");
         return httpSecurity.build();
     }
 
