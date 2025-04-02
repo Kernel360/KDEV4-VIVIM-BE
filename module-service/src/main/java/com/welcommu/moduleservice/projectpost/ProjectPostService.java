@@ -33,9 +33,6 @@ public class ProjectPostService {
     public void createPost(Long projectId, ProjectPostRequest request, String clientIp) {
         ProjectPost newPost = request.toEntity(projectId, request, clientIp);
 
-    public void createPost(Long projectId, ProjectPostRequest request) {
-        ProjectPost newPost = request.toEntity(projectId, request);
-
         projectPostRepository.save(newPost);
     }
 
@@ -57,7 +54,7 @@ public class ProjectPostService {
 
 
     public List<ProjectPostListResponse> getPostList(Long projectId) {
-        List<ProjectPost> posts = projectPostRepository.findAllByProjectId(projectId);
+        List<ProjectPost> posts = projectPostRepository.findAllByProjectIdAndDeletedAtIsNull(projectId);
 
         return posts.stream()
                 .map(ProjectPostListResponse::from)
@@ -79,12 +76,5 @@ public class ProjectPostService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
         existingPost.setDeletedAt();
         existingPost.setDeleterId(1L);//테스트용
-
-    @Transactional
-    public void deletePost(Long projectId, Long postId) {
-        ProjectPost existingPost = projectPostRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
-        existingPost.delete(LocalDateTime.now());
-
     }
 }
