@@ -29,10 +29,6 @@ public class ProjectPostCommentService {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
 
-        if (!existingComment.getProjectPostId().equals(postId) ) {
-            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_COMMENT);
-        }
-
         existingComment.setComment(request.getComment());
         existingComment.setModifiedAt();
         existingComment.setModifierId(1L);//테스트용
@@ -50,10 +46,6 @@ public class ProjectPostCommentService {
     public void deleteComment(Long postId, Long commentId) {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
-
-        if (!existingComment.getProjectPostId().equals(postId) ) {
-            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_COMMENT);
-        }
         existingComment.setDeletedAt();
         existingComment.setDeleterId(1L);//테스트용
     }

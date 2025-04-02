@@ -15,12 +15,7 @@ public enum CustomErrorCode {
 
     NOT_FOUND_POST("POST001", "게시글을 찾을 수 없습니다."),
 
-    NOT_FOUND_COMMENT("COMMENT001","댓글을 찾을 수 없습니다."),
-
-    MISSMATCH_PROJECT_COMMENT("COMMENT002", "프로젝트 ID가 게시글과 일치하지 않습니다"),
-
-    MISSMATCH_PROJECT_POST("POST002", "프로젝트 ID가 게시글과 일치하지 않습니다");
-
+    NOT_FOUND_COMMENT("COMMENT001","댓글을 찾을 수 없습니다.");
     private final String code;
     private final String errorMessage;
 

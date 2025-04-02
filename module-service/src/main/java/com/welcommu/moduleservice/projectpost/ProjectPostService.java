@@ -30,10 +30,6 @@ public class ProjectPostService {
         ProjectPost existingPost= projectPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
 
-        if (!existingPost.getProjectId().equals(projectId)) {
-            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_POST);
-        }
-
         existingPost.setTitle(request.getTitle());
         existingPost.setContent(request.getContent());
         existingPost.setProjectPostStatus(request.getProjectPostStatus());
@@ -55,9 +51,7 @@ public class ProjectPostService {
     public ProjectPostDetailResponse getPostDetail(Long projectId, Long postId) {
         ProjectPost existingPost= projectPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
-        if (!existingPost.getProjectId().equals(projectId)) {
-            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_POST);
-        }
+
         return ProjectPostDetailResponse.from(existingPost);
     }
 
@@ -65,9 +59,6 @@ public class ProjectPostService {
     public void deletePost(Long projectId, Long postId) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
-        if (!existingPost.getProjectId().equals(projectId)) {
-            throw new CustomException(CustomErrorCode.MISSMATCH_PROJECT_POST);
-        }
         existingPost.setDeletedAt();
         existingPost.setDeleterId(1L);//테스트용
     }
