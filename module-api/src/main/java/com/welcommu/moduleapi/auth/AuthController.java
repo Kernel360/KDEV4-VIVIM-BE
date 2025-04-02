@@ -55,6 +55,8 @@ public class AuthController {
             Map<String, Object> claims = new HashMap<>();
             claims.put("email", user.getEmail());  // 클레임에 이메일 정보 추가
             claims.put("userId", user.getId());    // 클레임에 사용자 ID 추가
+            claims.put("role", user.getRole());
+            System.out.println(user.getRole());
 
             // 고유한 jti (JWT ID) 추가
             String tokenId = UUID.randomUUID().toString();
