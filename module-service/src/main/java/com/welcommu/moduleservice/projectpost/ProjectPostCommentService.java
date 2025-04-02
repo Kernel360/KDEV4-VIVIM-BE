@@ -40,7 +40,7 @@ public class ProjectPostCommentService {
 
     @Transactional(readOnly = true)
     public List<ProjectPostCommentListResponse> getCommentList(Long projectPostId) {
-        List<ProjectPostComment> comments = projectPostCommentRepository.findAllByProjectPostId(projectPostId);
+        List<ProjectPostComment> comments = projectPostCommentRepository.findAllByProjectPostIdAndDeletedAtIsNull(projectPostId);
         return comments.stream()
                 .map(ProjectPostCommentListResponse::from)
                 .collect(Collectors.toList());

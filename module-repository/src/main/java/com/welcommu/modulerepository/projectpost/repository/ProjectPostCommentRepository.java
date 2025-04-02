@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ProjectPostCommentRepository extends JpaRepository<ProjectPostComment, Long> {
-    List<ProjectPostComment> findAllByProjectPostId(Long ProjectpostId);
+    List<ProjectPostComment> findAllByProjectPostIdAndDeletedAtIsNull(Long ProjectpostId);
 }

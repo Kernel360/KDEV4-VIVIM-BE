@@ -45,7 +45,7 @@ public class ProjectPostService {
 
     @Transactional(readOnly = true)
     public List<ProjectPostListResponse> getPostList(Long projectId) {
-        List<ProjectPost> posts = projectPostRepository.findAllByProjectId(projectId);
+        List<ProjectPost> posts = projectPostRepository.findAllByProjectIdAndDeletedAtIsNull(projectId);
         return posts.stream()
                 .map(ProjectPostListResponse::from)
                 .collect(Collectors.toList());
