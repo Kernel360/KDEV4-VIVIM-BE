@@ -32,6 +32,9 @@ public class File {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Column(name = "file_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ReferenceType referenceType;
@@ -48,6 +51,10 @@ public class File {
                 .referenceId(referenceId)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
     }
 
 

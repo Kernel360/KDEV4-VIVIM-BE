@@ -1,5 +1,6 @@
 package com.welcommu.moduledomain.link;
 
+import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduledomain.file.ReferenceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,11 +30,29 @@ public class Link {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @Column(name = "file_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ReferenceType linkType;
+    private ReferenceType referenceType;
 
     @Column(name="reference_id", nullable = false)
     private Long referenceId;
+
+    public static Link createLink(String title, String url, ReferenceType referenceType, Long referenceId) {
+        return Link.builder()
+                .title(title)
+                .url(url)
+                .createdAt(LocalDateTime.now())
+                .referenceType(referenceType)
+                .referenceId(referenceId)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
+    }
 
 }
