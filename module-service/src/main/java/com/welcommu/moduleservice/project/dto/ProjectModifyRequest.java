@@ -51,7 +51,6 @@ public class ProjectModifyRequest {
         for (ProjectUserRoleRequest dto : devUsers) {
             result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
         }
-
         return result;
     }
 }

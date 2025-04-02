@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CompanyRequest {
+
     private String name;
     private String address;
     private String phone;
@@ -15,7 +16,6 @@ public class CompanyRequest {
     private String coOwner;
     private String businessNumber;
     private CompanyRole companyRole;
-
 
     // DTO를 Entity로 변환하는 toEntity 메서드
     public Company toEntity() {
@@ -27,7 +27,7 @@ public class CompanyRequest {
                 .coOwner(this.coOwner)
                 .companyRole(this.companyRole)
                 .businessNumber(this.businessNumber)
-                .isDeleted(false)  // 기본값을 false로 설정 (isDeleted 필드)
+                .isDeleted(false)
                 .build();
     }
 }

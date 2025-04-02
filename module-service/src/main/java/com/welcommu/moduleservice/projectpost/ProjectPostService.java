@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.projectpost.service;
+package com.welcommu.moduleservice.projectpost;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
@@ -40,7 +40,6 @@ public class ProjectPostService {
         );
     }
 
-    @Transactional(readOnly = true)
     public List<ProjectPostListResponse> getPostList(Long projectId) {
         List<ProjectPost> posts = projectPostRepository.findAllByProjectId(projectId);
         return posts.stream()
