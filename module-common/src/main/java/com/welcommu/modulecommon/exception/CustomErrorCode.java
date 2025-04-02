@@ -13,12 +13,12 @@ public enum CustomErrorCode {
     UNAUTHORIZED("AUTH001","권한이 없습니다."),
 
     // project
-    NOT_FOUND_PROJECT("P001", "찾을 수 없는 프로젝트입니다."),
+    NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
 
     // project progress
-    NOT_FOUND_PROGRESS("PG001", "찾을 수 없는 프로젝트 단계입니다."),
+    NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
-    NOT_FOUND_PROGRESS_POSITION("PG003", "프로젝트 단계를 찾을 수 없습니다.");
+    NOT_FOUND_PROGRESS_POSITION("PG003", "프로젝트 단계의 위치를 찾을 수 없습니다.");
 
     private final String code;
     private final String errorMessage;

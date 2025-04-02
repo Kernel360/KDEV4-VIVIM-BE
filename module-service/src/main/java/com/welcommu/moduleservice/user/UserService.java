@@ -26,27 +26,28 @@ public class UserService {
 
     @Transactional
     public UserResponse createUser(UserRequest userRequest) {
-
         Company company = companyRepository.findById(userRequest.getCompanyId())
-            .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
+                .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
+
+        // 비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
         User user = User.builder()
-            .name(userRequest.getName())
-            .email(userRequest.getEmail())
-            .phone(userRequest.getPhone())
-            .password(userRequest.getPassword())
-            .company(company)
-       .build();
+                .name(userRequest.getName())
+                .email(userRequest.getEmail())
+                .phone(userRequest.getPhone())
+                .password(encryptedPassword)
+                .company(company)
+                .build();
 
         User savedUser = userRepository.saveAndFlush(user);
-
         return UserResponse.from(savedUser);
     }
 
-    public List<UserResponse> getAllUsers() {
 
+    // 사용자 전체 목록 조회
+    public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
                 .map(UserResponse::from)
