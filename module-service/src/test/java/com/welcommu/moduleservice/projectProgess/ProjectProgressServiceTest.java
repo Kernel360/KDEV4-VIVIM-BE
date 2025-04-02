@@ -64,7 +64,7 @@ class ProjectProgressServiceTest {
     @Test
     public void testCreateProgress() {
 
-        Long projectId = 1L;
+        Long projectId = 2L;
         log.info("\n테스트 : CreateProgress with projectId: {}", projectId);
 
         ProgressCreateRequest request = mock(ProgressCreateRequest.class);
@@ -79,7 +79,7 @@ class ProjectProgressServiceTest {
         log.info("\n테스트 : After createProgress: progress position is {}", progressRequest.getPosition());
 
         assertEquals("생성된 단계", progressRequest.getName());
-        assertEquals(6.0f, progressRequest.getPosition());
+        assertEquals(7.0f, progressRequest.getPosition()); //Default ProjectProgress 에 1개 추가되어 있는 프로젝트
         verify(progressRepository).save(progressRequest);
 
         log.info("\n테스트 : Completed testCreateProgress successfully.");
