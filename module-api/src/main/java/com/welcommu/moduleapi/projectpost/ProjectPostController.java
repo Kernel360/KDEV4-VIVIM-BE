@@ -27,8 +27,7 @@ public class ProjectPostController {
     public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest) {
         String clientIp = getClientIp(httpRequest);
         projectPostService.createPost(projectId, request, clientIp);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse(HttpStatus.CREATED.value(), "게시글이 생성되었습니다."));
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "게시글 생성 완료되었습니다."));
     }
 
     @PutMapping("/{postId}")
