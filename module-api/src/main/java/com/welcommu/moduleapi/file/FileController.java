@@ -7,6 +7,8 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduleservice.file.FileService;
 import com.welcommu.moduleservice.file.dto.FileListResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -28,6 +30,7 @@ import static com.welcommu.modulecommon.util.FileUtil.getExtensionFromContentTyp
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@Tag(name = "파일 API", description = "파일을 셍성, 전체 조회, 삭제, 업로드, 다운로드할 수 있습니다.")
 public class FileController {
 
     private final AmazonS3 amazonS3Client;
@@ -41,6 +44,7 @@ public class FileController {
     private ObjectMetadata metadata;
 
     @PostMapping(path = "/posts/{postId}/file/stream", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "게시글에 파일 생성 및 S3 업로드")
     public ResponseEntity<ApiResponse>  createPostFile(@PathVariable Long postId, @RequestParam("file") MultipartFile file) throws IOException {
         metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
@@ -63,6 +67,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/approvals/{approvalId}/file/stream", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "승인요청에 파일 생성 및 S3 업로드")
     public ResponseEntity<ApiResponse>  createApprovalFile(@PathVariable Long approvalId, @RequestParam("file") MultipartFile file) throws IOException {
         metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
@@ -85,16 +90,19 @@ public class FileController {
     }
 
     @GetMapping("/posts/{postId}/files")
+    @Operation(summary = "게시글에 파일 목록 조회")
     public  ResponseEntity<List<FileListResponse>>  getPostFiles(@PathVariable Long postId) {
         return ResponseEntity.ok(fileService.getPostFiles(postId));
     }
 
     @GetMapping("/approvals/{approvalId}/files")
+    @Operation(summary = "승인요청에 파일 목록 조회")
     public  ResponseEntity<List<FileListResponse>>  getApprovalFiles(@PathVariable Long approvalId) {
         return ResponseEntity.ok(fileService.getApprovalFiles(approvalId));
     }
 
     @GetMapping("/files/{fileId}/download")
+    @Operation(summary = "파일 다운로드")
     public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
         File file = fileService.getFileInfo(fileId); // DB에서 파일 정보 조회
 
@@ -111,6 +119,7 @@ public class FileController {
                 .body(resource);
     }
     @DeleteMapping("/files/{fileId}")
+    @Operation(summary = "파일 삭제(SoftDelete)")
     public ResponseEntity<ApiResponse> deleteFile(@PathVariable Long fileId) {
         fileService.deleteFile(fileId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "파일이 삭제되었습니다."));
