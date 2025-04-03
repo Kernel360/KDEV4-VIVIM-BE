@@ -1,6 +1,7 @@
 package com.welcommu.moduledomain.user;
 
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduledomain.company.CompanyRole;
 import jakarta.persistence.*;
 import lombok.*;
 import jakarta.persistence.Entity;
@@ -45,4 +46,8 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
+
+    public CompanyRole getRole() {
+        return this.company != null ? this.company.getCompanyRole() : null;
+    }
 }

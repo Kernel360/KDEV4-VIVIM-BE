@@ -62,7 +62,7 @@ public class SecurityConfig {
                                 PathRequest.toStaticResources().atCommonLocations()
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-                        .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/*").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -75,7 +75,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 앱의 주소
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000" ,"https://www.vivim.co.kr" ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -87,8 +87,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
-        // hash로 암호화
         return new BCryptPasswordEncoder();
     }
 }
