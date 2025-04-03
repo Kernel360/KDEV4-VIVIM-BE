@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 )
 @EntityScan("com.welcommu.moduledomain")
 @EnableJpaRepositories("com.welcommu.modulerepository")
-@ComponentScan("com.welcommu")
 public class ModuleApiApplication {
 
     public static void main(String[] args) {

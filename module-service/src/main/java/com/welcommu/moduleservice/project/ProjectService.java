@@ -2,29 +2,40 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
+import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.modulerepository.user.UserRepository;
-import com.welcommu.moduleservice.project.dto.*;
+import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
+import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
+import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
+import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectUserListResponse;
+import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
     private final ProjectRepository projectRepository;
+    private final ProjectProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
 
     @Transactional
     public void createProject(ProjectCreateRequest dto) {
+
         Project project = dto.toEntity();
-        projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
+        initializeDefaultProgress(savedProject);
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
                 userRepository.findById(userId)
@@ -90,4 +101,21 @@ public class ProjectService {
                 .collect(Collectors.toList());
     }
 
+    private void initializeDefaultProgress(Project project) {
+        List<String> defaultSteps = Arrays.asList(
+            "요구사항 정의", "화면설계", "디자인", "퍼블리싱", "개발", "검수"
+        );
+        // 시작 순서를 1.0부터 부여
+        float position = 1.0f;
+        for (String step : defaultSteps) {
+            ProjectProgress progress = ProjectProgress.builder()
+                .name(step)
+                .position(position)
+                .createdAt(LocalDateTime.now())
+                .project(project)
+                .build();
+            progressRepository.save(progress);
+            position += 1.0f;
+        }
+    }
 }
