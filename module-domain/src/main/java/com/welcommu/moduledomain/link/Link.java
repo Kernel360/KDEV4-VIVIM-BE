@@ -47,7 +47,6 @@ public class Link {
                 .createdAt(LocalDateTime.now())
                 .referenceType(referenceType)
                 .referenceId(referenceId)
-                .createdAt(LocalDateTime.now())
                 .build();
     }
 
