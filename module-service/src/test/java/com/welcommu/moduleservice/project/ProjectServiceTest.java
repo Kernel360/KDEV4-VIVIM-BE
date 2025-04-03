@@ -1,7 +1,8 @@
 package com.welcommu.moduleservice.project;
 
-import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.project.ProjectUser;
+
+import com.welcommu.moduledomain.project.*;
+import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.project.ProjectRepository;

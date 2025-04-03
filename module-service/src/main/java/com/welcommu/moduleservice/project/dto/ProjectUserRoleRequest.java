@@ -3,7 +3,6 @@ package com.welcommu.moduleservice.project.dto;
 import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
-import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import com.welcommu.moduledomain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
