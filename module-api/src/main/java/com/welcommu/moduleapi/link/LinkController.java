@@ -43,7 +43,7 @@ public class LinkController {
 
     @GetMapping("/approvals/{approvalId}/links")
     @Operation(summary = "승인요청의 링크 전체 조회")
-    public ResponseEntity<List<LinkListResponse>> getArppvoalLinks(@PathVariable Long approvalId) {
+    public ResponseEntity<List<LinkListResponse>> getApprovalLinks(@PathVariable Long approvalId) {
         return ResponseEntity.ok(linkService.getApprovalLinks(approvalId));
     }
 
