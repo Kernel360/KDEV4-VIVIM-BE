@@ -15,11 +15,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ProjectPostCommentListResponse {
     private String comment;
+    private Long parentId;
     private LocalDateTime createdAt;
 
     public static ProjectPostCommentListResponse from(ProjectPostComment comment) {
         return new ProjectPostCommentListResponse(
                 comment.getComment(),
+                comment.getParentId(),
                 comment.getCreatedAt()
         );
     }

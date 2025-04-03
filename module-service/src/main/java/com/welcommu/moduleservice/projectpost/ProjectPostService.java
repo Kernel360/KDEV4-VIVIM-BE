@@ -3,23 +3,13 @@ package com.welcommu.moduleservice.projectpost;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
-import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
+import com.welcommu.modulerepository.projectpost.ProjectPostRepository;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import com.welcommu.moduledomain.projectpost.ProjectPost;
-import com.welcommu.modulerepository.projectpost.repository.ProjectPostRepository;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
-import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 import java.util.List;
 import java.util.stream.Collectors;

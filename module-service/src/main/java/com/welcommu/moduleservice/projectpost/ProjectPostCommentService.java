@@ -3,7 +3,7 @@ package com.welcommu.moduleservice.projectpost;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.projectpost.ProjectPostComment;
-import com.welcommu.modulerepository.projectpost.repository.ProjectPostCommentRepository;
+import com.welcommu.modulerepository.projectpost.ProjectPostCommentRepository;
 import com.welcommu.moduleservice.projectpost.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

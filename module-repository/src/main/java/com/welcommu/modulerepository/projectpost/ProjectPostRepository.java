@@ -1,4 +1,4 @@
-package com.welcommu.modulerepository.projectpost.repository;
+package com.welcommu.modulerepository.projectpost;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import org.springframework.data.jpa.repository.JpaRepository;

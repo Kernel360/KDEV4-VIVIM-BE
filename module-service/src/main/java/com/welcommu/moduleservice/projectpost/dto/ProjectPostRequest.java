@@ -15,6 +15,7 @@ public class ProjectPostRequest {
     private String title;
     private String content;
     private ProjectPostStatus projectPostStatus;
+    private Long  parentId;
 
     public ProjectPost toEntity(Long projectId, ProjectPostRequest request, String clientIp) {
         return ProjectPost.builder()
@@ -25,6 +26,7 @@ public class ProjectPostRequest {
                 .createdAt(LocalDateTime.now())
                 .creatorId(1L)//1L는 테스트 용입니다.
                 .writerIp(clientIp)
+                .parentId(request.parentId)
                 .build();
     }
 }

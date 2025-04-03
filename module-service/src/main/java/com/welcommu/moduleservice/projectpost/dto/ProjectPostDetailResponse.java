@@ -12,11 +12,13 @@ import lombok.NoArgsConstructor;
 public class ProjectPostDetailResponse {
     private String title;
     private String description;
+    private Long parentId;
 
     public static ProjectPostDetailResponse from(ProjectPost post) {
         return new ProjectPostDetailResponse(
             post.getTitle(),
-            post.getContent()
+            post.getContent(),
+                post.getParentId()
         );
     }
 }

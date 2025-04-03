@@ -17,6 +17,7 @@ public class ProjectPostListResponse {
     private Long creatorId;
     private ProjectPostStatus projectPostStatus;
     private LocalDateTime createdAt;
+    private Long parentId;
 
     public static ProjectPostListResponse from(ProjectPost post) {
         return new ProjectPostListResponse(
@@ -25,7 +26,8 @@ public class ProjectPostListResponse {
                 post.getContent(),
                 post.getCreatorId(),
                 post.getProjectPostStatus(),
-                post.getCreatedAt()
+                post.getCreatedAt(),
+                post.getParentId()
         );
     }
 
