@@ -20,15 +20,15 @@ public class ProjectUserSummaryResponse {
     private LocalDateTime deletedAt;
     private ProjectUserManageRole myRole;
 
-    public static ProjectUserSummaryResponse of(Project p, ProjectUser pu) {
+    public static ProjectUserSummaryResponse of(Project project, ProjectUser projectUser) {
         return new ProjectUserSummaryResponse(
-                p.getId(),
-                p.getName(),
-                p.getStartDate(),
-                p.getEndDate(),
-                p.getIsDeleted(),
-                p.getDeletedAt(),
-                pu.getProjectUserManageRole()
+                project.getId(),
+                project.getName(),
+                project.getStartDate(),
+                project.getEndDate(),
+                project.getIsDeleted(),
+                project.getDeletedAt(),
+                projectUser.getProjectUserManageRole()
         );
     }
 }
