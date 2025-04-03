@@ -63,49 +63,19 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
                         .requestMatchers("/api/login").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")  // 로그인 페이지 URL을 /login으로 설정
-                        .permitAll()  // 로그인 페이지는 모두 접근 가능
-                        .successHandler(new AuthenticationSuccessHandler() {
-                            @Override
-                            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                // 로그인 성공 시 JWT 토큰을 생성하여 응답에 추가
-                                Map<String, Object> claims = new HashMap<>();
-                                claims.put("username", authentication.getName());  // 예: 사용자 이름 추가
-                                TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);  // JWT 발급
-
-                                // JWT 토큰을 Authorization 헤더에 포함시켜 응답
-                                response.setHeader("Authorization", "Bearer " + accessToken.getToken());
-                                response.setStatus(HttpServletResponse.SC_OK);
-                            }
-                        })
+                        .requestMatchers("/swagger-ui/*").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         log.info("🔥 Security 설정 적용됨!");
-                .authorizeHttpRequests(it -> {
-                    it
-                            .requestMatchers(
-                                    PathRequest.toStaticResources().atCommonLocations()
-                            ).permitAll()
 
-                            // Swagger 관련 URL 허용 (GET 요청)
-                            .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-                            .requestMatchers("/api/login").permitAll()
-//                            .anyRequest().authenticated();
-                            .anyRequest().permitAll();
-                })
-                .formLogin(Customizer.withDefaults());
-        System.out.println("🔥 Security 설정 적용됨!");
         return httpSecurity.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 앱의 주소
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000" ,"https://www.vivim.co.kr" ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
