@@ -30,7 +30,7 @@ import static com.welcommu.modulecommon.util.FileUtil.getExtensionFromContentTyp
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "파일 API", description = "파일을 셍성, 전체 조회, 삭제, 업로드, 다운로드할 수 있습니다.")
+@Tag(name = "파일 API", description = "파일을 생성, 전체 조회, 삭제, 업로드, 다운로드할 수 있습니다.")
 public class FileController {
 
     private final AmazonS3 amazonS3Client;
@@ -45,7 +45,7 @@ public class FileController {
 
     @PostMapping(path = "/posts/{postId}/file/stream", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "게시글에 파일 생성 및 S3 업로드")
-    public ResponseEntity<ApiResponse>  createPostFile(@PathVariable Long postId, @RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseEntity<ApiResponse>  createPostFile(@PathVariable Long postId, @RequestPart("file") MultipartFile file) throws IOException {
         metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());

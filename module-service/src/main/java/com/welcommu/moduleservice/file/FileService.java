@@ -1,6 +1,8 @@
 package com.welcommu.moduleservice.file;
 
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.modulerepository.file.FileRepository;
@@ -43,13 +45,13 @@ public class FileService {
 
     public File getFileInfo(Long fileId) {
         return fileRepository.findById(fileId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_FILE));
     }
 
     @Transactional
     public void deleteFile(Long fileId) {
         File existingFile = fileRepository.findById(fileId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_FILE));
         existingFile.setDeletedAt();
     }
 }

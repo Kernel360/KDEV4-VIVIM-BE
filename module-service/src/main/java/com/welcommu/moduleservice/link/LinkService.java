@@ -1,6 +1,8 @@
 package com.welcommu.moduleservice.link;
 
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.moduledomain.link.Link;
@@ -51,7 +53,7 @@ public class LinkService {
     @Transactional
     public void deleteLink(Long linkId) {
         Link existingLink = linkRepository.findById(linkId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_LINK));
         existingLink.setDeletedAt();
     }
 }

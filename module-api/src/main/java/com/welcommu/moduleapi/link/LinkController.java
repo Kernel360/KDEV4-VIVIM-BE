@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "링크 API", description = "링크를 셍성, 전체조회, 수정, 삭제할 수 있습니다.")
+@Tag(name = "링크 API", description = "링크를 생성, 전체조회, 수정, 삭제할 수 있습니다.")
 public class LinkController {
 
     private final LinkService linkService;
