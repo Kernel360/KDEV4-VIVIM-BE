@@ -13,6 +13,10 @@ spring:
       hibernate:
         format_sql: true
 
+  sql:
+    init:
+      mode: always
+
   properties:
     hibernate:
       format_sql: true
@@ -20,14 +24,13 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
-
 server:
   port: 443
   ssl:
     enabled: true
-#    key-store: classpath:keystore.p12
-#    key-store: file:/Users/park/keystore.p12
-    key-store: file:/app/keystore.p12
+    key-store: classpath:keystore.p12
+    #    key-store: file:/Users/park/keystore.p12
+    #    key-store: file:/app/keystore.p12
     key-store-password: ${SSLPASSWORD}
 
     key-store-type: PKCS12
