@@ -44,7 +44,7 @@ public class Checklist {
         this.deletedAt = LocalDateTime.now();
     }
 
-    // softDelete 적용 예정
+    // TODO softDelete 적용 예정
 //    public boolean isDeleted(LocalDateTime deletedAt) {
 //        return this.deletedAt != null;
 //    }
