@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.user;
+package com.welcommu.modulecommon.security;
 
 import com.welcommu.moduledomain.user.CustomUserDetails;
 import com.welcommu.moduledomain.user.User;
