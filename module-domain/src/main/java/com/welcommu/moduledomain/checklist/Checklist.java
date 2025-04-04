@@ -44,9 +44,10 @@ public class Checklist {
         this.deletedAt = LocalDateTime.now();
     }
 
-    public boolean isDeleted(LocalDateTime deletedAt) {
-        return this.deletedAt != null;
-    }
+    // softDelete 적용 예정
+//    public boolean isDeleted(LocalDateTime deletedAt) {
+//        return this.deletedAt != null;
+//    }
 
     public void setName(String name) {
         this.name = name;
