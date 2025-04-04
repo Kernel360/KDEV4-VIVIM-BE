@@ -22,7 +22,7 @@ import static com.welcommu.modulecommon.util.IpUtil.getClientIp;
 @RestController
 @RequestMapping("/api/projects/{projectId}/posts")
 @RequiredArgsConstructor
-@Tag(name = "게시글 API", description = "게시글을 셍성, 전체 조회, 상세 조회, 수정, 삭제, 이동시킬 수 있습니다.")
+@Tag(name = "게시글 API", description = "게시글을 생성, 전체 조회, 상세 조회, 수정, 삭제, 이동시킬 수 있습니다.")
 public class ProjectPostController {
     private final ProjectPostService projectPostService;
 

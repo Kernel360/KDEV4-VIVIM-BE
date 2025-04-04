@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon;
+package com.welcommu.modulecommon.modulecommon;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
