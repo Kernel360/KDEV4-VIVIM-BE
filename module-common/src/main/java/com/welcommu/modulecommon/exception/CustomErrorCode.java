@@ -15,6 +15,12 @@ public enum CustomErrorCode {
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
 
+    // project post
+    NOT_FOUND_POST("POST001", "게시글을 찾을 수 없습니다."),
+
+    // project post comment
+    NOT_FOUND_COMMENT("COMMENT001","댓글을 찾을 수 없습니다."),
+
     // project progress
     NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
