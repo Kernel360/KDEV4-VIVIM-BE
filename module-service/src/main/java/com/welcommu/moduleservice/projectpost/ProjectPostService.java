@@ -20,10 +20,11 @@ public class ProjectPostService {
 
     private final ProjectPostRepository projectPostRepository;
 
-    public void createPost(Long projectId, ProjectPostRequest request, String clientIp) {
+    public Long createPost(Long projectId, ProjectPostRequest request, String clientIp) {
         ProjectPost newPost = request.toEntity(projectId, request, clientIp);
 
         projectPostRepository.save(newPost);
+        return  newPost.getId();
     }
 
     @Transactional
