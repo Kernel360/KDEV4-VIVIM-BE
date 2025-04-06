@@ -1,7 +1,9 @@
 package com.welcommu.modulecommon.config;
 
 import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
+import com.welcommu.modulecommon.security.CustomUserDetailsService;
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -21,9 +23,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
-@Slf4j
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private static final String[] SWAGGER = {
@@ -33,18 +36,15 @@ public class SecurityConfig {
     };
 
     private final JwtTokenHelper jwtTokenHelper;
+    private final CustomUserDetailsService userDetailsService;
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
-    public SecurityConfig(JwtTokenHelper jwtTokenHelper) {
-        this.jwtTokenHelper = jwtTokenHelper;
-    }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenHelper);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter (jwtTokenHelper, userDetailsService);
 
         httpSecurity
                 .cors(Customizer.withDefaults())

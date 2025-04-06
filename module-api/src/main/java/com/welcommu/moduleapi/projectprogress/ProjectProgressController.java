@@ -1,6 +1,7 @@
 package com.welcommu.moduleapi.projectprogress;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.user.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,12 +34,13 @@ public class ProjectProgressController {
     @PostMapping("/{projectId}/progress")
     @Operation(summary = "프로젝트 단계 생성")
     public ResponseEntity<ApiResponse> createProjectProgress(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long projectId,
         @RequestBody ProgressCreateRequest request
     ) {
 
         log.info("프로젝트 단계 생성 요청: projectId={}, request={}", projectId, request);
-        progressService.createProgress(projectId, request);
+        progressService.createProgress(userDetails.getUser(), projectId, request);
         log.info("프로젝트 단계 생성 완료: projectId={}", projectId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(),"프로젝트 단계 생성을 성공했습니다."));
     }

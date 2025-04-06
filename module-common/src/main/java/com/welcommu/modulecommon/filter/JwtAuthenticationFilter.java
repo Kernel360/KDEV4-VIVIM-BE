@@ -12,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer.UserDetailsBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
@@ -60,10 +62,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 유효한지 확인하고 인증 정보 설정
         try {
-            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token); // 토큰 유효성 검증
+            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
 
             // 유효한 토큰이 있을 때 로그
-            String username = (String) claims.get("email"); // 클레임에서 이메일을 추출
+            String username = (String) claims.get("email");
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
