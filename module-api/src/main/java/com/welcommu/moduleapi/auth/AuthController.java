@@ -1,7 +1,7 @@
 package com.welcommu.moduleapi.auth;
 
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
-import com.welcommu.modulecommon.token.model.TokenDto;
+import com.welcommu.modulecommon.token.dto.TokenDto;
 import com.welcommu.moduledomain.token.RefreshTokenEntity;
 import com.welcommu.modulerepository.token.RefreshTokenRepository;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;

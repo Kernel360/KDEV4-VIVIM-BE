@@ -2,7 +2,7 @@ package com.welcommu.modulecommon.token.helper;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.token.model.TokenDto;
+import com.welcommu.modulecommon.token.dto.TokenDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;

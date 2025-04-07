@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileListResponse {
+    Long id;
     String fileName;
 
     public static FileListResponse from(File file) {
         return new FileListResponse(
+                file.getId(),
                 file.getFileName()
         );
     }
