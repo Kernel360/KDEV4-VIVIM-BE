@@ -30,7 +30,7 @@ public class CompanyController {
 
 
     @PostMapping
-    @Operation(summary = "회사를 생성합니다..")
+    @Operation(summary = "회사를 생성합니다.")
     public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
         log.info("Received company: {}", companyRequest);
 
