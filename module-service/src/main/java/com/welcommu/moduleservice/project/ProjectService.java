@@ -12,7 +12,7 @@ import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
-import com.welcommu.moduleservice.project.dto.ProjectUserListResponse;
+import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -91,13 +91,13 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectUserListResponse> getUserListByProject(Long projectId) {
+    public List<ProjectUserResponse> getUserListByProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
 
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()
-                .map(ProjectUserListResponse::from)
+                .map(ProjectUserResponse::from)
                 .collect(Collectors.toList());
     }
 

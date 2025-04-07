@@ -2,7 +2,7 @@ package com.welcommu.moduleapi.project;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
+import com.welcommu.moduledomain.user.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.project.ProjectService;
 import com.welcommu.moduleservice.project.dto.*;
 
@@ -81,8 +81,8 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}/users")
-    public ResponseEntity<List<ProjectUserListResponse>> readProjectUsers(@PathVariable Long projectId){
-        List<ProjectUserListResponse> projects = projectService.getUserListByProject(projectId);
+    public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(@PathVariable Long projectId){
+        List<ProjectUserResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
     }
 

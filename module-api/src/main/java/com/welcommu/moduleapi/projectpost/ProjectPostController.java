@@ -30,10 +30,10 @@ public class ProjectPostController {
 
     @PostMapping
     @Operation(summary = "게시글 생성")
-    public ResponseEntity<ApiResponse> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<Long> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest) {
         String clientIp = getClientIp(httpRequest);
-        projectPostService.createPost(projectId, request, clientIp);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "게시글 생성 완료되었습니다."));
+        Long postId =projectPostService.createPost(projectId, request, clientIp);
+        return ResponseEntity.ok().body(postId);
     }
 
     @PutMapping("/{postId}")
