@@ -18,8 +18,8 @@ public class CustomException extends RuntimeException {
     }
 
     public CustomException(CustomErrorCode errorCode, Throwable cause) {
-        super(errorCode.getErrorMessage(), cause);  // 부모 클래스에 메시지와 예외 객체 전달
+        super(errorCode.getErrorMessage(), cause);
         this.errorCode = errorCode;
-        log.error("Error occurred: {}", errorCode.getErrorMessage(), cause);  // 예외 로그 출력
+        log.error("Error occurred: {}", errorCode.getErrorMessage(), cause); 
     }
 }
