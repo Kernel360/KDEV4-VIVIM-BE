@@ -46,7 +46,7 @@ public class UserController {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {
             UserResponse response = UserResponse.from(user.get());
-            return ResponseEntity.ok(new ApiResponse(200, "User found", user.get()));
+            return ResponseEntity.ok(new ApiResponse(200, "User found", response));
         } else {
             ApiResponse apiResponse = new ApiResponse(404, "User not found with id: " + id);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiResponse);
@@ -103,14 +103,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "유저를 삭제합니다.(Hard Delete")
+    @Operation(summary = "유저를 삭제합니다. (Hard Delete")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/soft/{id}")
-    @Operation(summary = "유저를 삭제합니다.(Soft Delete")
+    @Operation(summary = "유저를 삭제합니다. (Soft Delete")
     public ResponseEntity<Void> softDeleteUser(@PathVariable Long id) {
         userService.softDeleteUser(id);
         return ResponseEntity.noContent().build();
