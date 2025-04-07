@@ -21,8 +21,10 @@ public class UserRequest {
     @Size(min = 4)
     private String password;
 
+    @NotNull
     private String name;
 
+    @NotNull
     private String phone;
   
     @NotNull
