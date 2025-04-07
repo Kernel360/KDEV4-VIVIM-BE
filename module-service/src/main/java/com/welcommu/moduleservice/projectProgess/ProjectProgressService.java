@@ -4,6 +4,7 @@ import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
@@ -21,6 +22,7 @@ public class ProjectProgressService {
     private final ProjectProgressRepository progressRepository;
 
     public void createProgress(
+        User user,
         Long projectId,
         ProgressCreateRequest request
     ) {

@@ -29,7 +29,6 @@ public class UserService {
         Company company = companyRepository.findById(userRequest.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
-
         // 비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
