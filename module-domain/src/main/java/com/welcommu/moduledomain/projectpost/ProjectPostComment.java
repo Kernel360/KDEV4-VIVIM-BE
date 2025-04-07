@@ -47,7 +47,7 @@ public class ProjectPostComment {
     @Column(name = "parent_id")
     private Long parentId;
 
-    public void setComment(String comment) {
+    public void setContent(String comment) {
         this.content = content;
     }
 
