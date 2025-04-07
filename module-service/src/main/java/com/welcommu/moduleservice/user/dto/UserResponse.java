@@ -13,6 +13,7 @@ public class UserResponse {
     private String email;
     private String phone;
     private String companyName;
+    private String companyRole;
 
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -20,7 +21,8 @@ public class UserResponse {
                 user.getName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getCompany() != null ? user.getCompany().getName() : null
+                user.getCompany() != null ? user.getCompany().getName() : null,
+                user.getCompany().getCompanyRole().toString()
         );
     }
 }
