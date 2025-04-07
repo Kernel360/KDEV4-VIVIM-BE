@@ -2,7 +2,6 @@ package com.welcommu.moduleapi.user;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import com.welcommu.moduleservice.user.UserService;
@@ -10,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,10 +66,10 @@ public class UserController {
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/modifypasswordwithoutlogin")
+    @PutMapping("/resetpassword")
     @Operation(summary = "비밀번호를 잊었을 시 해당 email의 비밀번호를 초기화합니다.")
-    public ResponseEntity<ApiResponse> modifyPasswordByUserWithoutLogin(@RequestParam String email){
-        if(userService.modifyPasswordWithoutLogin(email)){
+    public ResponseEntity<ApiResponse> resetPasswordByUserWithoutLogin(@RequestParam String email){
+        if(userService.resetPasswordWithoutLogin(email)){
             return ResponseEntity.ok(new ApiResponse(200, "Password changed"));
         }else{
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "User not found with email: " + email));

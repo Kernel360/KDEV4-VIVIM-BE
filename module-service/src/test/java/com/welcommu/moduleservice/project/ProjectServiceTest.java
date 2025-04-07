@@ -2,16 +2,27 @@ package com.welcommu.moduleservice.project;
 
 
 import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectprogress.ProjectProgress;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.when;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
     @Mock
     private ProjectRepository projectRepository;
@@ -28,31 +39,27 @@ class ProjectServiceTest {
     @InjectMocks
     private ProjectService projectService;
 
-    public ProjectServiceTest() {
-        MockitoAnnotations.openMocks(this); // 초기화
-    }
-
     @Test
     void 프로젝트_생성_성공() {
         // given
-        ProjectCreateRequest request = new ProjectCreateRequest();
-        // 필드 세팅 필요: 예) request.setTitle("테스트 프로젝트");
+        ProjectCreateRequest dto = mock(ProjectCreateRequest.class);
+        Project mockProject = mock(Project.class);
+        Project savedProject = mock(Project.class);
+        List<ProjectUser> mockUsers = Collections.singletonList(mock(ProjectUser.class));
 
-        Project mockProject = Project.builder()
-                .title("테스트 프로젝트")
-                .isDeleted(false)
-                .build();
+        when(dto.toEntity()).thenReturn(mockProject);
+        when(projectRepository.save(mockProject)).thenReturn(savedProject);
+        when(dto.toProjectUsers(eq(savedProject), any())).thenReturn(mockUsers);
 
-        when(projectRepository.save(any(Project.class))).thenReturn(mockProject);
-        when(userRepository.findById(anyLong())).thenReturn(Optional.of(User.builder().id(1L).build()));
-        when(projectUserRepository.saveAll(anyList())).thenReturn(Collections.emptyList());
+        when(userRepository.findById(anyLong()))
+                .thenReturn(Optional.of(User.builder().id(1L).build()));
 
         // when
-        projectService.createProject(request);
+        projectService.createProject(dto);
 
         // then
-        verify(projectRepository, times(1)).save(any(Project.class));
-        verify(projectUserRepository, times(1)).saveAll(anyList());
-        verify(progressRepository, atLeastOnce()).save(any()); // 초기 단계 저장
+        verify(projectRepository).save(mockProject);
+        verify(progressRepository, times(6)).save(any(ProjectProgress.class)); // 초기 6단계 저장
+        verify(projectUserRepository).saveAll(mockUsers);
     }
 }

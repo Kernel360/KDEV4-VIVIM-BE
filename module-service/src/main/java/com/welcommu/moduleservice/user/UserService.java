@@ -29,8 +29,6 @@ public class UserService {
         Company company = companyRepository.findById(userRequest.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
-
-        // 비밀번호 암호화
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
         User user = User.builder()
@@ -41,11 +39,9 @@ public class UserService {
                 .company(company)
                 .build();
 
-        User savedUser = userRepository.saveAndFlush(user);
+        userRepository.saveAndFlush(user);
     }
 
-
-    // 사용자 전체 목록 조회
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -83,7 +79,7 @@ public class UserService {
         }
     }
 
-    public boolean modifyPasswordWithoutLogin(String email){
+    public boolean resetPasswordWithoutLogin(String email){
         Optional<User> existingUser = userRepository.findByEmail(email);
         log.info(String.valueOf(existingUser));
         if (existingUser.isPresent()) {
