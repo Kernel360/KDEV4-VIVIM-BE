@@ -45,6 +45,7 @@ public class ProjectProgressService {
     public void modifyProgress(User user, Long projectId, Long progressId, ProgressModifyRequest request) {
 
         Project project = findProject(projectId);
+        findProgress(progressId);
         checkUserPermission(user, project);
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
