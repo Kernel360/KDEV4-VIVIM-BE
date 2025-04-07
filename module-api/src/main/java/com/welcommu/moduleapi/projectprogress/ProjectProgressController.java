@@ -1,7 +1,7 @@
 package com.welcommu.moduleapi.projectprogress;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
-import com.welcommu.moduledomain.user.AuthUserDetailsImpl;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;

@@ -15,11 +15,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "manage_role",nullable = false)
+    @Column(name = "manage_role", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProjectUserManageRole projectUserManageRole;
 

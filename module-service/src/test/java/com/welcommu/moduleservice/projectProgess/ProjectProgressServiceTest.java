@@ -11,6 +11,7 @@ import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
@@ -69,15 +70,22 @@ class ProjectProgressServiceTest {
         Long projectId = 2L;
         log.info("\n테스트 : CreateProgress with projectId: {}", projectId);
 
-        ProgressCreateRequest request = mock(ProgressCreateRequest.class);
+        User user = User.builder()
+            .name("송어진")
+            .email("eojin@naver.com")
+            .phone("010-1111-2222")
+            .password("1234")
+            .build();
+
+        ProgressCreateRequest progressCreateRequest = mock(ProgressCreateRequest.class);
         ProjectProgress progressRequest = new ProjectProgress();
         progressRequest.setName("생성된 단계");
 
-        when(request.toEntity(project)).thenReturn(progressRequest);
+        when(progressCreateRequest.toEntity(user, project)).thenReturn(progressRequest);
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(progressRepository.findMaxPositionByProjectId(projectId)).thenReturn(Optional.of(6.0f));
 
-        projectProgressService.createProgress(projectId, request);
+        projectProgressService.createProgress(user, projectId, progressCreateRequest);
         log.info("\n테스트 : After createProgress: progress position is {}", progressRequest.getPosition());
 
         assertEquals("생성된 단계", progressRequest.getName());
