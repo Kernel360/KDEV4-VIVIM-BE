@@ -18,7 +18,7 @@ public class ProjectPostComment {
     private Long id;
 
     @Column(length = 200)
-    private String comment;
+    private String content;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
