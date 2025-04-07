@@ -18,7 +18,7 @@ import static com.welcommu.modulecommon.util.IpUtil.getClientIp;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts/{postId}/comments")
-@Tag(name = "게시글 댓글 API", description = "댓글을 셍성, 전체 조회, 수정, 삭제, 이동시킬 수 있습니다.")
+@Tag(name = "게시글 댓글 API", description = "댓글을 생성, 전체 조회, 수정, 삭제, 이동시킬 수 있습니다.")
 public class ProjectPostCommentController {
     private final ProjectPostCommentService projectPostCommentService;
 

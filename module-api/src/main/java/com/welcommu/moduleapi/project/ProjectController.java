@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
-@Tag(name = "프로젝트 API", description = "프로젝트를 셍성, 수정, 삭제시킬 수 있습니다.")
+@Tag(name = "프로젝트 API", description = "프로젝트를 생성, 수정, 삭제시킬 수 있습니다.")
 public class ProjectController {
 
     private final ProjectService projectService;

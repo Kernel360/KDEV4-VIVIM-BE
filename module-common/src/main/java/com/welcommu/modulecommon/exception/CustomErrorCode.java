@@ -12,21 +12,29 @@ public enum CustomErrorCode {
     SERVER_ERROR("SERVER001","서버에서 오류가 발생했습니다."),
     UNAUTHORIZED("AUTH001","권한이 없습니다."),
 
-
-    NOT_FOUND_POST("POST001", "게시글을 찾을 수 없습니다."),
-
-
-
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
 
+    // project post
+    NOT_FOUND_POST("POST001", "게시글을 찾을 수 없습니다."),
+
+    // project post comment
+    NOT_FOUND_COMMENT("COMMENT001","댓글을 찾을 수 없습니다."),
+  
     // project progress
     NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
     NOT_FOUND_PROGRESS_POSITION("PG003", "프로젝트 단계의 위치를 찾을 수 없습니다."),
+  
+    // checklist
+    NOT_FOUND_CHECKLIST("CH001", "체크리스트를 찾을 수 없습니다."),
+    ALREADY_DELETED_CHECKLIST("CH002", "이미 삭제된 체크리스트입니다."),
 
+    // file
+    NOT_FOUND_FILE("POST001", "게시글을 찾을 수 없습니다."),
 
-    NOT_FOUND_COMMENT("COMMENT001","댓글을 찾을 수 없습니다.");
+    // link
+    NOT_FOUND_LINK("POST001", "게시글을 찾을 수 없습니다.");
 
     private final String code;
     private final String errorMessage;
