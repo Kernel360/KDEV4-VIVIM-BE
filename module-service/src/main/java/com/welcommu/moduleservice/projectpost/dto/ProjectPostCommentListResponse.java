@@ -14,13 +14,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostCommentListResponse {
-    private String comment;
+    private Long commentId;
+    private String content;
     private Long parentId;
     private LocalDateTime createdAt;
 
     public static ProjectPostCommentListResponse from(ProjectPostComment comment) {
         return new ProjectPostCommentListResponse(
-                comment.getComment(),
+                comment.getId(),
+                comment.getContent(),
                 comment.getParentId(),
                 comment.getCreatedAt()
         );
