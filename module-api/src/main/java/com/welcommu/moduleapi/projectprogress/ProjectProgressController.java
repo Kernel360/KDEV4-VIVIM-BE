@@ -48,13 +48,14 @@ public class ProjectProgressController {
     @PutMapping("/{projectId}/progress/{progressId}")
     @Operation(summary = "프로젝트 단계 수정")
     public ResponseEntity<ApiResponse> updateProgress(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long projectId,
         @PathVariable Long progressId,
         @RequestBody ProgressModifyRequest request
     ) {
 
         log.info("프로젝트 단계 수정 요청: projectId={}, progressId={}, request={}", projectId, progressId, request);
-        progressService.modifyProgress(projectId, progressId, request);
+        progressService.modifyProgress(userDetails.getUser(), projectId, progressId, request);
         log.info("프로젝트 단계 수정 완료: projectId={}, progressId={}", projectId, progressId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
     }
@@ -62,12 +63,13 @@ public class ProjectProgressController {
     @DeleteMapping("/{projectId}/progress/{progressId}")
     @Operation(summary = "프로젝트 단계 삭제")
     public ResponseEntity<ApiResponse> deleteProgress(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long projectId,
         @PathVariable Long progressId
     ) {
 
         log.info("프로젝트 단계 삭제 요청: projectId={}, progressId={}", projectId, progressId);
-        progressService.deleteProgress(projectId, progressId);
+        progressService.deleteProgress(userDetails.getUser(), projectId, progressId);
         log.info("프로젝트 단계 삭제 완료: projectId={}, progressId={}", projectId, progressId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 삭제 성공"));
     }

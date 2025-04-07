@@ -42,7 +42,10 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
-    public void modifyProgress(Long projectId, Long progressId, ProgressModifyRequest request) {
+    public void modifyProgress(User user, Long projectId, Long progressId, ProgressModifyRequest request) {
+
+        Project project = findProject(projectId);
+        checkUserPermission(user, project);
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
@@ -50,7 +53,10 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
-    public void deleteProgress(Long projectId, Long progressId) {
+    public void deleteProgress(User user, Long projectId, Long progressId) {
+
+        Project project = findProject(projectId);
+        checkUserPermission(user, project);
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         progressRepository.delete(projectProgress);
@@ -75,7 +81,8 @@ public class ProjectProgressService {
     }
 
     private void checkUserPermission(User user, Project project) {
-        ProjectUser projectUser = projectUserRepository.findByUserIdAndProjectId(user.getId(), project.getId());
+        ProjectUser projectUser = projectUserRepository
+            .findByUserIdAndProjectId(user.getId(), project.getId()).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));;
         if (user.getCompany() == null || !Objects.equals(user.getRole().toString(), "ADMIN") || !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER")) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
         }

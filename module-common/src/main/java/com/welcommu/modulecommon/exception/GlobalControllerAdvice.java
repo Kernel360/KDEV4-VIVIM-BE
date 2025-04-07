@@ -24,7 +24,6 @@ public class GlobalControllerAdvice {
     public ResponseEntity<ErrorResponse> handlerValidationException(
         MethodArgumentNotValidException ex) {
 
-        // Validation 예외처리
         StringBuilder errorMessage = new StringBuilder();
         for (FieldError fieldError : ex.getFieldErrors()) {
             log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());

@@ -17,6 +17,9 @@ public enum CustomErrorCode {
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
 
+    // project user
+    NOT_FOUND_PROJECT_USER("PU001", "프로젝트가 없거나 해당 프로젝트에 참여자하는 사용자를 찾을 수 없습니다."),
+
     // project post
     NOT_FOUND_POST("PO001", "게시글을 찾을 수 없습니다."),
 
