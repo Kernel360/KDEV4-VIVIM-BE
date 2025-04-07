@@ -17,7 +17,6 @@ public class CustomException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    // 예외 객체를 추가로 받는 생성자
     public CustomException(CustomErrorCode errorCode, Throwable cause) {
         super(errorCode.getErrorMessage(), cause);  // 부모 클래스에 메시지와 예외 객체 전달
         this.errorCode = errorCode;
