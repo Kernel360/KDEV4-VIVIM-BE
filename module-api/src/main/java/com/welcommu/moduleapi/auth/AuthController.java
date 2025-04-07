@@ -37,7 +37,6 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository; // Refresh Token을 저장할 레포지토리
 
-    // 로그인 API
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token을 발급받습니다.")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
@@ -61,10 +60,7 @@ public class AuthController {
             String tokenId = UUID.randomUUID().toString();
             claims.put("jti", tokenId);
 
-            // Access Token 발급
             TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
-
-            // Refresh Token 발급
             //TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // Refresh Token 저장 (사용자 ID, 토큰 ID(jti), 토큰 값 저장)
@@ -148,7 +144,6 @@ public class AuthController {
         }
     }
 
-    // 로그아웃 API
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
     public ResponseEntity<?> logout(@RequestParam String refreshToken) {
