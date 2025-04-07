@@ -25,7 +25,7 @@ public class UserService {
     private final CompanyRepository companyRepository;
 
     @Transactional
-    public UserResponse createUser(UserRequest userRequest) {
+    public void createUser(UserRequest userRequest) {
         Company company = companyRepository.findById(userRequest.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
@@ -42,7 +42,6 @@ public class UserService {
                 .build();
 
         User savedUser = userRepository.saveAndFlush(user);
-        return UserResponse.from(savedUser);
     }
 
 
@@ -66,7 +65,8 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
-    public User updateUser(Long id, UserRequest updatedUserRequest) {
+    public User modifyUser(Long id, UserRequest updatedUserRequest) {
+
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
@@ -83,11 +83,41 @@ public class UserService {
         }
     }
 
+    public boolean modifyPasswordWithoutLogin(String email){
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        log.info(String.valueOf(existingUser));
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            log.info("기존 사용자 데이터: " + user);
+            String encryptedPassword = passwordEncoder.encode("1q2w3e4r");
+            user.setPassword(encryptedPassword);
+            userRepository.save(user);
+            return true;
+        } else {
+            log.warn("사용자 존재하지 않음: email =" + email);
+            return false;
+        }
+    }
+
+    public boolean modifyPassword(Long id, String password){
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            String encryptedPassword = passwordEncoder.encode(password);
+            user.setPassword(encryptedPassword);
+            userRepository.save(user);
+            return true;
+        }else {
+            log.warn("사용자 존재하지 않음: id =" + id);
+            return false;
+        }
+
+    }
+
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
-    // 사용자 비활성화 (soft delete)
     public void softDeleteUser(Long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {

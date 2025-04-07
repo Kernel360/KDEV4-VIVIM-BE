@@ -64,7 +64,7 @@ public class CompanyManagementService {
 
         // Employee 엔티티를 UserResponse DTO로 변환하여 반환
         return employees.stream()
-                .map(employee -> new UserResponse(employee.getId(), employee.getEmail(), employee.getName(), employee.getCompany() != null ? employee.getCompany().getName() : null))
+                .map(UserResponse::from)
                 .collect(Collectors.toList());
     }
 
