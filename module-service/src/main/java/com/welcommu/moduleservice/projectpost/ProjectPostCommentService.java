@@ -29,7 +29,7 @@ public class ProjectPostCommentService {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
 
-        existingComment.setComment(request.getComment());
+        existingComment.setComment(request.getContent());
         existingComment.setModifiedAt();
         existingComment.setModifierId(1L);//테스트용
     }

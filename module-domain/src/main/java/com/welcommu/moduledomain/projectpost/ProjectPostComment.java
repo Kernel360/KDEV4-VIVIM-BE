@@ -48,7 +48,7 @@ public class ProjectPostComment {
     private Long parentId;
 
     public void setComment(String comment) {
-        this.comment = comment;
+        this.content = content;
     }
 
     public void setModifiedAt() {
