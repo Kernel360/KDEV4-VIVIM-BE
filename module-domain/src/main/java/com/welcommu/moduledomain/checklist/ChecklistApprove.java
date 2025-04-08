@@ -1,7 +1,5 @@
 package com.welcommu.moduledomain.checklist;
 
-
-import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,55 +14,43 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "checklists")
+@Table(name = "checklist_approves")
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Checklist {
+public class ChecklistApprove {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String content;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
-
-    /**
-     * 개발사 → 고객사로 승인 요청을 보냈는지 여부
-     * false : 승인 요청 전 (초기 상태)
-     * true  : 승인 요청 완료 (고객사 승인 대기 중)
-     */
-    private boolean isApprovalRequested;
+    private ChecklistApproveStatus approveStatus;
 
     @ManyToOne
-    @JoinColumn(name = "project_progress_id")
-    private ProjectProgress projectProgress;
+    @JoinColumn(name = "checklist_id")
+    private Checklist checklist;
 
     public void markAsDeleted() {
         this.deletedAt = LocalDateTime.now();
     }
 
     // TODO softDelete 적용 예정
-//    public boolean isDeleted(LocalDateTime deletedAt) {
+//    public boolean isDeleted(LocalDateTime deletedAt)
 //        return this.deletedAt != null;
 //    }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public static Checklist createChecklist(ProjectProgress progress, String name) {
-        return Checklist.builder()
-            .name(name)
-            .createdAt(LocalDateTime.now())
-            .projectProgress(progress)
+    public static ChecklistApprove createChecklistApprove() {
+        return ChecklistApprove.builder()
             .build();
     }
 }
+
