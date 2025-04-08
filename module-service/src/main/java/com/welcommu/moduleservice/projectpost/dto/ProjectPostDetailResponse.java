@@ -10,15 +10,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostDetailResponse {
+    private Long postId;
     private String title;
     private String description;
     private Long parentId;
 
     public static ProjectPostDetailResponse from(ProjectPost post) {
         return new ProjectPostDetailResponse(
+            post.getId(),
             post.getTitle(),
             post.getContent(),
-                post.getParentId()
+            post.getParentId()
         );
     }
 }

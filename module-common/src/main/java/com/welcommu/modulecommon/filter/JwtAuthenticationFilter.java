@@ -1,25 +1,29 @@
-package com.welcommu.modulecommon.config;
+package com.welcommu.modulecommon.filter;
 
+import com.welcommu.modulecommon.security.CustomUserDetailsService;
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer.UserDetailsBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.Map;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtTokenHelper jwtTokenHelper;
+    private final CustomUserDetailsService userDetailsService;
 
     private static final String[] SWAGGER_WHITELIST = {
             "/swagger-ui", "/swagger-ui/", "/swagger-ui.html", "/swagger-ui/index.html", "/v3/api-docs"
@@ -58,16 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 토큰이 유효한지 확인하고 인증 정보 설정
         try {
-            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token); // 토큰 유효성 검증
+            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
 
             // 유효한 토큰이 있을 때 로그
-            String username = (String) claims.get("email"); // 클레임에서 이메일을 추출
+            String username = (String) claims.get("email");
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
 
             // 인증 정보 설정
             UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(username, null, null);
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             logger.error("JWT 처리 중 오류 발생", e);

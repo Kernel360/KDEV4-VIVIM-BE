@@ -1,12 +1,21 @@
 package com.welcommu.moduledomain.company;
 
-import com.welcommu.moduledomain.user.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
@@ -29,15 +38,15 @@ public class Company {
     private String phone;
     private String email;
 
-    @Enumerated(EnumType.STRING)
-    private CompanyRole companyRole;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
     private String coOwner;
 
-    // 회사 생성 시 필요한 필드에 대해 기본 값을 설정할 수 있도록 처리
+    @Enumerated(EnumType.STRING)
+    private CompanyRole companyRole;
+
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {

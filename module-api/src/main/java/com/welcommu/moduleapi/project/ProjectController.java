@@ -1,14 +1,17 @@
 package com.welcommu.moduleapi.project;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.user.CustomUserDetails;
 import com.welcommu.moduleservice.project.ProjectService;
-import com.welcommu.moduleservice.project.dto.*;
-
-import java.util.List;
-
+import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
+import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
+import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
+import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
+import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +37,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ApiResponse> createProject(
-        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectCreateRequest dto
     ) {
 

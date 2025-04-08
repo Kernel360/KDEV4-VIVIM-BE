@@ -1,7 +1,6 @@
 package com.welcommu.moduledomain.projectprogress;
 
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,15 +8,27 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table
+@Table(
+    name = "project_progress",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_project_progress_project_id_name",
+            columnNames = {"project_id", "name"}
+        ),
+        @UniqueConstraint(
+            name = "uk_project_progress_project_id_position",
+            columnNames = {"project_id", "position"}
+        )
+    }
+)
 @Entity
 @Getter
 @Builder
@@ -31,16 +42,13 @@ public class ProjectProgress {
 
     @Column(nullable = false)
     private String name;
-    private float position;
+    private Float position;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private boolean isDeleted;
-
-    @OneToOne
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
