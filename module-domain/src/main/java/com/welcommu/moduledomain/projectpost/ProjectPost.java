@@ -2,7 +2,6 @@ package com.welcommu.moduledomain.projectpost;
 
 import java.time.LocalDateTime;
 
-import com.welcommu.moduledomain.company.CompanyRole;
 import jakarta.persistence.*;
 import lombok.*;
 

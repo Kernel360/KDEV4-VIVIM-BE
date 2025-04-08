@@ -1,6 +1,5 @@
 package com.welcommu.moduledomain.projectpost;
 
-import com.welcommu.moduledomain.company.CompanyRole;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -49,7 +48,6 @@ public class ProjectPostComment {
     private Long parentId;
 
     public void setContent(String content) { this.content = content; }
-    public void setCreatedAt(LocalDateTime createdAt) {}
     public void setModifiedAt() {
         this.modifiedAt = LocalDateTime.now();
     }
