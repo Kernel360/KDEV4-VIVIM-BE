@@ -86,7 +86,7 @@ public class ProjectProgressService {
     private void checkUserPermission(User user, Long projectId) {
         ProjectUser projectUser = projectUserRepository
             .findByUserIdAndProjectId(user.getId(), projectId).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
-        if (user.getCompany() == null && !Objects.equals(user.getRole().toString(), "ADMIN") && !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER")) {
+        if (user.getCompany() == null || (!Objects.equals(user.getRole().toString(), "ADMIN") && !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER"))) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
         }
     }
