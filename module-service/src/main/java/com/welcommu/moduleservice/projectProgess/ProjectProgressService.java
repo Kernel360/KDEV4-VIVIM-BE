@@ -9,13 +9,11 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
-import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +24,6 @@ public class ProjectProgressService {
     private final ProjectRepository projectRepository;
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
-    private final UserRepository userRepository;
 
     public void createProgress(
         User user,
@@ -85,7 +82,6 @@ public class ProjectProgressService {
     }
 
     private void checkUserPermission(User user, Long projectId) {
-        Optional<ProjectUser> projectUser1 = projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId);
         ProjectUser projectUser = projectUserRepository
             .findByUserIdAndProjectId(user.getId(), projectId).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
         if (user.getCompany() == null && !Objects.equals(user.getRole().toString(), "ADMIN") && !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER")) {
