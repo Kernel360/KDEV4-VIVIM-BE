@@ -46,13 +46,16 @@ public class ProjectProgressService {
 
         findProject(projectId);
         findProgress(progressId);
+
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
-        checkIsDuplicatedPosition(projectId, request.getPosition());
+        if(request.getPosition() != null){checkIsDuplicatedPosition(projectId, request.getPosition());}
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
-        projectProgress.setPosition(request.getPosition());
+        if (request.getPosition() != null) {
+            projectProgress.setPosition(request.getPosition());
+        }
         progressRepository.save(projectProgress);
     }
 
