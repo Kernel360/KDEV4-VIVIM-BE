@@ -1,5 +1,6 @@
-package com.welcommu.moduledomain.user;
+package com.welcommu.moduledomain.auth;
 
+import com.welcommu.moduledomain.user.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;

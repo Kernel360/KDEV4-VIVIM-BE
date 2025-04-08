@@ -9,17 +9,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "projects_users")
+@Table(
+    name = "projects_users",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "project_id"})
+    }
+)
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "manage_role",nullable = false)
+    @Column(name = "manage_role", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProjectUserManageRole projectUserManageRole;
 

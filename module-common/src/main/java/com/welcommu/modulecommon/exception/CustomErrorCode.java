@@ -17,6 +17,9 @@ public enum CustomErrorCode {
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
 
+    // project user
+    NOT_FOUND_PROJECT_USER("PU001", "프로젝트가 없거나 해당 프로젝트에 참여하는 사용자를 찾을 수 없습니다."),
+
     // project post
     NOT_FOUND_POST("PO001", "게시글을 찾을 수 없습니다."),
 
@@ -27,6 +30,7 @@ public enum CustomErrorCode {
     NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
     DUPLICATE_PROGRESS_NAME("PG003", "중복되는 프로젝트명입니다."),
+    DUPLICATE_PROGRESS_POSITION("PG004", "중복되는 포지션입니다."),
 
     // checklist
     NOT_FOUND_CHECKLIST("CH001", "체크리스트를 찾을 수 없습니다."),
