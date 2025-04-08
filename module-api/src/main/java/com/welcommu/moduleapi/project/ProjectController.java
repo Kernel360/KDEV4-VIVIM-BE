@@ -2,7 +2,7 @@ package com.welcommu.moduleapi.project;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.user.CustomUserDetails;
+import com.welcommu.moduledomain.user.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.project.ProjectService;
 import com.welcommu.moduleservice.project.dto.*;
 
@@ -27,14 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
-@Tag(name = "프로젝트 API", description = "프로젝트를 셍성, 수정, 삭제시킬 수 있습니다.")
+@Tag(name = "프로젝트 API", description = "프로젝트를 생성, 수정, 삭제시킬 수 있습니다.")
 public class ProjectController {
 
     private final ProjectService projectService;
 
     @PostMapping
     public ResponseEntity<ApiResponse> createProject(
-        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectCreateRequest dto
     ) {
 
@@ -81,8 +81,8 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}/users")
-    public ResponseEntity<List<ProjectUserListResponse>> readProjectUsers(@PathVariable Long projectId){
-        List<ProjectUserListResponse> projects = projectService.getUserListByProject(projectId);
+    public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(@PathVariable Long projectId){
+        List<ProjectUserResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
     }
 

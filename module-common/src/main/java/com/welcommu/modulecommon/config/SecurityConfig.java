@@ -1,10 +1,9 @@
 package com.welcommu.modulecommon.config;
 
+import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
+import com.welcommu.modulecommon.security.CustomUserDetailsService;
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
-import com.welcommu.modulecommon.token.model.TokenDto;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -14,24 +13,20 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
-@Slf4j
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private static final String[] SWAGGER = {
@@ -41,18 +36,15 @@ public class SecurityConfig {
     };
 
     private final JwtTokenHelper jwtTokenHelper;
+    private final CustomUserDetailsService userDetailsService;
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
-    public SecurityConfig(JwtTokenHelper jwtTokenHelper) {
-        this.jwtTokenHelper = jwtTokenHelper;
-    }
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtTokenHelper);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter (jwtTokenHelper, userDetailsService);
 
         httpSecurity
                 .cors(Customizer.withDefaults())
@@ -62,7 +54,7 @@ public class SecurityConfig {
                                 PathRequest.toStaticResources().atCommonLocations()
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
-                        .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/swagger-ui/*").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -75,7 +67,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // React 앱의 주소
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000" ,"https://www.vivim.co.kr" ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -87,8 +79,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
-        // hash로 암호화
         return new BCryptPasswordEncoder();
     }
 }

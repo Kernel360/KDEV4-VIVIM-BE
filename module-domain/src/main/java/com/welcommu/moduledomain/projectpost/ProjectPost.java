@@ -27,17 +27,14 @@ public class ProjectPost {
     @Column(name = "project_post_status")
     private ProjectPostStatus projectPostStatus;
 
-    @Column(name = "created_at", insertable = false, updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "modified_at", insertable = false, updatable = false)
+    @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    @Column(name = "isDeleted")
-    private boolean isDeleted;
 
     @Column(name="writer_ip")
     private String writerIp;
@@ -57,14 +54,27 @@ public class ProjectPost {
     @Column(name="project_id")
     private Long projectId;
 
-    public void modify(String title, String content, ProjectPostStatus projectPostStatus) {
+    public void setTitle(String title) {
         this.title = title;
+    }
+    public void setContent(String content) {
         this.content = content;
-        this.projectPostStatus = projectPostStatus;
+    }
+    public void setProjectPostStatus(ProjectPostStatus status) {
+        this.projectPostStatus = status;
+    }
+    public void setModifiedAt() {
+        this.modifiedAt = LocalDateTime.now();
+    }
+    public void setModifierId(Long modifierId) {
+        this.modifierId = modifierId;
     }
 
-    public void delete(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-        this.isDeleted = true;
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+    public void setDeleterId(Long deleterId) {
+        this.deleterId = deleterId;
     }
 }

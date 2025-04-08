@@ -1,9 +1,10 @@
 package com.welcommu.moduleapi.auth;
 
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
-import com.welcommu.modulecommon.token.model.TokenDto;
+import com.welcommu.modulecommon.token.dto.TokenDto;
 import com.welcommu.moduledomain.token.RefreshTokenEntity;
 import com.welcommu.modulerepository.token.RefreshTokenRepository;
+import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
@@ -20,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final JwtTokenHelper jwtTokenHelper;
@@ -39,21 +40,22 @@ public class AuthController {
 
     // 로그인 API
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         try {
-            // 이메일로 사용자 조회
+            String email = request.getEmail();
+            String password = request.getPassword();
+
             User user = userService.getUserByEmail(email)
                     .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
-            // 비밀번호 확인
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new BadCredentialsException("Invalid email or password");
             }
 
-            // 비밀번호가 일치하면 JWT 토큰 생성
             Map<String, Object> claims = new HashMap<>();
             claims.put("email", user.getEmail());  // 클레임에 이메일 정보 추가
             claims.put("userId", user.getId());    // 클레임에 사용자 ID 추가
+            claims.put("role", user.getRole());
 
             // 고유한 jti (JWT ID) 추가
             String tokenId = UUID.randomUUID().toString();
@@ -63,15 +65,15 @@ public class AuthController {
             TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
 
             // Refresh Token 발급
-            TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
+            //TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // Refresh Token 저장 (사용자 ID, 토큰 ID(jti), 토큰 값 저장)
-            saveRefreshToken(user.getId(), tokenId, refreshToken.getToken(), refreshToken.getExpiredAt());
+            //saveRefreshToken(user.getId(), tokenId, refreshToken.getToken(), refreshToken.getExpiredAt());
 
             // 토큰을 JSON 형식으로 반환
             Map<String, String> response = new HashMap<>();
             response.put("access_token", "Bearer " + accessToken.getToken());
-            response.put("refresh_token", "Bearer " + refreshToken.getToken());
+            //response.put("refresh_token", "Bearer " + refreshToken.getToken());
 
             return ResponseEntity.ok(response);
 

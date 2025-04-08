@@ -6,10 +6,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class CustomUserDetails implements UserDetails {
+public class AuthUserDetailsImpl implements UserDetails {
 
     private final User user;
-    public CustomUserDetails(User user) {
+    public AuthUserDetailsImpl(User user) {
         this.user = user;
     }
 

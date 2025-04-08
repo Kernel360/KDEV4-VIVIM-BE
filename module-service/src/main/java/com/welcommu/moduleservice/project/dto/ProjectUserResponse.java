@@ -8,13 +8,13 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProjectUserListResponse {
+public class ProjectUserResponse {
     private Long userId;
     private String userName;
     private ProjectUserManageRole role;
 
-    public static ProjectUserListResponse from(ProjectUser pu) {
-        return new ProjectUserListResponse(
+    public static ProjectUserResponse from(ProjectUser pu) {
+        return new ProjectUserResponse(
                 pu.getUser().getId(),
                 pu.getUser().getName(),
                 pu.getProjectUserManageRole()
