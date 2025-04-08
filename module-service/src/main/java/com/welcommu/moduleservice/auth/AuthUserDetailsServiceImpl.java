@@ -1,7 +1,7 @@
 package com.welcommu.moduleservice.auth;
 
 import com.welcommu.modulecommon.security.CustomUserDetailsService;
-import com.welcommu.moduledomain.user.AuthUserDetailsImpl;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
