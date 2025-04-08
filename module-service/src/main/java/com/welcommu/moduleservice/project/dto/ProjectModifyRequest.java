@@ -2,6 +2,7 @@ package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import com.welcommu.moduledomain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,16 +41,16 @@ public class ProjectModifyRequest {
         List<ProjectUser> result = new java.util.ArrayList<>();
 
         for (ProjectUserRoleRequest dto : clientManagers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.CLIENT_MANAGER));
         }
         for (ProjectUserRoleRequest dto : clientUsers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.CLIENT_USER));
         }
         for (ProjectUserRoleRequest dto : devManagers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.DEVELOPER_MANAGER));
         }
         for (ProjectUserRoleRequest dto : devUsers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId())));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.DEVELOPER_USER));
         }
         return result;
     }
