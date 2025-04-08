@@ -9,11 +9,13 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
+import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,15 +26,16 @@ public class ProjectProgressService {
     private final ProjectRepository projectRepository;
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
+    private final UserRepository userRepository;
 
     public void createProgress(
         User user,
         Long projectId,
         ProgressCreateRequest request
     ) {
-
         Project project = findProject(projectId);
-        checkUserPermission(user, project);
+        checkUserPermission(user, projectId);
+        checkIsDuplicatedProgressName(projectId, request);
 
         float biggestPosition = findBiggestPosition(projectId);
 
@@ -44,9 +47,9 @@ public class ProjectProgressService {
 
     public void modifyProgress(User user, Long projectId, Long progressId, ProgressModifyRequest request) {
 
-        Project project = findProject(projectId);
+        findProject(projectId);
         findProgress(progressId);
-        checkUserPermission(user, project);
+        checkUserPermission(user, projectId);
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
@@ -56,8 +59,8 @@ public class ProjectProgressService {
 
     public void deleteProgress(User user, Long projectId, Long progressId) {
 
-        Project project = findProject(projectId);
-        checkUserPermission(user, project);
+        findProject(projectId);
+        checkUserPermission(user, projectId);
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         progressRepository.delete(projectProgress);
@@ -81,11 +84,18 @@ public class ProjectProgressService {
         return projectProgress;
     }
 
-    private void checkUserPermission(User user, Project project) {
+    private void checkUserPermission(User user, Long projectId) {
+        Optional<ProjectUser> projectUser1 = projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId);
         ProjectUser projectUser = projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), project.getId()).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));;
-        if (user.getCompany() == null || !Objects.equals(user.getRole().toString(), "ADMIN") || !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER")) {
+            .findByUserIdAndProjectId(user.getId(), projectId).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
+        if (user.getCompany() == null && !Objects.equals(user.getRole().toString(), "ADMIN") && !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER")) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        }
+    }
+
+    private void checkIsDuplicatedProgressName(Long projectId, ProgressCreateRequest request) {
+        if (progressRepository.existsByProjectIdAndName(projectId, request.getName())) {
+            throw new CustomException(CustomErrorCode.DUPLICATE_PROGRESS_NAME);
         }
     }
 

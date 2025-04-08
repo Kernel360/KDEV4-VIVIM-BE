@@ -16,5 +16,5 @@ public interface ProjectProgressRepository extends JpaRepository<ProjectProgress
      Optional<Float> findMaxPositionByProjectId(@Param("projectId") Long projectId);
 
      List<ProjectProgress> findByProject(Project project);
-     boolean existsByProjectAndName(Project project, String name);
+     boolean existsByProjectIdAndName(Long projectId, String name);
 }
