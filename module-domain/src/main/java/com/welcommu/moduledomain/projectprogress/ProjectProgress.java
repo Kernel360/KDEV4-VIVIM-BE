@@ -42,7 +42,7 @@ public class ProjectProgress {
 
     @Column(nullable = false)
     private String name;
-    private float position;
+    private Float position;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

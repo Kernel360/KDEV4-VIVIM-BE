@@ -34,7 +34,7 @@ public class ProjectProgressService {
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
 
-        float biggestPosition = findBiggestPosition(projectId);
+        Float biggestPosition = findBiggestPosition(projectId);
 
         ProjectProgress projectProgress = request.toEntity(project);
         projectProgress.setPosition(biggestPosition + 1.0f);
@@ -97,7 +97,7 @@ public class ProjectProgressService {
         }
     }
 
-    private void checkIsDuplicatedPosition(Long projectId, float position) {
+    private void checkIsDuplicatedPosition(Long projectId, Float position) {
         if (progressRepository.existsByProjectIdAndPosition(projectId, position)) {
             throw new CustomException(CustomErrorCode.DUPLICATE_PROGRESS_POSITION);
         }
@@ -113,7 +113,7 @@ public class ProjectProgressService {
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
     }
 
-    private float findBiggestPosition(Long projectId) {
+    private Float findBiggestPosition(Long projectId) {
         return progressRepository.findMaxPositionByProjectId(projectId).orElse(0.0f);
     }
 }
