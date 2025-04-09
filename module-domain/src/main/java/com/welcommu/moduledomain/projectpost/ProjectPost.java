@@ -45,11 +45,11 @@ public class ProjectPost {
     @Column(name="creator_id")
     private Long creatorId;
 
-    @Column(name="modifier_id")
-    private Long modifierId;
+    @Column(name="creator_name")
+    private String creatorName;
 
-    @Column(name="deleter_id")
-    private Long deleterId;
+    @Column(name="creator_role")
+    private String creatorRole;
 
     @Column(name="project_id")
     private Long projectId;
@@ -66,15 +66,7 @@ public class ProjectPost {
     public void setModifiedAt() {
         this.modifiedAt = LocalDateTime.now();
     }
-    public void setModifierId(Long modifierId) {
-        this.modifierId = modifierId;
-    }
-
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public void setDeleterId(Long deleterId) {
-        this.deleterId = deleterId;
     }
 }

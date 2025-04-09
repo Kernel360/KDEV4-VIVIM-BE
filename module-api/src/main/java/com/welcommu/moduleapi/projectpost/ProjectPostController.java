@@ -1,6 +1,7 @@
 package com.welcommu.moduleapi.projectpost;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -30,9 +32,9 @@ public class ProjectPostController {
 
     @PostMapping
     @Operation(summary = "게시글 생성")
-    public ResponseEntity<Long> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<Long> createPost(@PathVariable Long projectId, @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         String clientIp = getClientIp(httpRequest);
-        Long postId =projectPostService.createPost(projectId, request, clientIp);
+        Long postId =projectPostService.createPost(userDetails.getUser(), projectId, request, clientIp);
         return ResponseEntity.ok().body(postId);
     }
 
