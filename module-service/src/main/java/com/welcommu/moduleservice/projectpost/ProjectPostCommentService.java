@@ -3,6 +3,7 @@ package com.welcommu.moduleservice.projectpost;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.projectpost.ProjectPostComment;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.projectpost.ProjectPostCommentRepository;
 import com.welcommu.moduleservice.projectpost.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ public class ProjectPostCommentService {
     private final ProjectPostCommentRepository projectPostCommentRepository;
 
     @Transactional
-    public void createComment(Long postId, ProjectPostCommentRequest request, String clientIp) {
-        ProjectPostComment newComment= request.toEntity(postId, request, clientIp);
+    public void createComment(User user, Long postId, ProjectPostCommentRequest request, String clientIp) {
+        ProjectPostComment newComment= request.toEntity(user, postId, request, clientIp);
         projectPostCommentRepository.save(newComment);
     }
 
@@ -31,7 +32,6 @@ public class ProjectPostCommentService {
 
         existingComment.setContent(request.getContent());
         existingComment.setModifiedAt();
-        existingComment.setModifierId(1L);//테스트용
     }
 
     @Transactional(readOnly = true)
@@ -47,6 +47,5 @@ public class ProjectPostCommentService {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
         existingComment.setDeletedAt();
-        existingComment.setDeleterId(1L);//테스트용
     }
 }
