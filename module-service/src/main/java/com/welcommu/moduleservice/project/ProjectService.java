@@ -17,6 +17,7 @@ import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,8 @@ public class ProjectService {
         projectUserRepository.saveAll(participants);
     }
 
-    public Project getProject(Long projectId){
-        return projectRepository.findByIdAndIsDeletedFalse(projectId);
+    public Optional<Project> getProject(Long projectId){
+        return projectRepository.findById(projectId);
 
     }
 

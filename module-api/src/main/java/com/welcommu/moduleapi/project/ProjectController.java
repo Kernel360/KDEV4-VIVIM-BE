@@ -13,6 +13,8 @@ import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +50,9 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     @Operation(summary = "프로젝트 개별 조회")
-    public ResponseEntity<Project> readProject(@PathVariable Long projectId
+    public ResponseEntity<Optional<Project>> readProject(@PathVariable Long projectId
     ) {
-        Project project = projectService.getProject(projectId);
+        Optional<Project> project = projectService.getProject(projectId);
         return ResponseEntity.ok(project);
     }
 
