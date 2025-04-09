@@ -55,6 +55,7 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
         dto.modifyProject(project);
         projectUserRepository.deleteByProject(project);
+        projectUserRepository.flush();
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
                 userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))

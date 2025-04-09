@@ -25,7 +25,6 @@ server:
   ssl:
     enabled: true
 #    key-store: classpath:keystore.p12
-#    key-store: file:/Users/park/keystore.p12
     key-store: file:/app/keystore.p12
     key-store-password: ${SSLPASSWORD}
 
