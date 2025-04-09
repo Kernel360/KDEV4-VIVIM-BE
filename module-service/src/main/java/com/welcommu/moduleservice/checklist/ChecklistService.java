@@ -26,7 +26,7 @@ public class ChecklistService {
         ProjectProgress progress = progressRepository.findById(progressId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_CHECKLIST));
 
-        Checklist checklist = Checklist.createChecklist(progress, request.getName());
+        Checklist checklist = request.toEntity(progress, request.getName());
 
         ChecklistResponse.of(checklistRepository.save(checklist));
     }
