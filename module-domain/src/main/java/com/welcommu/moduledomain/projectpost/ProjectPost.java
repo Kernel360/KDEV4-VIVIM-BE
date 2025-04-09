@@ -3,6 +3,7 @@ package com.welcommu.moduledomain.projectpost;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 
@@ -21,6 +22,7 @@ public class ProjectPost {
 
     private String title;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Enumerated(EnumType.STRING)

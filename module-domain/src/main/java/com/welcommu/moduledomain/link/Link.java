@@ -24,7 +24,7 @@ public class Link {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "url", nullable = false, length = 1000)
+    @Column(name = "url", nullable = false, columnDefinition = "TEXT")
     private String url;
 
     @Column(name = "created_at")
