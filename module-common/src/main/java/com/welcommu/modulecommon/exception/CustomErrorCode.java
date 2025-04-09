@@ -36,6 +36,9 @@ public enum CustomErrorCode {
     NOT_FOUND_CHECKLIST("CH001", "체크리스트를 찾을 수 없습니다."),
     ALREADY_DELETED_CHECKLIST("CH002", "이미 삭제된 체크리스트입니다."),
 
+    // checklist approval
+    NOT_FOUND_APPROVAL("CAP", "체크리스트 승인요청을 찾을 수 없습니다."),
+
     // file
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),
 

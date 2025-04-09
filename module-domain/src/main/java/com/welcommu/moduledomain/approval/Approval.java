@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.checklist;
+package com.welcommu.moduledomain.approval;
 
 import com.welcommu.moduledomain.checklist.Checklist;
 import jakarta.persistence.Column;
