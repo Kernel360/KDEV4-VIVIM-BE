@@ -36,13 +36,6 @@ public class Checklist {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
 
-    /**
-     * 개발사 → 고객사로 승인 요청을 보냈는지 여부
-     * false : 승인 요청 전 (초기 상태)
-     * true  : 승인 요청 완료 (고객사 승인 대기 중)
-     */
-    private boolean isApprovalRequested;
-
     @ManyToOne
     @JoinColumn(name = "project_progress_id")
     private ProjectProgress projectProgress;
@@ -58,13 +51,5 @@ public class Checklist {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public static Checklist createChecklist(ProjectProgress progress, String name) {
-        return Checklist.builder()
-            .name(name)
-            .createdAt(LocalDateTime.now())
-            .projectProgress(progress)
-            .build();
     }
 }

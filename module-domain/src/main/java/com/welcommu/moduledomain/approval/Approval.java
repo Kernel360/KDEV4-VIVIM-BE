@@ -1,7 +1,10 @@
 package com.welcommu.moduledomain.checklist;
 
+import com.welcommu.moduledomain.checklist.Checklist;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,11 +23,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChecklistApprove {
+public class Approval {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
+    private String title;
 
     @Column(nullable = false)
     private String content;
@@ -33,7 +39,11 @@ public class ChecklistApprove {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
-    private ChecklistApproveStatus approveStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ApprovalStatus approveStatus = ApprovalStatus.IN_PROGRESS;
 
     @ManyToOne
     @JoinColumn(name = "checklist_id")
@@ -47,10 +57,5 @@ public class ChecklistApprove {
 //    public boolean isDeleted(LocalDateTime deletedAt)
 //        return this.deletedAt != null;
 //    }
-
-    public static ChecklistApprove createChecklistApprove() {
-        return ChecklistApprove.builder()
-            .build();
-    }
 }
 
