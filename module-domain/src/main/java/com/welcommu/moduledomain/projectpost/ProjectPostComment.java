@@ -17,7 +17,7 @@ public class ProjectPostComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 200)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "created_at")
