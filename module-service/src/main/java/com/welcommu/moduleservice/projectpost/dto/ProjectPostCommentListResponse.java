@@ -17,6 +17,7 @@ public class ProjectPostCommentListResponse {
     private Long commentId;
     private String content;
     private Long parentId;
+    private Long creatorId;
     private LocalDateTime createdAt;
     private String creatorName;
     private String creatorRole;
@@ -27,6 +28,7 @@ public class ProjectPostCommentListResponse {
                 comment.getId(),
                 comment.getContent(),
                 comment.getParentId(),
+                comment.getCreatorId(),
                 comment.getCreatedAt(),
                 comment.getCreatorName(),
                 comment.getCreatorRole(),
