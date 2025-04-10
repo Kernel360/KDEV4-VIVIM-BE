@@ -55,6 +55,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, SWAGGER).permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/users/resetpassword").permitAll()
                         .requestMatchers("/swagger-ui/*").permitAll()
                         .anyRequest().authenticated()
                 )
