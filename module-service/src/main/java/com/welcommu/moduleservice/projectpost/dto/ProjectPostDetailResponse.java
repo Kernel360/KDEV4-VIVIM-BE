@@ -25,18 +25,19 @@ public class ProjectPostDetailResponse {
     private LocalDateTime modifiedAt;
 
 
+
     public static ProjectPostDetailResponse from(ProjectPost post) {
         return new ProjectPostDetailResponse(
-            post.getId(),
-            post.getTitle(),
-            post.getContent(),
-            post.getParentId(),
-            post.getProjectPostStatus(),
-            post.getCreatorId(),
-            post.getCreatedAt(),
-            post.getCreatorName(),
-            post.getCreatorRole(),
-            post.getModifiedAt()
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getParentId(),
+                post.getProjectPostStatus(),
+                post.getCreatorId(),
+                post.getCreatedAt(),
+                post.getCreatorName(),
+                post.getCreatorRole(),
+                post.getModifiedAt()
         );
     }
 }
