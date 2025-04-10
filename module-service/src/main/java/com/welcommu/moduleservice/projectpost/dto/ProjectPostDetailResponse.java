@@ -1,6 +1,7 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
+import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,10 +17,13 @@ public class ProjectPostDetailResponse {
     private String title;
     private String content;
     private Long parentId;
+    private ProjectPostStatus projectPostStatus;
+    private Long creatorId;
     private LocalDateTime createdAt;
     private String creatorName;
     private String creatorRole;
     private LocalDateTime modifiedAt;
+
 
 
     public static ProjectPostDetailResponse from(ProjectPost post) {
@@ -28,6 +32,8 @@ public class ProjectPostDetailResponse {
             post.getTitle(),
             post.getContent(),
             post.getParentId(),
+            post.getProjectPostStatus(),
+            post.getCreatorId(),
             post.getCreatedAt(),
             post.getCreatorName(),
             post.getCreatorRole(),
