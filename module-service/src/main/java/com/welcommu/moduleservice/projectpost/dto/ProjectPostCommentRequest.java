@@ -1,6 +1,7 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
 import com.welcommu.moduledomain.projectpost.ProjectPostComment;
+import com.welcommu.moduledomain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,12 +17,14 @@ public class ProjectPostCommentRequest {
     private String content;
     private Long parentId;
 
-    public ProjectPostComment toEntity(Long projectPostId, ProjectPostCommentRequest request, String clientIp) {
+    public ProjectPostComment toEntity(User user, Long projectPostId, ProjectPostCommentRequest request, String clientIp) {
         return ProjectPostComment.builder()
                 .content(request.content)
                 .createdAt(LocalDateTime.now())
                 .writerIp(clientIp)
-                .creatorId(1L) //테스트 용
+                .creatorId(user.getId())
+                .creatorName(user.getName())
+                .creatorRole(user.getCompany().getCompanyRole().toString())
                 .projectPostId(projectPostId)
                 .parentId(request.parentId)
                 .build();

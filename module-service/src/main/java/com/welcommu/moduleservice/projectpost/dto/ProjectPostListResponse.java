@@ -17,6 +17,9 @@ public class ProjectPostListResponse {
     private Long creatorId;
     private ProjectPostStatus projectPostStatus;
     private LocalDateTime createdAt;
+    private String creatorName;
+    private String creatorRole;
+    private LocalDateTime modifiedAt;
     private Long parentId;
 
     public static ProjectPostListResponse from(ProjectPost post) {
@@ -27,6 +30,9 @@ public class ProjectPostListResponse {
                 post.getCreatorId(),
                 post.getProjectPostStatus(),
                 post.getCreatedAt(),
+                post.getCreatorName(),
+                post.getCreatorRole(),
+                post.getModifiedAt(),
                 post.getParentId()
         );
     }

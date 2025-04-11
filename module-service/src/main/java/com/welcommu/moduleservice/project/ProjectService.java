@@ -17,6 +17,7 @@ import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,8 @@ public class ProjectService {
         projectUserRepository.saveAll(participants);
     }
 
-    public Project getProject(Long projectId){
-        return projectRepository.findByIdAndIsDeletedFalse(projectId);
+    public Optional<Project> getProject(Long projectId){
+        return projectRepository.findById(projectId);
 
     }
 
@@ -55,6 +56,7 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
         dto.modifyProject(project);
         projectUserRepository.deleteByProject(project);
+        projectUserRepository.flush();
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
                 userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))

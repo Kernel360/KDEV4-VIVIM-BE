@@ -3,6 +3,7 @@ package com.welcommu.moduleservice.projectpost;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.projectpost.ProjectPostRepository;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
@@ -20,8 +21,8 @@ public class ProjectPostService {
 
     private final ProjectPostRepository projectPostRepository;
 
-    public Long createPost(Long projectId, ProjectPostRequest request, String clientIp) {
-        ProjectPost newPost = request.toEntity(projectId, request, clientIp);
+    public Long createPost(User user, Long projectId, ProjectPostRequest request, String clientIp) {
+        ProjectPost newPost = request.toEntity(user, projectId, request, clientIp);
 
         projectPostRepository.save(newPost);
         return  newPost.getId();
@@ -37,9 +38,6 @@ public class ProjectPostService {
         existingPost.setContent(request.getContent());
         existingPost.setProjectPostStatus(request.getProjectPostStatus());
         existingPost.setModifiedAt();
-        existingPost.setModifierId(1L);//테스트용
-
-
     }
 
 
@@ -66,6 +64,5 @@ public class ProjectPostService {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
         existingPost.setDeletedAt();
-        existingPost.setDeleterId(1L);//테스트용
     }
 }

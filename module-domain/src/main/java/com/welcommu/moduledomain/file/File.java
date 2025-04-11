@@ -23,7 +23,7 @@ public class File {
     @Column(name = "file_name", nullable = false)
     private String fileName; // 실제 파일명
 
-    @Column(name = "file_url", nullable = false, length = 1000)
+    @Column(name = "file_url", nullable = false, columnDefinition = "TEXT")
     private String fileUrl; // S3나 서버 경로
 
     @Column(name = "file_size")
