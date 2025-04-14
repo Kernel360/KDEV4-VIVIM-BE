@@ -1,27 +1,35 @@
 package com.welcommu.moduleapi.auth;
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.modulecommon.token.dto.TokenDto;
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
-import com.welcommu.modulecommon.token.model.TokenDto;
 import com.welcommu.moduledomain.token.RefreshTokenEntity;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.token.RefreshTokenRepository;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.user.UserService;
-import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulecommon.exception.CustomErrorCode;
-import com.welcommu.modulecommon.exception.CustomException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.annotation.*;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
+@Tag(name = "인증 인가 API", description = "로그인, 로그아웃, 토큰 재발급 등 인증 및 권한과 관련된 기능을 제공합니다.")
 public class AuthController {
 
     private final JwtTokenHelper jwtTokenHelper;
@@ -29,17 +37,8 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository; // Refresh Token을 저장할 레포지토리
 
-    @Autowired
-    public AuthController(JwtTokenHelper jwtTokenHelper, UserService userService,
-                          PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository) {
-        this.jwtTokenHelper = jwtTokenHelper;
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
-
-    // 로그인 API
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token을 발급받습니다.")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
         try {
             String email = request.getEmail();
@@ -61,10 +60,7 @@ public class AuthController {
             String tokenId = UUID.randomUUID().toString();
             claims.put("jti", tokenId);
 
-            // Access Token 발급
             TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
-
-            // Refresh Token 발급
             //TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // Refresh Token 저장 (사용자 ID, 토큰 ID(jti), 토큰 값 저장)
@@ -85,6 +81,7 @@ public class AuthController {
     }
 
     @GetMapping("/user")
+    @Operation(summary = "로그인한 사용자 확인")
     public ResponseEntity<Map<String, String>> getUserInfo(@AuthenticationPrincipal String username) {
         Map<String, String> response = new HashMap<>();
         response.put("authenticatedUser", username);
@@ -92,6 +89,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
+    @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
     public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestParam String refreshToken) {
         try {
             // Bearer 접두사 제거
@@ -146,8 +144,8 @@ public class AuthController {
         }
     }
 
-    // 로그아웃 API
     @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
     public ResponseEntity<?> logout(@RequestParam String refreshToken) {
         try {
             if (refreshToken.startsWith("Bearer ")) {

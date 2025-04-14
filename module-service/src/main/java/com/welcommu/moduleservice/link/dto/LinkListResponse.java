@@ -11,11 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LinkListResponse {
+    Long id;
     String title;
     String url;
 
     public static LinkListResponse from(Link link) {
         return new LinkListResponse(
+                link.getId(),
                 link.getTitle(),
                 link.getUrl()
         );

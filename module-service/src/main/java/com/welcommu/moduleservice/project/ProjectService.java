@@ -12,11 +12,12 @@ import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
-import com.welcommu.moduleservice.project.dto.ProjectUserListResponse;
+import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,8 @@ public class ProjectService {
         projectUserRepository.saveAll(participants);
     }
 
-    public Project getProject(Long projectId){
-        return projectRepository.findByIdAndIsDeletedFalse(projectId);
+    public Optional<Project> getProject(Long projectId){
+        return projectRepository.findById(projectId);
 
     }
 
@@ -55,6 +56,7 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
         dto.modifyProject(project);
         projectUserRepository.deleteByProject(project);
+        projectUserRepository.flush();
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
                 userRepository.findById(userId)
                         .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))
@@ -91,13 +93,13 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectUserListResponse> getUserListByProject(Long projectId) {
+    public List<ProjectUserResponse> getUserListByProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
 
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()
-                .map(ProjectUserListResponse::from)
+                .map(ProjectUserResponse::from)
                 .collect(Collectors.toList());
     }
 

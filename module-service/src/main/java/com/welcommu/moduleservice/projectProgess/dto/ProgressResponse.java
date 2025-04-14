@@ -14,7 +14,7 @@ public class ProgressResponse {
 
     private Long id;
     private String name;
-    private float position;
+    private Float position;
 
     public static ProgressResponse of(ProjectProgress progress) {
         return new ProgressResponse(progress.getId(), progress.getName(), progress.getPosition());

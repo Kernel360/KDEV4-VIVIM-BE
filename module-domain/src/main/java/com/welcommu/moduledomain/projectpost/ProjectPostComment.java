@@ -17,8 +17,8 @@ public class ProjectPostComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 200)
-    private String comment;
+    @Column(columnDefinition = "TEXT")
+    private String content;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -35,11 +35,11 @@ public class ProjectPostComment {
     @Column(name = "creator_id", nullable = false)
     private Long creatorId;
 
-    @Column(name="modifier_id")
-    private Long modifierId;
+    @Column(name="creator_name")
+    private String creatorName;
 
-    @Column(name="deleter_id")
-    private Long deleterId;
+    @Column(name="creator_role")
+    private String creatorRole;
 
     @Column(name = "project_post_id", nullable = false)
     private Long projectPostId;
@@ -47,23 +47,11 @@ public class ProjectPostComment {
     @Column(name = "parent_id")
     private Long parentId;
 
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
+    public void setContent(String content) { this.content = content; }
     public void setModifiedAt() {
         this.modifiedAt = LocalDateTime.now();
     }
-
-    public void setModifierId(Long modifierId) {
-        this.modifierId = modifierId;
-    }
-
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public void setDeleterId(Long deleterId) {
-        this.deleterId = deleterId;
     }
 }
