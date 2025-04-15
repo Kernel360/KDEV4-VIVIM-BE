@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -71,9 +72,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
 
             // 인증 정보 설정
+            String userId = String.valueOf(claims.get("userId"));
             UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(userId, null, List.of());
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
         } catch (Exception e) {
             logger.error("JWT 처리 중 오류 발생", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
@@ -93,4 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
+
+
+
 }

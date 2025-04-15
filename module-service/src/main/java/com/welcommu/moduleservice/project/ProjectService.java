@@ -1,5 +1,8 @@
 package com.welcommu.moduleservice.project;
 
+import com.welcommu.modulecommon.logging.LogAudit;
+import com.welcommu.modulecommon.logging.enums.ActionType;
+import com.welcommu.modulecommon.logging.enums.TargetType;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -51,6 +54,7 @@ public class ProjectService {
     }
 
     @Transactional
+    @LogAudit(targetType = TargetType.PROJECT, actionType = ActionType.UPDATE)
     public void modifyProject(Long projectId, ProjectModifyRequest dto) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
