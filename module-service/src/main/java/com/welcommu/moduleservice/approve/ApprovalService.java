@@ -7,6 +7,9 @@ import com.welcommu.moduledomain.checklist.Checklist;
 import com.welcommu.modulerepository.approval.ApprovalRepository;
 import com.welcommu.modulerepository.checklist.ChecklistRepository;
 import com.welcommu.moduleservice.approve.dto.ApprovalCreateRequest;
+import com.welcommu.moduleservice.approve.dto.ApprovalListResponse;
+import com.welcommu.moduleservice.approve.dto.ApprovalResponse;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +20,30 @@ public class ApprovalService {
     private final ChecklistRepository checklistRepository;
     private final ApprovalRepository approvalRepository;
 
-    public void createApproval(Long checklist_id, ApprovalCreateRequest request) {
-        Checklist checklist = findChecklist(checklist_id);
+    public void createApproval(Long checklistId, ApprovalCreateRequest request) {
+        Checklist checklist = findChecklist(checklistId);
         Approval approval = request.toEntity(checklist);
         approvalRepository.save(approval);
     }
 
-    private Checklist findChecklist(Long checklist_id) {
-        return checklistRepository.findById(checklist_id)
+    public ApprovalResponse getApproval(Long approvalId) {
+        Approval approval = findApproval(approvalId);
+        return ApprovalResponse.of(approval);
+    }
+
+    public ApprovalListResponse getApprovalList(Long checklistId) {
+        Checklist checklist = findChecklist(checklistId);
+        List<Approval> approvalList = approvalRepository.findByChecklist(checklist);
+        return ApprovalListResponse.from(approvalList);
+    }
+
+    private Checklist findChecklist(Long checklistId) {
+        return checklistRepository.findById(checklistId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_CHECKLIST));
+    }
+
+    private Approval findApproval(Long approvalId) {
+        return approvalRepository.findById(approvalId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL));
     }
 }
