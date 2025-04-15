@@ -55,7 +55,7 @@ class ProjectServiceTest {
                 .thenReturn(Optional.of(User.builder().id(1L).build()));
 
         // when
-        projectService.createProject(dto);
+        projectService.createProject(dto, 1L);
 
         // then
         verify(projectRepository).save(mockProject);

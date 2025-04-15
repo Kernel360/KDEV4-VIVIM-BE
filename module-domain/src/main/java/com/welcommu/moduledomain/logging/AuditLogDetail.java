@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.logging.entity;
+package com.welcommu.moduledomain.logging;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

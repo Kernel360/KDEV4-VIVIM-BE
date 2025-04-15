@@ -1,6 +1,7 @@
-package com.welcommu.modulecommon.logging.repository;
+package com.welcommu.modulerepository.logging;
 
-import com.welcommu.modulecommon.logging.entity.AuditLog;
+
+import com.welcommu.moduledomain.logging.AuditLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

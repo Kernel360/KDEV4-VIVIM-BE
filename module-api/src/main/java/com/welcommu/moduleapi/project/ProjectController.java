@@ -3,6 +3,7 @@ package com.welcommu.moduleapi.project;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.project.ProjectService;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
@@ -41,10 +43,11 @@ public class ProjectController {
     @PostMapping
     @Operation(summary = "프로젝트 생성")
     public ResponseEntity<ApiResponse> createProject(
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
-        @RequestBody ProjectCreateRequest dto
+            @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
+            @RequestBody ProjectCreateRequest dto
     ) {
-        projectService.createProject(dto);
+        Long userId = userDetails.getUser().getId();
+        projectService.createProject(dto,userId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
@@ -60,9 +63,11 @@ public class ProjectController {
     @Operation(summary = "프로젝트 수정")
     public ResponseEntity<ApiResponse> modifyProject(
         @PathVariable Long projectId,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectModifyRequest dto
     ) {
-        projectService.modifyProject(projectId, dto);
+        Long userId = userDetails.getUser().getId();
+        projectService.modifyProject(projectId, dto, userId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
     }
 
@@ -77,9 +82,11 @@ public class ProjectController {
     @Operation(summary = "프로젝트 삭제")
     public ResponseEntity<ApiResponse> DeleteProject(
         @PathVariable Long projectId,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectDeleteRequest dto
     ) {
-        projectService.deleteProject(projectId);
+        Long userId = userDetails.getUser().getId();
+        projectService.deleteProject(projectId, userId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제되었습니다."));
     }
 

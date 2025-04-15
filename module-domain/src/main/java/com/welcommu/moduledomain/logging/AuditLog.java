@@ -1,7 +1,7 @@
-package com.welcommu.modulecommon.logging.entity;
+package com.welcommu.moduledomain.logging;
 
-import com.welcommu.modulecommon.logging.enums.ActionType;
-import com.welcommu.modulecommon.logging.enums.TargetType;
+import com.welcommu.moduledomain.logging.enums.ActionType;
+import com.welcommu.moduledomain.logging.enums.TargetType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +32,7 @@ public class AuditLog {
 
     private LocalDateTime loggedAt;
 
+    @Builder.Default
     @OneToMany(mappedBy = "auditLog", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AuditLogDetail> details = new ArrayList<>();
 

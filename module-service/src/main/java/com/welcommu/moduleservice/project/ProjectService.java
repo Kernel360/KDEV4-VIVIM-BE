@@ -1,8 +1,6 @@
 package com.welcommu.moduleservice.project;
 
-import com.welcommu.modulecommon.logging.LogAudit;
-import com.welcommu.modulecommon.logging.enums.ActionType;
-import com.welcommu.modulecommon.logging.enums.TargetType;
+import com.welcommu.moduleservice.logging.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -33,12 +31,14 @@ public class ProjectService {
     private final ProjectProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
+    private final ProjectAuditService projectAuditService;
 
     @Transactional
-    public void createProject(ProjectCreateRequest dto) {
+    public void createProject(ProjectCreateRequest dto, Long creatorId) {
 
         Project project = dto.toEntity();
         Project savedProject = projectRepository.save(project);
+        projectAuditService.logCreateAudit(savedProject, creatorId);
         initializeDefaultProgress(savedProject);
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
@@ -54,20 +54,38 @@ public class ProjectService {
     }
 
     @Transactional
-    @LogAudit(targetType = TargetType.PROJECT, actionType = ActionType.UPDATE)
-    public void modifyProject(Long projectId, ProjectModifyRequest dto) {
+    public void modifyProject(Long projectId, ProjectModifyRequest dto, Long userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+
+        // 1. 기존 상태 복사 (얕은 복사만 해도 충분)
+        Project before = Project.builder()
+                .id(project.getId())
+                .name(project.getName())
+                .description(project.getDescription())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .createdAt(project.getCreatedAt())
+                .modifiedAt(project.getModifiedAt())
+                .isDeleted(project.getIsDeleted())
+                .build();
+
+        // 2. 실제 수정
         dto.modifyProject(project);
+
+        // 3. 감사 로그 기록
+        projectAuditService.logUpdateAudit(before, project, userId);
+
+        // 4. 참여자 수정
         projectUserRepository.deleteByProject(project);
         projectUserRepository.flush();
-        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
-                userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))
+        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
+                userRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + id))
         );
-
         projectUserRepository.saveAll(updatedUsers);
     }
+
 
     public List<ProjectUserSummaryResponse> getProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
@@ -89,10 +107,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public void deleteProject(Long projectId) {
+    public void deleteProject(Long projectId, Long userId) {
         Project deleted = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
-
+        projectAuditService.logDeleteAudit(deleted, userId);
         ProjectDeleteRequest.deleteProject(deleted);
     }
 
