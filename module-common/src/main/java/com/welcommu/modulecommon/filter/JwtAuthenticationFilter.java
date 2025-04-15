@@ -71,8 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
 
             // 인증 정보 설정
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             logger.error("JWT 처리 중 오류 발생", e);

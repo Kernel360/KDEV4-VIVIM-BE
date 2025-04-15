@@ -3,7 +3,6 @@ package com.welcommu.moduleapi.project;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.project.ProjectService;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
