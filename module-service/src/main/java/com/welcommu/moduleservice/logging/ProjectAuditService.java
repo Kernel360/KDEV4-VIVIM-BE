@@ -46,9 +46,6 @@ public class ProjectAuditService implements AuditableService<Project> {
             .loggedAt(LocalDateTime.now())
             .build();
 
-        changedFields.forEach((field, values) ->
-            log.addDetail(field, values[0], values[1])
-        );
 
         auditLogRepository.save(log);
     }

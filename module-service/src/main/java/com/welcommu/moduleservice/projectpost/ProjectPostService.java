@@ -2,9 +2,6 @@ package com.welcommu.moduleservice.projectpost;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.logging.LogAudit;
-import com.welcommu.modulecommon.logging.enums.ActionType;
-import com.welcommu.modulecommon.logging.enums.TargetType;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.projectpost.ProjectPostRepository;
@@ -23,7 +20,6 @@ import java.util.stream.Collectors;
 public class ProjectPostService {
 
     private final ProjectPostRepository projectPostRepository;
-    @LogAudit(targetType = TargetType.POST, actionType = ActionType.CREATE)
     public Long createPost(User user, Long projectId, ProjectPostRequest request, String clientIp) {
         ProjectPost newPost = request.toEntity(user, projectId, request, clientIp);
 
@@ -32,7 +28,6 @@ public class ProjectPostService {
     }
 
     @Transactional
-    @LogAudit(targetType = TargetType.POST, actionType = ActionType.UPDATE)
     public void modifyPost(Long projectId, Long postId, ProjectPostRequest request) {
 
         ProjectPost existingPost= projectPostRepository.findById(postId)
@@ -64,7 +59,6 @@ public class ProjectPostService {
     }
 
     @Transactional
-    @LogAudit(targetType = TargetType.POST, actionType = ActionType.DELETE)
     public void deletePost(Long projectId, Long postId) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
