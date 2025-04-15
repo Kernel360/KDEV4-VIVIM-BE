@@ -14,14 +14,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
                 "com.welcommu.modulerepository",
                 "com.welcommu.moduleservice"}
 )
-@EntityScan({
-        "com.welcommu.moduledomain",
-        "com.welcommu.modulecommon.logging.entity"
-})
-@EnableJpaRepositories({
-        "com.welcommu.modulerepository",
-        "com.welcommu.modulecommon.logging.repository"
-})
+@EntityScan("com.welcommu.moduledomain")
+@EnableJpaRepositories("com.welcommu.modulerepository")
 @EnableAspectJAutoProxy
 public class ModuleApiApplication {
 
