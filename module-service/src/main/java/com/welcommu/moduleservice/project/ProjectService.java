@@ -37,9 +37,10 @@ public class ProjectService {
     public void createProject(ProjectCreateRequest dto, Long creatorId) {
 
         Project project = dto.toEntity();
-        Project savedProject = projectRepository.save(project);
-        projectAuditService.logCreateAudit(savedProject, creatorId);
-        initializeDefaultProgress(savedProject);
+        Project createProject = projectRepository.save(project);
+        projectAuditService.logCreateAudit(createProject, creatorId);
+
+        initializeDefaultProgress(createProject);
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
                 userRepository.findById(userId)
@@ -54,30 +55,15 @@ public class ProjectService {
     }
 
     @Transactional
-    public void modifyProject(Long projectId, ProjectModifyRequest dto, Long userId) {
+    public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
 
-        // 1. 기존 상태 복사 (얕은 복사만 해도 충분)
-        Project before = Project.builder()
-                .id(project.getId())
-                .name(project.getName())
-                .description(project.getDescription())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .createdAt(project.getCreatedAt())
-                .modifiedAt(project.getModifiedAt())
-                .isDeleted(project.getIsDeleted())
-                .build();
+        Project beforeModifyProject = project.snapshot();
+        Project afterModifyProject = dto.modifyProject(project);
+        projectAuditService.logUpdateAudit(beforeModifyProject, afterModifyProject, modifierId);
 
-        // 2. 실제 수정
-        dto.modifyProject(project);
-
-        // 3. 감사 로그 기록
-        projectAuditService.logUpdateAudit(before, project, userId);
-
-        // 4. 참여자 수정
-        projectUserRepository.deleteByProject(project);
+        projectUserRepository.deleteByProject(afterModifyProject);
         projectUserRepository.flush();
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
                 userRepository.findById(id)
@@ -107,11 +93,11 @@ public class ProjectService {
     }
 
     @Transactional
-    public void deleteProject(Long projectId, Long userId) {
-        Project deleted = projectRepository.findById(projectId)
+    public void deleteProject(Long projectId, Long deleterId) {
+        Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
-        projectAuditService.logDeleteAudit(deleted, userId);
-        ProjectDeleteRequest.deleteProject(deleted);
+        projectAuditService.logDeleteAudit(project, deleterId);
+        ProjectDeleteRequest.deleteProject(project);
     }
 
     @Transactional(readOnly = true)
