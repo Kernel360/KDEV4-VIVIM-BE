@@ -40,8 +40,8 @@ public class ProjectController {
     @PostMapping
     @Operation(summary = "프로젝트 생성")
     public ResponseEntity<ApiResponse> createProject(
-            @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
-            @RequestBody ProjectCreateRequest dto
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
+        @RequestBody ProjectCreateRequest dto
     ) {
         Long userId = userDetails.getUser().getId();
         projectService.createProject(dto,userId);
@@ -77,7 +77,7 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}")
     @Operation(summary = "프로젝트 삭제")
-    public ResponseEntity<ApiResponse> DeleteProject(
+    public ResponseEntity<ApiResponse> deleteProject(
         @PathVariable Long projectId,
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectDeleteRequest dto
