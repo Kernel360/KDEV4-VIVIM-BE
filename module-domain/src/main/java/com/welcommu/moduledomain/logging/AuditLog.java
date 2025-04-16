@@ -20,9 +20,10 @@ public class AuditLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 해당 행위를 지시한 useId
+    // 해당 행위를 지시한 userId
     private Long actorId;
 
+    // 해당 작업이 일어난 대상 타입(ex. project, post, comment..)
     @Enumerated(EnumType.STRING)
     private TargetType targetType;
 
