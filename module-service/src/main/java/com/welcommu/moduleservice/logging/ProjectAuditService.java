@@ -8,6 +8,8 @@ import com.welcommu.moduledomain.project.Project;
 import com.welcommu.modulerepository.logging.AuditLogDetailRepository;
 import com.welcommu.modulerepository.logging.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,10 +19,11 @@ import java.util.*;
 @Service
 public class ProjectAuditService implements AuditableService<Project> {
 
+    private static final Logger log = LoggerFactory.getLogger(ProjectAuditService.class);
     private final AuditLogRepository auditLogRepository;
 
     @Override
-    public void logCreateAudit(Project entity, Long userId) {
+    public void createAuditLog(Project entity, Long userId) {
         AuditLog log = AuditLog.builder()
                 .actorId(userId)
                 .targetType(TargetType.PROJECT)
@@ -32,7 +35,7 @@ public class ProjectAuditService implements AuditableService<Project> {
     }
 
     @Override
-    public void logUpdateAudit(Project before, Project after, Long userId) {
+    public void updateAuditLog(Project before, Project after, Long userId) {
         AuditLog log = AuditLog.builder()
                 .actorId(userId)
                 .targetType(TargetType.PROJECT)
@@ -52,11 +55,12 @@ public class ProjectAuditService implements AuditableService<Project> {
                 .toList();
 
         log.getDetails().addAll(details);
+        ProjectAuditService.log.info("log {}", log);
         auditLogRepository.save(log);
     }
 
     @Override
-    public void logDeleteAudit(Project entity, Long userId) {
+    public void deleteAuditLog(Project entity, Long userId) {
         AuditLog log = AuditLog.builder()
                 .actorId(userId)
                 .targetType(TargetType.PROJECT)

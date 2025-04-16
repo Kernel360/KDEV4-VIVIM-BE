@@ -39,7 +39,7 @@ public class ProjectService {
 
         Project project = dto.toEntity();
         Project createProject = projectRepository.save(project);
-        projectAuditService.logCreateAudit(createProject, creatorId);
+        projectAuditService.createAuditLog(createProject, creatorId);
 
         initializeDefaultProgress(createProject);
 
@@ -62,7 +62,7 @@ public class ProjectService {
 
         Project beforeModifyProject = project.snapshot();
         Project afterModifyProject = dto.modifyProject(project);
-        projectAuditService.logUpdateAudit(beforeModifyProject, afterModifyProject, modifierId);
+        projectAuditService.updateAuditLog(beforeModifyProject, afterModifyProject, modifierId);
 
         projectUserRepository.deleteByProject(afterModifyProject);
         projectUserRepository.flush();
@@ -97,7 +97,7 @@ public class ProjectService {
     public void deleteProject(Long projectId, Long deleterId) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
-        projectAuditService.logDeleteAudit(project, deleterId);
+        projectAuditService.deleteAuditLog(project, deleterId);
         ProjectDeleteRequest.deleteProject(project);
     }
 

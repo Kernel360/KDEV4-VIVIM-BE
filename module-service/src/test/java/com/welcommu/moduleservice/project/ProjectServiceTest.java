@@ -2,9 +2,6 @@ package com.welcommu.moduleservice.project;
 
 
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.projectUser.ProjectUser;
-import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
-import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
@@ -13,14 +10,12 @@ import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.logging.ProjectAuditService;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectUserListCreate;
-import com.welcommu.moduleservice.project.dto.ProjectUserRoleRequest;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,7 +78,7 @@ class ProjectServiceTest {
 
         // then
         verify(projectRepository).save(projectCaptor.capture());
-        verify(projectAuditService, times(1)).logCreateAudit(eq(mockSavedProject), eq(creatorId));
+        verify(projectAuditService, times(1)).createAuditLog(eq(mockSavedProject), eq(creatorId));
 
         Project captured = projectCaptor.getValue();
         assertEquals("테스트 프로젝트", captured.getName());
