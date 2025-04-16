@@ -64,7 +64,7 @@ public class ProjectService {
 
         Project beforeModifyProject = project.snapshot();
         Project afterModifyProject = dto.modifyProject(project);
-        projectAuditService.updateAuditLog(beforeModifyProject, afterModifyProject, modifierId);
+        projectAuditService.modifyAuditLog(beforeModifyProject, afterModifyProject, modifierId);
 
         projectUserRepository.deleteByProject(afterModifyProject);
         projectUserRepository.flush();
@@ -106,7 +106,6 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<ProjectUserResponse> getUserListByProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
-
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()
