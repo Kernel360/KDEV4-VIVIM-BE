@@ -18,10 +18,6 @@ public class AuditLogDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "audit_log_id", nullable = false)
-    private AuditLog auditLog;
-
     @Column(name = "field_name", nullable = false)
     private String fieldName;
 
@@ -30,6 +26,10 @@ public class AuditLogDetail {
 
     @Column(name = "new_value")
     private String newValue;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "audit_log_id", nullable = false)
+    private AuditLog auditLog;
 
     public void setAuditLog(AuditLog auditLog) {
         this.auditLog = auditLog;
