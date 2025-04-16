@@ -64,12 +64,24 @@ public class ProjectAuditService implements AuditableService<Project> {
 
     private Map<String, String[]> compareChanges(Project before, Project after) {
         Map<String, String[]> changes = new HashMap<>();
+
         if (!Objects.equals(before.getName(), after.getName())) {
             changes.put("name", new String[]{before.getName(), after.getName()});
         }
         if (!Objects.equals(before.getDescription(), after.getDescription())) {
             changes.put("description", new String[]{before.getDescription(), after.getDescription()});
         }
+        if (!Objects.equals(before.getStartDate(), after.getStartDate())) {
+            changes.put("startDate", new String[]{
+                String.valueOf(before.getStartDate()), String.valueOf(after.getStartDate())
+            });
+        }
+        if (!Objects.equals(before.getEndDate(), after.getEndDate())) {
+            changes.put("endDate", new String[]{
+                String.valueOf(before.getEndDate()), String.valueOf(after.getEndDate())
+            });
+        }
+
         return changes;
     }
 }
