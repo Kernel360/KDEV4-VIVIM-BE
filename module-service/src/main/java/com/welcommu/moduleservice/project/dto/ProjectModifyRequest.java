@@ -29,12 +29,13 @@ public class ProjectModifyRequest {
     private List<ProjectUserRoleRequest> devUsers;
 
 
-    public void modifyProject(Project project) {
+    public Project modifyProject(Project project) {
         project.setName(this.name);
         project.setDescription(this.description);
         project.setStartDate(this.startDate);
         project.setEndDate(this.endDate);
         project.setModifiedAt(LocalDateTime.now());
+        return project;
     }
 
     public List<ProjectUser> toProjectUsers(Project project, Function<Long, User> userResolver) {

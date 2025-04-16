@@ -1,5 +1,8 @@
 package com.welcommu.moduleservice.project;
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduleservice.logging.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -26,81 +29,88 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
+
     private final ProjectRepository projectRepository;
     private final ProjectProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
+    private final ProjectAuditService projectAuditService;
 
     @Transactional
-    public void createProject(ProjectCreateRequest dto) {
+    public void createProject(ProjectCreateRequest dto, Long creatorId) {
 
         Project project = dto.toEntity();
-        Project savedProject = projectRepository.save(project);
-        initializeDefaultProgress(savedProject);
+        Project createProject = projectRepository.save(project);
+        projectAuditService.createAuditLog(createProject, creatorId);
+
+        initializeDefaultProgress(createProject);
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
-                userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId))
+            userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
         );
         projectUserRepository.saveAll(participants);
     }
 
-    public Optional<Project> getProject(Long projectId){
+    public Optional<Project> getProject(Long projectId) {
         return projectRepository.findById(projectId);
 
     }
 
     @Transactional
-    public void modifyProject(Long projectId, ProjectModifyRequest dto) {
+    public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
-        dto.modifyProject(project);
-        projectUserRepository.deleteByProject(project);
-        projectUserRepository.flush();
-        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
-                userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))
-        );
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
 
+        Project beforeModifyProject = project.snapshot();
+        Project afterModifyProject = dto.modifyProject(project);
+        projectAuditService.modifyAuditLog(beforeModifyProject, afterModifyProject, modifierId);
+
+        projectUserRepository.deleteByProject(afterModifyProject);
+        projectUserRepository.flush();
+        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
+            userRepository.findById(id)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
+        );
         projectUserRepository.saveAll(updatedUsers);
     }
 
+
     public List<ProjectUserSummaryResponse> getProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
 
         List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
 
         return projectUsers.stream()
-                .filter(pu -> !pu.getProject().getIsDeleted())
-                .map(pu -> ProjectUserSummaryResponse.of(pu.getProject(), pu))
-                .collect(Collectors.toList());
+            .filter(pu -> !pu.getProject().getIsDeleted())
+            .map(pu -> ProjectUserSummaryResponse.of(pu.getProject(), pu))
+            .collect(Collectors.toList());
     }
 
     public List<ProjectAdminSummaryResponse> getProjectList() {
         List<Project> projects = projectRepository.findAll();
         return projects.stream()
-                .map(ProjectAdminSummaryResponse::from)
-                .collect(Collectors.toList());
+            .map(ProjectAdminSummaryResponse::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteProject(Long projectId) {
-        Project deleted = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
-
-        ProjectDeleteRequest.deleteProject(deleted);
+    public void deleteProject(Long projectId, Long deleterId) {
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
+        projectAuditService.deleteAuditLog(project, deleterId);
+        ProjectDeleteRequest.deleteProject(project);
     }
 
     @Transactional(readOnly = true)
     public List<ProjectUserResponse> getUserListByProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
-
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()
-                .map(ProjectUserResponse::from)
-                .collect(Collectors.toList());
+            .map(ProjectUserResponse::from)
+            .collect(Collectors.toList());
     }
 
     private void initializeDefaultProgress(Project project) {

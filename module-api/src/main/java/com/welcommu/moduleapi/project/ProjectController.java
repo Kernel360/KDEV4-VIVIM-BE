@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/projects")
@@ -44,7 +43,8 @@ public class ProjectController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectCreateRequest dto
     ) {
-        projectService.createProject(dto);
+        Long userId = userDetails.getUser().getId();
+        projectService.createProject(dto,userId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
@@ -60,9 +60,11 @@ public class ProjectController {
     @Operation(summary = "프로젝트 수정")
     public ResponseEntity<ApiResponse> modifyProject(
         @PathVariable Long projectId,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectModifyRequest dto
     ) {
-        projectService.modifyProject(projectId, dto);
+        Long userId = userDetails.getUser().getId();
+        projectService.modifyProject(projectId, dto, userId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
     }
 
@@ -75,11 +77,13 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}")
     @Operation(summary = "프로젝트 삭제")
-    public ResponseEntity<ApiResponse> DeleteProject(
+    public ResponseEntity<ApiResponse> deleteProject(
         @PathVariable Long projectId,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectDeleteRequest dto
     ) {
-        projectService.deleteProject(projectId);
+        Long userId = userDetails.getUser().getId();
+        projectService.deleteProject(projectId, userId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제되었습니다."));
     }
 

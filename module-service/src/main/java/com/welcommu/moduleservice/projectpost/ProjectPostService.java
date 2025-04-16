@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class ProjectPostService {
 
     private final ProjectPostRepository projectPostRepository;
-
     public Long createPost(User user, Long projectId, ProjectPostRequest request, String clientIp) {
         ProjectPost newPost = request.toEntity(user, projectId, request, clientIp);
 
