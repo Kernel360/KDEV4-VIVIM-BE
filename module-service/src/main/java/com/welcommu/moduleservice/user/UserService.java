@@ -27,17 +27,18 @@ public class UserService {
     @Transactional
     public void createUser(UserRequest userRequest) {
         Company company = companyRepository.findById(userRequest.getCompanyId())
-                .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Company not found with id " + userRequest.getCompanyId()));
 
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
         User user = User.builder()
-                .name(userRequest.getName())
-                .email(userRequest.getEmail())
-                .phone(userRequest.getPhone())
-                .password(encryptedPassword)
-                .company(company)
-                .build();
+            .name(userRequest.getName())
+            .email(userRequest.getEmail())
+            .phone(userRequest.getPhone())
+            .password(encryptedPassword)
+            .company(company)
+            .build();
 
         userRepository.saveAndFlush(user);
     }
@@ -45,8 +46,8 @@ public class UserService {
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
-                .map(UserResponse::from)
-                .collect(Collectors.toList());
+            .map(UserResponse::from)
+            .collect(Collectors.toList());
     }
 
     public Optional<User> getUserById(Long id) {
@@ -79,7 +80,7 @@ public class UserService {
         }
     }
 
-    public boolean resetPasswordWithoutLogin(String email){
+    public boolean resetPasswordWithoutLogin(String email) {
         Optional<User> existingUser = userRepository.findByEmail(email);
         log.info(String.valueOf(existingUser));
         if (existingUser.isPresent()) {
@@ -95,7 +96,7 @@ public class UserService {
         }
     }
 
-    public boolean modifyPassword(Long id, String password){
+    public boolean modifyPassword(Long id, String password) {
         Optional<User> existingUser = userRepository.findById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
@@ -103,7 +104,7 @@ public class UserService {
             user.setPassword(encryptedPassword);
             userRepository.save(user);
             return true;
-        }else {
+        } else {
             log.warn("사용자 존재하지 않음: id =" + id);
             return false;
         }

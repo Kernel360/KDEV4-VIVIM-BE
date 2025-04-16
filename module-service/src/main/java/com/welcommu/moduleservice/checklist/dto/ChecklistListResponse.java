@@ -11,7 +11,7 @@ public class ChecklistListResponse {
 
     private List<ChecklistResponse> allChecklist;
 
-    public static ChecklistListResponse of(List<Checklist> allChecklist){
+    public static ChecklistListResponse of(List<Checklist> allChecklist) {
 
         List<ChecklistResponse> checkListResponse = allChecklist.stream()
             .map(ChecklistResponse::of)

@@ -1,8 +1,5 @@
 package com.welcommu.moduleservice.project;
 
-import com.welcommu.modulecommon.exception.CustomErrorCode;
-import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduleservice.logging.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -34,20 +31,17 @@ public class ProjectService {
     private final ProjectProgressRepository progressRepository;
     private final UserRepository userRepository;
     private final ProjectUserRepository projectUserRepository;
-    private final ProjectAuditService projectAuditService;
 
     @Transactional
-    public void createProject(ProjectCreateRequest dto, Long creatorId) {
+    public void createProject(ProjectCreateRequest dto) {
 
         Project project = dto.toEntity();
-        Project createProject = projectRepository.save(project);
-        projectAuditService.createAuditLog(createProject, creatorId);
-
-        initializeDefaultProgress(createProject);
+        Project savedProject = projectRepository.save(project);
+        initializeDefaultProgress(savedProject);
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
             userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId))
         );
         projectUserRepository.saveAll(participants);
     }
@@ -58,27 +52,23 @@ public class ProjectService {
     }
 
     @Transactional
-    public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
+    public void modifyProject(Long projectId, ProjectModifyRequest dto) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
-
-        Project beforeModifyProject = project.snapshot();
-        Project afterModifyProject = dto.modifyProject(project);
-        projectAuditService.modifyAuditLog(beforeModifyProject, afterModifyProject, modifierId);
-
-        projectUserRepository.deleteByProject(afterModifyProject);
+            .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+        dto.modifyProject(project);
+        projectUserRepository.deleteByProject(project);
         projectUserRepository.flush();
-        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
-            userRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
+        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, userId ->
+            userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + userId))
         );
+
         projectUserRepository.saveAll(updatedUsers);
     }
 
-
     public List<ProjectUserSummaryResponse> getProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
+            .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
         List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
 
@@ -96,16 +86,17 @@ public class ProjectService {
     }
 
     @Transactional
-    public void deleteProject(Long projectId, Long deleterId) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
-        projectAuditService.deleteAuditLog(project, deleterId);
-        ProjectDeleteRequest.deleteProject(project);
+    public void deleteProject(Long projectId) {
+        Project deleted = projectRepository.findById(projectId)
+            .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+
+        ProjectDeleteRequest.deleteProject(deleted);
     }
 
     @Transactional(readOnly = true)
     public List<ProjectUserResponse> getUserListByProject(Long projectId) {
         Project project = projectRepository.findByIdAndIsDeletedFalse(projectId);
+
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()

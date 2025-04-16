@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ProjectUserListCreate {
+
     private Long userId;
 }

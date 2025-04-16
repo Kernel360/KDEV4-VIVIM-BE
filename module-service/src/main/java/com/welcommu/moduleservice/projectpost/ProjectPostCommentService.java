@@ -20,15 +20,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProjectPostCommentService {
+
     private final ProjectPostCommentRepository projectPostCommentRepository;
     private final ProjectPostRepository projectPostRepository;
     private final ProjectUserRepository projectUserRepository;
 
     @Transactional
-    public void createComment(User user, Long postId, ProjectPostCommentRequest request, String clientIp) {
-        ProjectPostComment newComment= request.toEntity(user, postId, request, clientIp);
+    public void createComment(User user, Long postId, ProjectPostCommentRequest request,
+        String clientIp) {
+        ProjectPostComment newComment = request.toEntity(user, postId, request, clientIp);
         ProjectPost post = projectPostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
         checkUserPermission(user, post.getProjectId());
         projectPostCommentRepository.save(newComment);
     }
@@ -37,7 +39,7 @@ public class ProjectPostCommentService {
     public void modifyComment(Long postId, Long commentId, ProjectPostCommentRequest request) {
 
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
 
         existingComment.setContent(request.getContent());
         existingComment.setModifiedAt();
@@ -45,21 +47,23 @@ public class ProjectPostCommentService {
 
     @Transactional(readOnly = true)
     public List<ProjectPostCommentListResponse> getCommentList(Long projectPostId) {
-        List<ProjectPostComment> comments = projectPostCommentRepository.findAllByProjectPostIdAndDeletedAtIsNull(projectPostId);
+        List<ProjectPostComment> comments = projectPostCommentRepository.findAllByProjectPostIdAndDeletedAtIsNull(
+            projectPostId);
         return comments.stream()
-                .map(ProjectPostCommentListResponse::from)
-                .collect(Collectors.toList());
+            .map(ProjectPostCommentListResponse::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteComment(Long postId, Long commentId) {
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
         existingComment.setDeletedAt();
     }
 
     private void checkUserPermission(User user, Long projectId) {
-        if (projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId).isEmpty()&& !(user.getCompany().getCompanyRole()== CompanyRole.ADMIN)) {
+        if (projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId).isEmpty() && !(
+            user.getCompany().getCompanyRole() == CompanyRole.ADMIN)) {
             throw new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER);
         }
     }

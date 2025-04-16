@@ -20,6 +20,6 @@ public class CustomException extends RuntimeException {
     public CustomException(CustomErrorCode errorCode, Throwable cause) {
         super(errorCode.getErrorMessage(), cause);
         this.errorCode = errorCode;
-        log.error("Error occurred: {}", errorCode.getErrorMessage(), cause); 
+        log.error("Error occurred: {}", errorCode.getErrorMessage(), cause);
     }
 }

@@ -29,9 +29,11 @@ public class ChecklistController {
 
     @PostMapping("/{progressId}/checklists")
     @Operation(summary = "체크리스트 생성")
-    public ResponseEntity<ApiResponse> createChecklist(@PathVariable Long progressId, @RequestBody ChecklistCreateRequest request) {
+    public ResponseEntity<ApiResponse> createChecklist(@PathVariable Long progressId,
+        @RequestBody ChecklistCreateRequest request) {
         checklistService.createChecklist(progressId, request);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "체크리스트가 생성되었습니다."));
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "체크리스트가 생성되었습니다."));
     }
 
     @PutMapping("/{checklistId}")

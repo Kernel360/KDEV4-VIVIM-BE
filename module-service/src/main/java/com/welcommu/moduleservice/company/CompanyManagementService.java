@@ -30,13 +30,13 @@ public class CompanyManagementService {
         Company savedCompany = companyRepository.save(company);
 
         return CompanyResponse.builder()
-                .id(savedCompany.getId())
-                .name(savedCompany.getName())
-                .address(savedCompany.getAddress())
-                .phone(savedCompany.getPhone())
-                .email(savedCompany.getEmail())
-                .coOwner(savedCompany.getCoOwner())
-                .build();
+            .id(savedCompany.getId())
+            .name(savedCompany.getName())
+            .address(savedCompany.getAddress())
+            .phone(savedCompany.getPhone())
+            .email(savedCompany.getEmail())
+            .coOwner(savedCompany.getCoOwner())
+            .build();
     }
 
     public List<Company> getAllCompany() {
@@ -51,13 +51,13 @@ public class CompanyManagementService {
     public List<UserResponse> getEmployeesByCompany(Long companyId) {
         List<User> employees = userRepository.findByCompanyId(companyId);
         return employees.stream()
-                .map(UserResponse::from)
-                .collect(Collectors.toList());
+            .map(UserResponse::from)
+            .collect(Collectors.toList());
     }
 
     public Company updateCompany(Long id, Company updatedCompany) {
         Company existingCompany = companyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
         existingCompany.setName(updatedCompany.getName());
         existingCompany.setAddress(updatedCompany.getAddress());
         existingCompany.setPhone(updatedCompany.getPhone());
@@ -68,7 +68,7 @@ public class CompanyManagementService {
 
     public void deleteCompany(Long id) {
         Company existingCompany = companyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
         companyRepository.delete(existingCompany);
     }
 }
