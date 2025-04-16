@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -43,9 +43,9 @@ public class ProjectController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectCreateRequest dto
     ) {
-        Long userId = userDetails.getUser().getId();
-        projectService.createProject(dto,userId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
+        projectService.createProject(dto);
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
     @GetMapping("/{projectId}")
@@ -60,43 +60,41 @@ public class ProjectController {
     @Operation(summary = "프로젝트 수정")
     public ResponseEntity<ApiResponse> modifyProject(
         @PathVariable Long projectId,
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectModifyRequest dto
     ) {
-        Long userId = userDetails.getUser().getId();
-        projectService.modifyProject(projectId, dto, userId);
+        projectService.modifyProject(projectId, dto);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
     }
 
     @GetMapping()
     @Operation(summary = "특정 유저 소속 프로젝트 조회")
-    public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(@RequestParam Long userId) {
-       List<ProjectUserSummaryResponse> projects = projectService.getProjectsByUser(userId);
-       return ResponseEntity.ok(projects);
+    public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(
+        @RequestParam Long userId) {
+        List<ProjectUserSummaryResponse> projects = projectService.getProjectsByUser(userId);
+        return ResponseEntity.ok(projects);
     }
 
     @DeleteMapping("/{projectId}")
     @Operation(summary = "프로젝트 삭제")
-    public ResponseEntity<ApiResponse> deleteProject(
+    public ResponseEntity<ApiResponse> DeleteProject(
         @PathVariable Long projectId,
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @RequestBody ProjectDeleteRequest dto
     ) {
-        Long userId = userDetails.getUser().getId();
-        projectService.deleteProject(projectId, userId);
+        projectService.deleteProject(projectId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 삭제되었습니다."));
     }
 
     @GetMapping("/all")
     @Operation(summary = "프로젝트 전체 조회")
-    public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin(){
+    public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin() {
         List<ProjectAdminSummaryResponse> projects = projectService.getProjectList();
         return ResponseEntity.ok(projects);
     }
 
     @Operation(summary = "프로젝트 소속 유저 조회")
     @GetMapping("/{projectId}/users")
-    public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(@PathVariable Long projectId){
+    public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(
+        @PathVariable Long projectId) {
         List<ProjectUserResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
     }
