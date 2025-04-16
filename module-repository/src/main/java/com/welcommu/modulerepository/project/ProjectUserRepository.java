@@ -5,6 +5,7 @@ import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.user.User;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +15,10 @@ public interface ProjectUserRepository extends JpaRepository<ProjectUser, Long> 
     List<ProjectUser> findByUser(User user);
     void deleteByProject(Project project);
     List<ProjectUser> findByProjectId(Long id);
+//    List<ProjectUser> findByProject(Project project);
+    @EntityGraph(attributePaths = "user")
     List<ProjectUser> findByProject(Project project);
-    Optional<ProjectUser> findByUserIdAndProjectId(Long userId, Long projectId);
+    Optional<ProjectUser> findByUserIdAndProjectId(Long
+        userId, Long projectId);
 //    Optional<ProjectUser> findByUserAndProject(User user, Project project);
 }
