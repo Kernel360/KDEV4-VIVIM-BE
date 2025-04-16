@@ -35,27 +35,21 @@ public class ProjectAuditService implements AuditableService<Project> {
     }
 
     @Override
-    public void updateAuditLog(Project before, Project after, Long userId) {
+    public void modifyAuditLog(Project before, Project after, Long userId) {
+        Map<String, String[]> changedFields = compareChanges(before, after);
+
         AuditLog log = AuditLog.builder()
-                .actorId(userId)
-                .targetType(TargetType.PROJECT)
-                .targetId(after.getId())
-                .actionType(ActionType.MODIFY)
-                .loggedAt(LocalDateTime.now())
-                .details(new ArrayList<>())
-                .build();
+            .actorId(userId)
+            .targetType(TargetType.PROJECT)
+            .targetId(after.getId())
+            .actionType(ActionType.MODIFY)
+            .loggedAt(LocalDateTime.now())
+            .build();
 
-        List<AuditLogDetail> details = compareChanges(before, after).entrySet().stream()
-                .map(entry -> AuditLogDetail.builder()
-                        .auditLog(log)
-                        .fieldName(entry.getKey())
-                        .oldValue(entry.getValue()[0])
-                        .newValue(entry.getValue()[1])
-                        .build())
-                .toList();
+        changedFields.forEach((field, values) ->
+            log.addDetail(field, values[0], values[1])
+        );
 
-        log.getDetails().addAll(details);
-        ProjectAuditService.log.info("log {}", log);
         auditLogRepository.save(log);
     }
 
