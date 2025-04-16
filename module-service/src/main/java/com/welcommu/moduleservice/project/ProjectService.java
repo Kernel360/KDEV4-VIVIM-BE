@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
+
     private final ProjectRepository projectRepository;
     private final ProjectProgressRepository progressRepository;
     private final UserRepository userRepository;
@@ -43,13 +44,13 @@ public class ProjectService {
         initializeDefaultProgress(createProject);
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
-                userRepository.findById(userId)
-                        .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId))
+            userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId))
         );
         projectUserRepository.saveAll(participants);
     }
 
-    public Optional<Project> getProject(Long projectId){
+    public Optional<Project> getProject(Long projectId) {
         return projectRepository.findById(projectId);
 
     }
@@ -57,7 +58,7 @@ public class ProjectService {
     @Transactional
     public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+            .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
 
         Project beforeModifyProject = project.snapshot();
         Project afterModifyProject = dto.modifyProject(project);
@@ -66,8 +67,8 @@ public class ProjectService {
         projectUserRepository.deleteByProject(afterModifyProject);
         projectUserRepository.flush();
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
-                userRepository.findById(id)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + id))
+            userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + id))
         );
         projectUserRepository.saveAll(updatedUsers);
     }
@@ -75,27 +76,27 @@ public class ProjectService {
 
     public List<ProjectUserSummaryResponse> getProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+            .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
 
         List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
 
         return projectUsers.stream()
-                .filter(pu -> !pu.getProject().getIsDeleted())
-                .map(pu -> ProjectUserSummaryResponse.of(pu.getProject(), pu))
-                .collect(Collectors.toList());
+            .filter(pu -> !pu.getProject().getIsDeleted())
+            .map(pu -> ProjectUserSummaryResponse.of(pu.getProject(), pu))
+            .collect(Collectors.toList());
     }
 
     public List<ProjectAdminSummaryResponse> getProjectList() {
         List<Project> projects = projectRepository.findAll();
         return projects.stream()
-                .map(ProjectAdminSummaryResponse::from)
-                .collect(Collectors.toList());
+            .map(ProjectAdminSummaryResponse::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteProject(Long projectId, Long deleterId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+            .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
         projectAuditService.logDeleteAudit(project, deleterId);
         ProjectDeleteRequest.deleteProject(project);
     }
@@ -107,8 +108,8 @@ public class ProjectService {
         List<ProjectUser> projectUsers = projectUserRepository.findByProject(project);
 
         return projectUsers.stream()
-                .map(ProjectUserResponse::from)
-                .collect(Collectors.toList());
+            .map(ProjectUserResponse::from)
+            .collect(Collectors.toList());
     }
 
     private void initializeDefaultProgress(Project project) {
