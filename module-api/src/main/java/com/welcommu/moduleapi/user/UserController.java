@@ -1,6 +1,7 @@
 package com.welcommu.moduleapi.user;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,9 +28,10 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "유저를 생성합니다")
-    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<ApiResponse> createUser(@RequestBody UserRequest userRequest, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         log.info("Received user: {}", userRequest);
-        userService.createUser(userRequest);
+        Long actorId = userDetails.getUser().getId();
+        userService.createUser(userRequest, actorId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "사용자 생성에 성공했습니다."));
     }
 
@@ -89,11 +92,14 @@ public class UserController {
 
     @PutMapping("/{id}")
     @Operation(summary = "사용자 정보를 수정합니다.")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest updatedUserRequest) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
+        @RequestBody UserRequest updatedUserRequest,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         try {
             log.info("사용자 수정 요청 받음, id=" + id);
-            User user = userService.modifyUser(id, updatedUserRequest);
-            return ResponseEntity.ok(user);
+            Long actorId = userDetails.getUser().getId();;
+            UserResponse response = userService.modifyUser(id, actorId, updatedUserRequest);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             log.info("사용자 수정 실패: " + e.getMessage());
             return ResponseEntity.notFound().build();
@@ -102,8 +108,9 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "유저를 삭제합니다. (Hard Delete")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        userService.deleteUser(id, actorId);
         return ResponseEntity.noContent().build();
     }
 

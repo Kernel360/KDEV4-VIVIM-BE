@@ -1,9 +1,12 @@
 package com.welcommu.moduleservice.user;
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.logging.UserAuditService;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import jakarta.transaction.Transactional;
@@ -23,9 +26,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CompanyRepository companyRepository;
+    private final UserAuditService userAuditService;
 
     @Transactional
-    public void createUser(UserRequest userRequest) {
+    public void createUser(UserRequest userRequest, Long creatorId) {
         Company company = companyRepository.findById(userRequest.getCompanyId())
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with id " + userRequest.getCompanyId()));
 
@@ -39,7 +43,8 @@ public class UserService {
                 .company(company)
                 .build();
 
-        userRepository.saveAndFlush(user);
+       User savedUser =  userRepository.saveAndFlush(user);
+       userAuditService.createAuditLog(savedUser, creatorId);
     }
 
     public List<UserResponse> getAllUsers() {
@@ -61,23 +66,27 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
-    public User modifyUser(Long id, UserRequest updatedUserRequest) {
+    public UserResponse modifyUser(Long id, Long creatorId, UserRequest updatedUserRequest) {
 
-        Optional<User> existingUser = userRepository.findById(id);
-        if (existingUser.isPresent()) {
-            User user = existingUser.get();
-            log.info("기존 사용자 데이터: " + user);
-            user.setName(updatedUserRequest.getName());
-            user.setEmail(updatedUserRequest.getEmail());
-            user.setPhone(updatedUserRequest.getPhone());
-            user.setModifiedAt(updatedUserRequest.getModifiedAt());
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));;
 
-            return userRepository.save(user);
-        } else {
-            log.info("사용자 존재하지 않음: id=" + id);
-            throw new RuntimeException("User not found with id " + id);
-        }
+        User beforeUser = User.builder()
+            .id(existingUser.getId())
+            .name(existingUser.getName())
+            .email(existingUser.getEmail())
+            .phone(existingUser.getPhone())
+            .company(existingUser.getCompany())
+            .build();
+
+        existingUser.setName(updatedUserRequest.getName());
+        existingUser.setEmail(updatedUserRequest.getEmail());
+        existingUser.setPhone(updatedUserRequest.getPhone());
+
+        User savedUser = userRepository.save(existingUser);
+        userAuditService.modifyAuditLog(beforeUser, savedUser,creatorId);
+        return UserResponse.from(savedUser);
     }
+
 
     public boolean resetPasswordWithoutLogin(String email){
         Optional<User> existingUser = userRepository.findByEmail(email);
@@ -110,7 +119,10 @@ public class UserService {
 
     }
 
-    public void deleteUser(Long id) {
+    public void deleteUser(Long id,Long actorId ) {
+        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(
+            CustomErrorCode.NOT_FOUND_USER));
+        userAuditService.deleteAuditLog(user,actorId);
         userRepository.deleteById(id);
     }
 
