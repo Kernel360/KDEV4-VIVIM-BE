@@ -1,5 +1,7 @@
 package com.welcommu.moduleservice.project;
 
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduleservice.logging.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
@@ -45,7 +47,7 @@ public class ProjectService {
 
         List<ProjectUser> participants = dto.toProjectUsers(project, userId ->
             userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("유저 없음: " + userId))
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
         );
         projectUserRepository.saveAll(participants);
     }
@@ -58,7 +60,7 @@ public class ProjectService {
     @Transactional
     public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
 
         Project beforeModifyProject = project.snapshot();
         Project afterModifyProject = dto.modifyProject(project);
@@ -68,7 +70,7 @@ public class ProjectService {
         projectUserRepository.flush();
         List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
             userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 유저 없음: ID = " + id))
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
         );
         projectUserRepository.saveAll(updatedUsers);
     }
@@ -76,7 +78,7 @@ public class ProjectService {
 
     public List<ProjectUserSummaryResponse> getProjectsByUser(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
 
         List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
 
@@ -96,7 +98,7 @@ public class ProjectService {
     @Transactional
     public void deleteProject(Long projectId, Long deleterId) {
         Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new IllegalArgumentException("해당 프로젝트 없음"));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
         projectAuditService.deleteAuditLog(project, deleterId);
         ProjectDeleteRequest.deleteProject(project);
     }

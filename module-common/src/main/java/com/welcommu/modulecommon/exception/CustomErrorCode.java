@@ -9,6 +9,9 @@ public enum CustomErrorCode {
     FORBIDDEN_ACCESS("A003", "API 요청 권한이 없습니다."),
     SERVER_ERROR("BO001","서버에서 오류가 발생했습니다."),
 
+    // user
+    NOT_FOUND_USER("U001", "사용자를 찾을 수 없습니다."),
+
     // company
     NOT_FOUND_COMPANY("C001", "회사를 찾을 수 없습니다."),
     INVALID_TOKEN("T001", "유효하지 않은 토큰입니다."),
