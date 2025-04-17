@@ -3,7 +3,6 @@ package com.welcommu.moduleapi.company;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.Company;
-import com.welcommu.moduleservice.company.CompanyManagementService;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.CompanyService;
@@ -19,11 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,8 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CompanyController {
 
     private final CompanyService companyManagementService;
-    private final CompanyAuditLog companyAuditLog;
-
 
     @PostMapping
     @Operation(summary = "회사를 생성합니다.")
@@ -95,11 +88,11 @@ public class CompanyController {
 
     @PutMapping("/{id}")
     @Operation(summary = "id를 바탕으로 회사를 수정합니다.")
-    public ResponseEntity<Company> modifyCompany(@PathVariable Long id, @RequestBody Company modifiedCompany,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+    public ResponseEntity<Void> modifyCompany(@PathVariable Long id, @RequestBody Company modifiedCompany,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         try {
             Long actorId = userDetails.getUser().getId();
-            Company company = companyManagementService.modifyCompany(id, modifiedCompany,actorId);
-            return ResponseEntity.ok(company);
+            companyManagementService.modifyCompany(id, modifiedCompany,actorId);
+            return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
