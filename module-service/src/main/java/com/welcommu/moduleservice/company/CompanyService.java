@@ -11,6 +11,7 @@ import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.moduleservice.logging.CompanyAuditLog;
+import com.welcommu.moduleservice.logging.dto.CompanySnapshotDto;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,22 +57,12 @@ public class CompanyService {
         Company existingCompany = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
 
-        Company beforeCompany = Company.builder()
-            .id(existingCompany.getId())
-            .name(existingCompany.getName())
-            .phone(existingCompany.getPhone())
-            .email(existingCompany.getEmail())
-            .address(existingCompany.getAddress())
-            .coOwner(existingCompany.getCoOwner())
-            .businessNumber(existingCompany.getBusinessNumber())
-            .companyRole(existingCompany.getCompanyRole())
-            .build();
-
+        Company beforeCompany = CompanySnapshotDto.from(existingCompany).toEntity();
         request.modifyCompany(existingCompany);
-
         Company afterCompany =  companyRepository.save(existingCompany);
 
         companyAuditLog.modifyAuditLog(beforeCompany, afterCompany, modifierId);
+
         return afterCompany;
     }
 
