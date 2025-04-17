@@ -8,9 +8,8 @@ import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.modulerepository.company.CompanyRepository;
-import com.welcommu.moduleservice.logging.CompanyAuditLog;
+import com.welcommu.moduleservice.logging.CompanyAuditService;
 import com.welcommu.moduleservice.logging.dto.CompanySnapshot;
-import com.welcommu.moduleservice.logging.dto.UserSnapshot;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,7 @@ public class CompanyService {
 
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
-    private final CompanyAuditLog companyAuditLog;
+    private final CompanyAuditService companyAuditLog;
 
     public void createCompany(CompanyRequest companyRequest, Long userId) {
         Company company = companyRequest.toEntity();

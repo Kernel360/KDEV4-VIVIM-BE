@@ -17,31 +17,18 @@ import org.springframework.stereotype.Service;
 public class UserAuditService implements AuditableService<UserSnapshot>{
     private final AuditLogRepository auditLogRepository;
     private final AuditLogFieldComparator auditLogFieldComparator;
+    private final AuditLogFactory auditLogFactory;
 
     @Override
-    public void createAuditLog(UserSnapshot entity, Long userId) {
-        AuditLog log = AuditLog.builder()
-            .actorId(userId)
-            .targetType(TargetType.USER)
-            .targetId(entity.getId())
-            .actionType(ActionType.CREATE)
-            .loggedAt(LocalDateTime.now())
-            .build();
+    public void createAuditLog(UserSnapshot user, Long userId) {
+        AuditLog log = auditLogFactory.create(TargetType.USER, user.getId(), ActionType.CREATE, userId);
         auditLogRepository.save(log);
     }
 
     @Override
     public void modifyAuditLog(UserSnapshot before, UserSnapshot after, Long userId) {
+        AuditLog log = auditLogFactory.create(TargetType.USER, after.getId(), ActionType.MODIFY, userId);
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
-
-        AuditLog log = AuditLog.builder()
-            .actorId(userId)
-            .targetType(TargetType.USER)
-            .targetId(after.getId())
-            .actionType(ActionType.MODIFY)
-            .loggedAt(LocalDateTime.now())
-            .build();
-
         changedFields.forEach((field, values) ->
             log.addDetail(field, values[0], values[1])
         );
@@ -52,13 +39,7 @@ public class UserAuditService implements AuditableService<UserSnapshot>{
 
     @Override
     public void deleteAuditLog(UserSnapshot user, Long userId) {
-        AuditLog log = AuditLog.builder()
-            .actorId(userId)
-            .targetType(TargetType.USER)
-            .targetId(user.getId())
-            .actionType(ActionType.DELETE)
-            .loggedAt(LocalDateTime.now())
-            .build();
+        AuditLog log = auditLogFactory.create(TargetType.USER, user.getId(), ActionType.DELETE, userId);
         auditLogRepository.save(log);
     }
 }
