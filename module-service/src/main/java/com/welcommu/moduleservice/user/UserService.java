@@ -68,7 +68,7 @@ public class UserService {
 
     public UserResponse modifyUser(Long id, Long creatorId, UserRequest updatedUserRequest) {
 
-        User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));;
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
 
         User beforeUser = User.builder()
             .id(existingUser.getId())

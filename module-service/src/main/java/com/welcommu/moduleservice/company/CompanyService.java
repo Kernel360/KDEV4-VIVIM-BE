@@ -67,7 +67,6 @@ public class CompanyService {
             .build();
 
         existingCompany.setName(updatedCompany.getName());
-        existingCompany.setAddress(updatedCompany.getAddress());
         existingCompany.setPhone(updatedCompany.getPhone());
         existingCompany.setEmail(updatedCompany.getEmail());
         existingCompany.setAddress(updatedCompany.getAddress());
