@@ -13,7 +13,6 @@ import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -90,17 +89,6 @@ public class ProjectProgressService {
         return projectProgress;
     }
 
-    private void checkUserPermission(User user, Long projectId) {
-        ProjectUser projectUser = projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), projectId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
-        if (user.getCompany() == null || (!Objects.equals(user.getRole().toString(), "ADMIN")
-            && !Objects.equals(projectUser.getProjectUserManageRole().toString(),
-            "DEVELOPER_MANAGER"))) {
-            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
-        }
-    }
-
     private void checkIsDuplicatedProgressName(Long projectId, String name) {
         if (progressRepository.existsByProjectIdAndName(projectId, name)) {
             throw new CustomException(CustomErrorCode.DUPLICATE_PROGRESS_NAME);
@@ -111,6 +99,30 @@ public class ProjectProgressService {
         if (progressRepository.existsByProjectIdAndPosition(projectId, position)) {
             throw new CustomException(CustomErrorCode.DUPLICATE_PROGRESS_POSITION);
         }
+    }
+
+    // 사용자 권한 전체 흐름 조정
+    private void checkUserPermission(User user, Long projectId) {
+        ProjectUser projectUser = findProjectUser(user, projectId);
+        validateUserIsAdminOrDeveloperManager(user, projectUser);
+    }
+
+    // ADMIN 또는 DEVELOPER_MANAGER 여부 확인
+    private void validateUserIsAdminOrDeveloperManager(User user, ProjectUser projectUser) {
+        boolean isAdmin = "ADMIN".equals(user.getRole().toString());
+        boolean isDevManager = "DEVELOPER_MANAGER".equals(
+            projectUser.getProjectUserManageRole().toString());
+
+        if (user.getCompany() == null || (!isAdmin && !isDevManager)) {
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        }
+    }
+
+    // 프로젝트 참여자인지 확인
+    private ProjectUser findProjectUser(User user, Long projectId) {
+        return projectUserRepository
+            .findByUserIdAndProjectId(user.getId(), projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
 
     private Project findProject(Long projectId) {
