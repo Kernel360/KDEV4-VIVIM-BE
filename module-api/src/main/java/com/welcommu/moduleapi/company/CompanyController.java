@@ -3,6 +3,7 @@ package com.welcommu.moduleapi.company;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.CompanyService;
@@ -87,7 +88,7 @@ public class CompanyController {
 
     @PutMapping("/{id}")
     @Operation(summary = "id를 바탕으로 회사를 수정합니다.")
-    public ResponseEntity<ApiResponse> modifyCompany(@PathVariable Long id, @RequestBody Company modifiedCompany,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> modifyCompany(@PathVariable Long id, @RequestBody CompanyModifyRequest modifiedCompany,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         Long actorId = userDetails.getUser().getId();
         companyService.modifyCompany(id, modifiedCompany,actorId);
         return ResponseEntity.ok().build();

@@ -3,6 +3,7 @@ package com.welcommu.moduleapi.user;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import com.welcommu.moduleservice.user.UserService;
@@ -96,7 +97,7 @@ public class UserController {
     @PutMapping("/{id}")
     @Operation(summary = "사용자 정보를 수정합니다.")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
-        @RequestBody UserRequest updatedUserRequest,
+        @RequestBody UserModifyRequest updatedUserRequest,
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         try {
             log.info("사용자 수정 요청 받음, id=" + id);

@@ -1,5 +1,7 @@
 package com.welcommu.moduleservice.user;
 
+import static com.welcommu.modulecommon.exception.CustomErrorCode.NOT_FOUND_COMPANY;
+
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
@@ -7,6 +9,7 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.logging.UserAuditService;
+import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import jakarta.transaction.Transactional;
@@ -67,9 +70,12 @@ public class UserService {
         return userRepository.findByPhone(phone);
     }
 
-    public UserResponse modifyUser(Long id, Long creatorId, UserRequest updatedUserRequest) {
+    public UserResponse modifyUser(Long id, Long creatorId, UserModifyRequest request) {
 
         User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
+
+        Company company = companyRepository.findById(request.getCompanyId())
+            .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
 
         User beforeUser = User.builder()
             .id(existingUser.getId())
@@ -79,10 +85,7 @@ public class UserService {
             .company(existingUser.getCompany())
             .build();
 
-        existingUser.setName(updatedUserRequest.getName());
-        existingUser.setEmail(updatedUserRequest.getEmail());
-        existingUser.setPhone(updatedUserRequest.getPhone());
-
+        request.modifyUser(existingUser, company);
         User savedUser = userRepository.save(existingUser);
         userAuditService.modifyAuditLog(beforeUser, savedUser,creatorId);
         return UserResponse.from(savedUser);

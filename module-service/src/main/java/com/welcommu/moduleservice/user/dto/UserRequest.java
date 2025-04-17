@@ -28,4 +28,6 @@ public class UserRequest {
 
     @NotNull
     private Long companyId;
+
+
 }

@@ -6,6 +6,7 @@ import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
@@ -51,7 +52,7 @@ public class CompanyService {
             .collect(Collectors.toList());
     }
 
-    public Company modifyCompany(Long id, Company updatedCompany, Long modifierId) {
+    public Company modifyCompany(Long id, CompanyModifyRequest request, Long modifierId) {
         Company existingCompany = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
 
@@ -66,13 +67,7 @@ public class CompanyService {
             .companyRole(existingCompany.getCompanyRole())
             .build();
 
-        existingCompany.setName(updatedCompany.getName());
-        existingCompany.setPhone(updatedCompany.getPhone());
-        existingCompany.setEmail(updatedCompany.getEmail());
-        existingCompany.setAddress(updatedCompany.getAddress());
-        existingCompany.setCoOwner(updatedCompany.getCoOwner());
-        existingCompany.setBusinessNumber(updatedCompany.getBusinessNumber());
-        existingCompany.setCompanyRole(updatedCompany.getCompanyRole());
+        request.modifyCompany(existingCompany);
 
         Company afterCompany =  companyRepository.save(existingCompany);
 
