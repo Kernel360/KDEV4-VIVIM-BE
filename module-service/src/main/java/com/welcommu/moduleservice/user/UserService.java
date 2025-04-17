@@ -1,6 +1,7 @@
 package com.welcommu.moduleservice.user;
 
 import static com.welcommu.modulecommon.exception.CustomErrorCode.NOT_FOUND_COMPANY;
+import static com.welcommu.modulecommon.exception.CustomErrorCode.NOT_FOUND_USER;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
@@ -34,8 +35,7 @@ public class UserService {
     @Transactional
     public void createUser(UserRequest userRequest, Long creatorId) {
         Company company = companyRepository.findById(userRequest.getCompanyId())
-            .orElseThrow(() -> new IllegalArgumentException(
-                "Company not found with id " + userRequest.getCompanyId()));
+            .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
 
         String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
 
@@ -138,7 +138,7 @@ public class UserService {
             existingUser.setDeletedAt(java.time.LocalDateTime.now());
             userRepository.save(existingUser);
         } else {
-            throw new RuntimeException("User not found with id " + id);
+            throw new CustomException(NOT_FOUND_USER);
         }
     }
 }
