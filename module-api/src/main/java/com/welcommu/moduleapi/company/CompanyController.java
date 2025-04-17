@@ -1,10 +1,12 @@
 package com.welcommu.moduleapi.company;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
-import com.welcommu.moduleservice.company.CompanyManagementService;
+import com.welcommu.moduleservice.company.CompanyService;
+import com.welcommu.moduleservice.logging.CompanyAuditLog;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,15 +28,17 @@ import java.util.stream.Collectors;
 @Tag(name = "회사 API", description = "회사를 생성, 수정, 삭제시킬 수 있습니다.")
 public class CompanyController {
 
-    private final CompanyManagementService companyManagementService;
+    private final CompanyService companyManagementService;
+    private final CompanyAuditLog companyAuditLog;
 
 
     @PostMapping
     @Operation(summary = "회사를 생성합니다.")
-    public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest) {
+    public ResponseEntity<ApiResponse> createCompany(@RequestBody CompanyRequest companyRequest,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         log.info("Received company: {}", companyRequest);
 
-        CompanyResponse createdCompanyResponse = companyManagementService.createCompany(companyRequest);
+        Long actorId = userDetails.getUser().getId();
+        companyManagementService.createCompany(companyRequest, actorId);
 
         ApiResponse apiResponse = new ApiResponse(HttpStatus.CREATED.value(), "Company created successfully"
         );
@@ -75,9 +80,10 @@ public class CompanyController {
 
     @PutMapping("/{id}")
     @Operation(summary = "id를 바탕으로 회사를 수정합니다.")
-    public ResponseEntity<Company> updateCompany(@PathVariable Long id, @RequestBody Company updatedCompany) {
+    public ResponseEntity<Company> modifyCompany(@PathVariable Long id, @RequestBody Company modifiedCompany,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         try {
-            Company company = companyManagementService.updateCompany(id, updatedCompany);
+            Long actorId = userDetails.getUser().getId();
+            Company company = companyManagementService.modifyCompany(id, modifiedCompany,actorId);
             return ResponseEntity.ok(company);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -86,8 +92,9 @@ public class CompanyController {
 
     @Operation(summary = "id를 바탕으로 회사를 삭제합니다.(Hard Delete)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
-        companyManagementService.deleteCompany(id);
+    public ResponseEntity<Void> deleteCompany(@PathVariable Long id,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        companyManagementService.deleteCompany(id, actorId);
         return ResponseEntity.noContent().build();
     }
 }

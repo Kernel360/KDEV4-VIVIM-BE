@@ -3,11 +3,13 @@ package com.welcommu.moduleservice.company;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
+import com.welcommu.moduleservice.logging.CompanyAuditLog;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,23 +22,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CompanyManagementService {
+public class CompanyService {
 
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
+    private final CompanyAuditLog companyAuditLog;
 
-    public CompanyResponse createCompany(CompanyRequest companyRequest) {
+    public void createCompany(CompanyRequest companyRequest, Long userId) {
         Company company = companyRequest.toEntity();
         Company savedCompany = companyRepository.save(company);
 
-        return CompanyResponse.builder()
-                .id(savedCompany.getId())
-                .name(savedCompany.getName())
-                .address(savedCompany.getAddress())
-                .phone(savedCompany.getPhone())
-                .email(savedCompany.getEmail())
-                .coOwner(savedCompany.getCoOwner())
-                .build();
+        companyAuditLog.createAuditLog(savedCompany, userId);
     }
 
     public List<Company> getAllCompany() {
@@ -55,20 +51,40 @@ public class CompanyManagementService {
                 .collect(Collectors.toList());
     }
 
-    public Company updateCompany(Long id, Company updatedCompany) {
+    public Company modifyCompany(Long id, Company updatedCompany, Long modifierId) {
         Company existingCompany = companyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+
+        Company beforeCompany = Company.builder()
+            .id(existingCompany.getId())
+            .name(existingCompany.getName())
+            .phone(existingCompany.getPhone())
+            .email(existingCompany.getEmail())
+            .address(existingCompany.getAddress())
+            .coOwner(existingCompany.getCoOwner())
+            .businessNumber(existingCompany.getBusinessNumber())
+            .companyRole(existingCompany.getCompanyRole())
+            .build();
+
         existingCompany.setName(updatedCompany.getName());
         existingCompany.setAddress(updatedCompany.getAddress());
         existingCompany.setPhone(updatedCompany.getPhone());
         existingCompany.setEmail(updatedCompany.getEmail());
+        existingCompany.setAddress(updatedCompany.getAddress());
         existingCompany.setCoOwner(updatedCompany.getCoOwner());
-        return companyRepository.save(existingCompany);
+        existingCompany.setBusinessNumber(updatedCompany.getBusinessNumber());
+        existingCompany.setCompanyRole(updatedCompany.getCompanyRole());
+
+        Company afterCompany =  companyRepository.save(existingCompany);
+
+        companyAuditLog.modifyAuditLog(beforeCompany, afterCompany, modifierId);
+        return afterCompany;
     }
 
-    public void deleteCompany(Long id) {
+    public void deleteCompany(Long id, Long deleterId) {
         Company existingCompany = companyRepository.findById(id)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+        companyAuditLog.deleteAuditLog(existingCompany, deleterId);
         companyRepository.delete(existingCompany);
     }
 }
