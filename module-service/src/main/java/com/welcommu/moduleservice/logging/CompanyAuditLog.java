@@ -5,6 +5,7 @@ import com.welcommu.moduledomain.logging.AuditLog;
 import com.welcommu.moduledomain.logging.enums.ActionType;
 import com.welcommu.moduledomain.logging.enums.TargetType;
 import com.welcommu.modulerepository.logging.AuditLogRepository;
+import com.welcommu.moduleservice.logging.dto.CompanySnapshot;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,26 +17,26 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class CompanyAuditLog implements AuditableService<Company>{
+public class CompanyAuditLog{
 
     private static final Logger log = LoggerFactory.getLogger(CompanyAuditLog.class);
     private final AuditLogRepository auditLogRepository;
     private final AuditLogFieldComparator auditLogFieldComparator;
 
-    @Override
-    public void createAuditLog(Company entity, Long userId) {
+
+    public void createAuditLog(CompanySnapshot dto, Long userId) {
         AuditLog log = AuditLog.builder()
             .actorId(userId)
             .targetType(TargetType.COMPANY)
-            .targetId(entity.getId())
+            .targetId(dto.getId())
             .actionType(ActionType.CREATE)
             .loggedAt(LocalDateTime.now())
             .build();
         auditLogRepository.save(log);
     }
 
-    @Override
-    public void modifyAuditLog(Company before, Company after, Long userId) {
+
+    public void modifyAuditLog(CompanySnapshot before, CompanySnapshot after, Long userId) {
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
 
         AuditLog log = AuditLog.builder()
@@ -54,12 +55,11 @@ public class CompanyAuditLog implements AuditableService<Company>{
         auditLogRepository.save(log);
     }
 
-    @Override
-    public void deleteAuditLog(Company entity, Long userId) {
+    public void deleteAuditLog(CompanySnapshot dto, Long userId) {
         AuditLog log = AuditLog.builder()
             .actorId(userId)
             .targetType(TargetType.COMPANY)
-            .targetId(entity.getId())
+            .targetId(dto.getId())
             .actionType(ActionType.DELETE)
             .loggedAt(LocalDateTime.now())
             .build();

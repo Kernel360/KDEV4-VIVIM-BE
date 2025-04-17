@@ -3,12 +3,10 @@ package com.welcommu.moduleservice.logging;
 import com.welcommu.moduledomain.logging.AuditLog;
 import com.welcommu.moduledomain.logging.enums.ActionType;
 import com.welcommu.moduledomain.logging.enums.TargetType;
-import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.logging.AuditLogRepository;
+import com.welcommu.moduleservice.logging.dto.UserSnapshot;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,12 +14,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class UserAuditService implements AuditableService<User>{
+public class UserAuditService implements AuditableService<UserSnapshot>{
     private final AuditLogRepository auditLogRepository;
     private final AuditLogFieldComparator auditLogFieldComparator;
 
     @Override
-    public void createAuditLog(User entity, Long userId) {
+    public void createAuditLog(UserSnapshot entity, Long userId) {
         AuditLog log = AuditLog.builder()
             .actorId(userId)
             .targetType(TargetType.USER)
@@ -33,7 +31,7 @@ public class UserAuditService implements AuditableService<User>{
     }
 
     @Override
-    public void modifyAuditLog(User before, User after, Long userId) {
+    public void modifyAuditLog(UserSnapshot before, UserSnapshot after, Long userId) {
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
 
         AuditLog log = AuditLog.builder()
@@ -53,7 +51,7 @@ public class UserAuditService implements AuditableService<User>{
     }
 
     @Override
-    public void deleteAuditLog(User user, Long userId) {
+    public void deleteAuditLog(UserSnapshot user, Long userId) {
         AuditLog log = AuditLog.builder()
             .actorId(userId)
             .targetType(TargetType.USER)

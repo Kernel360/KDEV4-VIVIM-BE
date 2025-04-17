@@ -3,15 +3,14 @@ package com.welcommu.moduleservice.company;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
-import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
-import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.moduleservice.logging.CompanyAuditLog;
-import com.welcommu.moduleservice.logging.dto.CompanySnapshotDto;
+import com.welcommu.moduleservice.logging.dto.CompanySnapshot;
+import com.welcommu.moduleservice.logging.dto.UserSnapshot;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,7 @@ public class CompanyService {
         Company company = companyRequest.toEntity();
         Company savedCompany = companyRepository.save(company);
 
-        companyAuditLog.createAuditLog(savedCompany, userId);
+        companyAuditLog.createAuditLog(CompanySnapshot.from(savedCompany), userId);
     }
 
     public List<Company> getAllCompany() {
@@ -57,19 +56,20 @@ public class CompanyService {
         Company existingCompany = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
 
-        Company beforeCompany = CompanySnapshotDto.from(existingCompany).toEntity();
+        CompanySnapshot beforeSnapshot = CompanySnapshot.from(existingCompany);
         request.modifyCompany(existingCompany);
-        Company afterCompany =  companyRepository.save(existingCompany);
+        Company savedCompany =  companyRepository.save(existingCompany);
+        CompanySnapshot afterSnapshot = CompanySnapshot.from(savedCompany);
 
-        companyAuditLog.modifyAuditLog(beforeCompany, afterCompany, modifierId);
+        companyAuditLog.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
 
-        return afterCompany;
+        return savedCompany;
     }
 
     public void deleteCompany(Long id, Long deleterId) {
         Company existingCompany = companyRepository.findById(id)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
-        companyAuditLog.deleteAuditLog(existingCompany, deleterId);
+        companyAuditLog.deleteAuditLog(CompanySnapshot.from(existingCompany) , deleterId);
         companyRepository.delete(existingCompany);
     }
 }

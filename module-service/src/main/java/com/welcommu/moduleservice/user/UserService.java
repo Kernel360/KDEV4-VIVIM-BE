@@ -10,6 +10,7 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.logging.UserAuditService;
+import com.welcommu.moduleservice.logging.dto.UserSnapshot;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
@@ -33,22 +34,13 @@ public class UserService {
     private final UserAuditService userAuditService;
 
     @Transactional
-    public void createUser(UserRequest userRequest, Long creatorId) {
-        Company company = companyRepository.findById(userRequest.getCompanyId())
+    public void createUser(UserRequest request, Long creatorId) {
+        Company company = companyRepository.findById(request.getCompanyId())
             .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
 
-        String encryptedPassword = passwordEncoder.encode(userRequest.getPassword());
-
-        User user = User.builder()
-            .name(userRequest.getName())
-            .email(userRequest.getEmail())
-            .phone(userRequest.getPhone())
-            .password(encryptedPassword)
-            .company(company)
-            .build();
-
-       User savedUser =  userRepository.saveAndFlush(user);
-       userAuditService.createAuditLog(savedUser, creatorId);
+        User user = request.toEntity(company, passwordEncoder);
+        User savedUser =  userRepository.saveAndFlush(user);
+        userAuditService.createAuditLog(UserSnapshot.from(savedUser), creatorId);
     }
 
     public UserResponse modifyUser(Long id, Long creatorId, UserModifyRequest request) {
@@ -58,17 +50,12 @@ public class UserService {
         Company company = companyRepository.findById(request.getCompanyId())
             .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
 
-        User beforeUser = User.builder()
-            .id(existingUser.getId())
-            .name(existingUser.getName())
-            .email(existingUser.getEmail())
-            .phone(existingUser.getPhone())
-            .company(existingUser.getCompany())
-            .build();
-
+        UserSnapshot beforeSnapshot = UserSnapshot.from(existingUser);
         request.modifyUser(existingUser, company);
         User savedUser = userRepository.save(existingUser);
-        userAuditService.modifyAuditLog(beforeUser, savedUser,creatorId);
+        UserSnapshot afterSnapshot = UserSnapshot.from(savedUser);
+
+        userAuditService.modifyAuditLog(beforeSnapshot, afterSnapshot,creatorId);
         return UserResponse.from(savedUser);
     }
 
@@ -107,7 +94,7 @@ public class UserService {
     public void deleteUser(Long id,Long actorId ) {
         User user = userRepository.findById(id).orElseThrow(() -> new CustomException(
             CustomErrorCode.NOT_FOUND_USER));
-        userAuditService.deleteAuditLog(user,actorId);
+        userAuditService.deleteAuditLog(UserSnapshot.from(user),actorId);
         userRepository.deleteById(id);
     }
 

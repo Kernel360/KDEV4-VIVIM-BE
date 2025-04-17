@@ -11,6 +11,7 @@ import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.logging.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
@@ -41,7 +42,7 @@ public class ProjectService {
 
         Project project = dto.toEntity();
         Project createProject = projectRepository.save(project);
-        projectAuditService.createAuditLog(createProject, creatorId);
+        projectAuditService.createAuditLog(ProjectSnapshot.from(createProject) , creatorId);
 
         initializeDefaultProgress(createProject);
 
@@ -59,16 +60,18 @@ public class ProjectService {
 
     @Transactional
     public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
-        Project project = projectRepository.findById(projectId)
+        Project existingProject = projectRepository.findById(projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
 
-        Project beforeModifyProject = project.snapshot();
-        Project afterModifyProject = dto.modifyProject(project);
-        projectAuditService.modifyAuditLog(beforeModifyProject, afterModifyProject, modifierId);
+        ProjectSnapshot beforeSnapshot = ProjectSnapshot.from(existingProject);
+        dto.modifyProject(existingProject);
+        ProjectSnapshot afterSnapshot = ProjectSnapshot.from(existingProject);
 
-        projectUserRepository.deleteByProject(afterModifyProject);
+        projectAuditService.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
+
+        projectUserRepository.deleteByProject(existingProject);
         projectUserRepository.flush();
-        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
+        List<ProjectUser> updatedUsers = dto.toProjectUsers(existingProject, id ->
             userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
         );
@@ -99,7 +102,7 @@ public class ProjectService {
     public void deleteProject(Long projectId, Long deleterId) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
-        projectAuditService.deleteAuditLog(project, deleterId);
+        projectAuditService.deleteAuditLog(ProjectSnapshot.from(project), deleterId);
         ProjectDeleteRequest.deleteProject(project);
     }
 

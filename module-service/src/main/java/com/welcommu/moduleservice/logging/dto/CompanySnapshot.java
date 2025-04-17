@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CompanySnapshotDto {
+public class CompanySnapshot {
     private Long id;
     private String name;
     private String phone;
@@ -30,8 +30,8 @@ public class CompanySnapshotDto {
             .build();
     }
 
-    public static CompanySnapshotDto from(Company company) {
-        return new CompanySnapshotDto(
+    public static CompanySnapshot from(Company company) {
+        return new CompanySnapshot(
             company.getId(),
             company.getName(),
             company.getPhone(),
