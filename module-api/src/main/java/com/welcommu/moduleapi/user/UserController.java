@@ -111,7 +111,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "유저를 삭제합니다. (Hard Delete")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         Long actorId = userDetails.getUser().getId();
         userService.deleteUser(id, actorId);
         return ResponseEntity.noContent().build();
@@ -119,7 +119,7 @@ public class UserController {
 
     @DeleteMapping("/soft/{id}")
     @Operation(summary = "유저를 삭제합니다. (Soft Delete")
-    public ResponseEntity<Void> softDeleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse> softDeleteUser(@PathVariable Long id) {
         userService.softDeleteUser(id);
         return ResponseEntity.noContent().build();
     }
