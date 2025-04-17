@@ -51,25 +51,6 @@ public class UserService {
        userAuditService.createAuditLog(savedUser, creatorId);
     }
 
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-            .map(UserResponse::from)
-            .collect(Collectors.toList());
-    }
-
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
-    }
-
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public Optional<User> getUserByPhone(String phone) {
-        return userRepository.findByPhone(phone);
-    }
-
     public UserResponse modifyUser(Long id, Long creatorId, UserModifyRequest request) {
 
         User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
@@ -140,5 +121,24 @@ public class UserService {
         } else {
             throw new CustomException(NOT_FOUND_USER);
         }
+    }
+
+    public List<UserResponse> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+            .map(UserResponse::from)
+            .collect(Collectors.toList());
+    }
+
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> getUserByPhone(String phone) {
+        return userRepository.findByPhone(phone);
     }
 }
