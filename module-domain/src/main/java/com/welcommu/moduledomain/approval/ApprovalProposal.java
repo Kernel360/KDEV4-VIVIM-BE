@@ -38,9 +38,9 @@ public class ApprovalProposal {
     private String modifiedAt;
     private LocalDateTime deletedAt;
 
-    // 추후 승인권자 로직 작성후 필요여부 확인
-    private int totalApprovers;
-    private int approvedApprovers;
+    // 승인권자 카운팅
+    private int countTotalApprovers;
+    private int countApprovedApprovers;
     private boolean isAllApproved;
 
     @OneToOne
@@ -58,7 +58,14 @@ public class ApprovalProposal {
         this.content = content;
     }
 
-    public void set(int approvedApprovers) {
-        this.approvedApprovers = approvedApprovers;
+    // 승인자 상태가 APPROVED 인 경우를 읽어들여 카운팅
+    public void countApprovedApprovers(ApprovalStatus status) {
+        if (status == ApprovalStatus.APPROVED) {
+            this.countApprovedApprovers++;
+        }
+        if (this.countTotalApprovers == this.countApprovedApprovers) {
+            this.isAllApproved = true;
+        }
     }
+
 }
