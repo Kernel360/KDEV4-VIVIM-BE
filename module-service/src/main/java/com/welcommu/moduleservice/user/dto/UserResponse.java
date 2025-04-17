@@ -17,12 +17,12 @@ public class UserResponse {
 
     public static UserResponse from(User user) {
         return new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getCompany() != null ? user.getCompany().getName() : null,
-                user.getCompany().getCompanyRole().toString()
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getPhone(),
+            user.getCompany() != null ? user.getCompany().getName() : null,
+            user.getCompany().getCompanyRole().toString()
         );
     }
 }

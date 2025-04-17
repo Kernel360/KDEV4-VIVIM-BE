@@ -9,6 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ChecklistResponse {
+
     private Long id;
     private String name;
     private LocalDateTime createdAt;

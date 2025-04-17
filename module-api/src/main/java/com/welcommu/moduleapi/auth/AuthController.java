@@ -45,7 +45,7 @@ public class AuthController {
             String password = request.getPassword();
 
             User user = userService.getUserByEmail(email)
-                    .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new BadCredentialsException("Invalid email or password");
@@ -76,13 +76,15 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid credentials"));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("message", "Internal server error", "error", e.getMessage()));
+            return ResponseEntity.status(500)
+                .body(Map.of("message", "Internal server error", "error", e.getMessage()));
         }
     }
 
     @GetMapping("/user")
     @Operation(summary = "로그인한 사용자 확인")
-    public ResponseEntity<Map<String, String>> getUserInfo(@AuthenticationPrincipal String username) {
+    public ResponseEntity<Map<String, String>> getUserInfo(
+        @AuthenticationPrincipal String username) {
         Map<String, String> response = new HashMap<>();
         response.put("authenticatedUser", username);
         return ResponseEntity.ok(response);
@@ -90,7 +92,8 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
-    public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestParam String refreshToken) {
+    public ResponseEntity<Map<String, String>> refreshAccessToken(
+        @RequestParam String refreshToken) {
         try {
             // Bearer 접두사 제거
             if (refreshToken.startsWith("Bearer ")) {
@@ -105,8 +108,9 @@ public class AuthController {
             Long userId = ((Integer) claims.get("userId")).longValue();
 
             // DB에서 저장된 Refresh Token 정보 확인
-            RefreshTokenEntity storedToken = refreshTokenRepository.findByUserIdAndTokenId(userId, tokenId)
-                    .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_TOKEN));
+            RefreshTokenEntity storedToken = refreshTokenRepository.findByUserIdAndTokenId(userId,
+                    tokenId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_TOKEN));
 
             // 토큰 일치 확인
             if (!storedToken.getToken().equals(refreshToken)) {
@@ -129,7 +133,8 @@ public class AuthController {
             TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // 새 Refresh Token 저장
-            saveRefreshToken(userId, newTokenId, newRefreshToken.getToken(), newRefreshToken.getExpiredAt());
+            saveRefreshToken(userId, newTokenId, newRefreshToken.getToken(),
+                newRefreshToken.getExpiredAt());
 
             // 새 토큰 반환
             Map<String, String> response = new HashMap<>();
@@ -140,7 +145,7 @@ public class AuthController {
 
         } catch (Exception e) {
             return ResponseEntity.status(500)
-                    .body(Map.of("message", "Internal server error", "error", e.getMessage()));
+                .body(Map.of("message", "Internal server error", "error", e.getMessage()));
         }
     }
 
@@ -168,7 +173,7 @@ public class AuthController {
 
     // Refresh Token을 DB에 저장하는 메소드
     private void saveRefreshToken(Long userId, String tokenId, String token,
-                                  java.time.LocalDateTime expiresAt) {
+        java.time.LocalDateTime expiresAt) {
         RefreshTokenEntity entity = new RefreshTokenEntity();
         entity.setUserId(userId);
         entity.setTokenId(tokenId);

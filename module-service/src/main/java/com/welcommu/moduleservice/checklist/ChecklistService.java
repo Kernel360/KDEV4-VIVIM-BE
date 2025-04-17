@@ -59,6 +59,7 @@ public class ChecklistService {
         checklist.markAsDeleted();
         checklistRepository.delete(checklist);
     }
+
     private void findProgress(Long progressId) {
         progressRepository.findById(progressId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));

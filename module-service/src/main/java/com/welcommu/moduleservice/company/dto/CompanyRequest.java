@@ -20,14 +20,14 @@ public class CompanyRequest {
     // DTO를 Entity로 변환하는 toEntity 메서드
     public Company toEntity() {
         return Company.builder()
-                .name(this.name)
-                .address(this.address)
-                .phone(this.phone)
-                .email(this.email)
-                .coOwner(this.coOwner)
-                .companyRole(this.companyRole)
-                .businessNumber(this.businessNumber)
-                .isDeleted(false)
-                .build();
+            .name(this.name)
+            .address(this.address)
+            .phone(this.phone)
+            .email(this.email)
+            .coOwner(this.coOwner)
+            .companyRole(this.companyRole)
+            .businessNumber(this.businessNumber)
+            .isDeleted(false)
+            .build();
     }
 }

@@ -2,19 +2,26 @@ package com.welcommu.moduleapi.user;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
-import com.welcommu.moduleservice.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -22,6 +29,7 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 @Tag(name = "유저 API", description = "유저를 생성, 수정, 삭제시킬 수 있습니다.")
 public class UserController {
+
     private final UserService userService;
 
     @PostMapping
@@ -68,28 +76,31 @@ public class UserController {
 
     @PutMapping("/resetpassword")
     @Operation(summary = "비밀번호를 잊었을 시 해당 email의 비밀번호를 초기화합니다.")
-    public ResponseEntity<ApiResponse> resetPasswordByUserWithoutLogin(@RequestParam String email){
-        if(userService.resetPasswordWithoutLogin(email)){
+    public ResponseEntity<ApiResponse> resetPasswordByUserWithoutLogin(@RequestParam String email) {
+        if (userService.resetPasswordWithoutLogin(email)) {
             return ResponseEntity.ok(new ApiResponse(200, "Password changed"));
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "User not found with email: " + email));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(404, "User not found with email: " + email));
         }
     }
 
     @PutMapping("/modifypassword/{id}")
     @Operation(summary = "id를 바탕으로 비밀번호를 수정합니다.")
     public ResponseEntity<ApiResponse> modifyPasswordByUserWithLogin(@PathVariable Long id,
-                                                                     @RequestParam String password){
-        if(userService.modifyPassword(id, password)){
+        @RequestParam String password) {
+        if (userService.modifyPassword(id, password)) {
             return ResponseEntity.ok(new ApiResponse(200, "Password changed"));
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "User not found with id: " + id));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(404, "User not found with id: " + id));
         }
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "사용자 정보를 수정합니다.")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserRequest updatedUserRequest) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id,
+        @RequestBody UserRequest updatedUserRequest) {
         try {
             log.info("사용자 수정 요청 받음, id=" + id);
             User user = userService.modifyUser(id, updatedUserRequest);

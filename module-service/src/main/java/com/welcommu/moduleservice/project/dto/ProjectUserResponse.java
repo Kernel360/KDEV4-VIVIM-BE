@@ -9,15 +9,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ProjectUserResponse {
+
     private Long userId;
     private String userName;
     private ProjectUserManageRole role;
 
     public static ProjectUserResponse from(ProjectUser pu) {
         return new ProjectUserResponse(
-                pu.getUser().getId(),
-                pu.getUser().getName(),
-                pu.getProjectUserManageRole()
+            pu.getUser().getId(),
+            pu.getUser().getName(),
+            pu.getProjectUserManageRole()
         );
     }
 }

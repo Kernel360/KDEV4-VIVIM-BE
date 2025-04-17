@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostDetailResponse {
+
     private Long postId;
     private String title;
     private String content;
@@ -23,7 +24,6 @@ public class ProjectPostDetailResponse {
     private String creatorName;
     private String creatorRole;
     private LocalDateTime modifiedAt;
-
 
 
     public static ProjectPostDetailResponse from(ProjectPost post) {

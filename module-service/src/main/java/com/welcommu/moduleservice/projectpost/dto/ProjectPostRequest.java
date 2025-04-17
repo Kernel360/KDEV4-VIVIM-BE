@@ -13,23 +13,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostRequest {
+
     private String title;
     private String content;
     private ProjectPostStatus projectPostStatus;
-    private Long  parentId;
+    private Long parentId;
 
-    public ProjectPost toEntity(User user, Long projectId, ProjectPostRequest request, String clientIp) {
+    public ProjectPost toEntity(User user, Long projectId, ProjectPostRequest request,
+        String clientIp) {
         return ProjectPost.builder()
-                .projectId(projectId)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .projectPostStatus(request.getProjectPostStatus())
-                .createdAt(LocalDateTime.now())
-                .creatorId(user.getId())
-                .creatorName(user.getName())
-                .creatorRole(user.getCompany().getCompanyRole().toString())
-                .writerIp(clientIp)
-                .parentId(request.parentId)
-                .build();
+            .projectId(projectId)
+            .title(request.getTitle())
+            .content(request.getContent())
+            .projectPostStatus(request.getProjectPostStatus())
+            .createdAt(LocalDateTime.now())
+            .creatorId(user.getId())
+            .creatorName(user.getName())
+            .creatorRole(user.getCompany().getCompanyRole().toString())
+            .writerIp(clientIp)
+            .parentId(request.parentId)
+            .build();
     }
 }

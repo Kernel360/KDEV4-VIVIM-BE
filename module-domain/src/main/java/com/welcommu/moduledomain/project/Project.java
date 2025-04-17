@@ -24,13 +24,13 @@ public class Project {
 
     private String description;
 
-    @Column(name = "start_date",nullable = false)
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date",nullable = false)
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @Column(name = "created_at",nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at")
@@ -39,7 +39,7 @@ public class Project {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Column(name="is_deleted",nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
     public Project snapshot() {
