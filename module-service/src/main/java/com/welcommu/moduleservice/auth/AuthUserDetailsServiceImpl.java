@@ -20,7 +20,7 @@ public class AuthUserDetailsServiceImpl implements CustomUserDetailsService {
         System.out.println("로그인 시도: " + email);  // 로그 추가
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
         return new AuthUserDetailsImpl(user);
     }

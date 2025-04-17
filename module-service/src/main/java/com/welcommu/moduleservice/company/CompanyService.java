@@ -47,8 +47,8 @@ public class CompanyService {
     public List<UserResponse> getEmployeesByCompany(Long companyId) {
         List<User> employees = userRepository.findByCompanyId(companyId);
         return employees.stream()
-                .map(UserResponse::from)
-                .collect(Collectors.toList());
+            .map(UserResponse::from)
+            .collect(Collectors.toList());
     }
 
     public Company modifyCompany(Long id, Company updatedCompany, Long modifierId) {

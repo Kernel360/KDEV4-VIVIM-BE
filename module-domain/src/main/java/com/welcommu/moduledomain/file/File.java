@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Table(name="file")
+@Table(name = "file")
 @Getter
 @Builder
 @Entity
@@ -39,18 +39,19 @@ public class File {
     @Enumerated(EnumType.STRING)
     private ReferenceType referenceType;
 
-    @Column(name="reference_id", nullable = false)
+    @Column(name = "reference_id", nullable = false)
     private Long referenceId;
 
-    public static File create(String fileName, String fileUrl, Long fileSize, ReferenceType referenceType, Long referenceId) {
+    public static File create(String fileName, String fileUrl, Long fileSize,
+        ReferenceType referenceType, Long referenceId) {
         return File.builder()
-                .fileName(fileName)
-                .fileUrl(fileUrl)
-                .fileSize(fileSize)
-                .referenceType(referenceType)
-                .referenceId(referenceId)
-                .createdAt(LocalDateTime.now())
-                .build();
+            .fileName(fileName)
+            .fileUrl(fileUrl)
+            .fileSize(fileSize)
+            .referenceType(referenceType)
+            .referenceId(referenceId)
+            .createdAt(LocalDateTime.now())
+            .build();
     }
 
     public void setDeletedAt() {

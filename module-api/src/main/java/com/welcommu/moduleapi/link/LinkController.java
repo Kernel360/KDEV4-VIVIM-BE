@@ -2,16 +2,21 @@ package com.welcommu.moduleapi.link;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduleservice.link.LinkService;
-import com.welcommu.moduleservice.link.dto.LinkRequest;
 import com.welcommu.moduleservice.link.dto.LinkListResponse;
+import com.welcommu.moduleservice.link.dto.LinkRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
@@ -23,16 +28,20 @@ public class LinkController {
 
     @PostMapping("/posts/{postId}/link")
     @Operation(summary = "게시글에 링크 생성")
-    public ResponseEntity<ApiResponse> createPostLink(@PathVariable Long postId, @RequestBody LinkRequest request) {
+    public ResponseEntity<ApiResponse> createPostLink(@PathVariable Long postId,
+        @RequestBody LinkRequest request) {
         linkService.createPostLink(postId, request);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
 
     @PostMapping("/approvals/{approvalId}/links")
     @Operation(summary = "승인요청에 링크 생성")
-    public ResponseEntity<ApiResponse> createApprovalLink(@PathVariable Long approvalId, @RequestBody LinkRequest request) {
+    public ResponseEntity<ApiResponse> createApprovalLink(@PathVariable Long approvalId,
+        @RequestBody LinkRequest request) {
         linkService.createApprovalLink(approvalId, request);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
 
     @GetMapping("/posts/{postId}/links")

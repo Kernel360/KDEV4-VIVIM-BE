@@ -18,30 +18,31 @@ public class SwaggerConfig implements WebMvcConfigurer {
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("public") // 그룹 이름
-                .pathsToMatch("/api/**") // API 경로
-                .addOperationCustomizer((operation, handlerMethod) -> operation.addSecurityItem(
-                        new SecurityRequirement().addList("Bearer"))) // JWT 인증을 요구하는 모든 API에 적용
-                .build();
+            .group("public") // 그룹 이름
+            .pathsToMatch("/api/**") // API 경로
+            .addOperationCustomizer((operation, handlerMethod) -> operation.addSecurityItem(
+                new SecurityRequirement().addList("Bearer"))) // JWT 인증을 요구하는 모든 API에 적용
+            .build();
     }
 
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("API Documentation")
-                        .description("This is the API documentation for the JWT-based authentication system.")
-                        .version("1.0"))
-                .components(new Components()
-                        .addSecuritySchemes("Bearer",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .in(SecurityScheme.In.HEADER)
-                                        .name("Authorization")
-                        )
+            .info(new Info().title("API Documentation")
+                .description(
+                    "This is the API documentation for the JWT-based authentication system.")
+                .version("1.0"))
+            .components(new Components()
+                .addSecuritySchemes("Bearer",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")
+                        .in(SecurityScheme.In.HEADER)
+                        .name("Authorization")
                 )
-                .addSecurityItem(new SecurityRequirement().addList("Bearer"));
+            )
+            .addSecurityItem(new SecurityRequirement().addList("Bearer"));
     }
 
 }

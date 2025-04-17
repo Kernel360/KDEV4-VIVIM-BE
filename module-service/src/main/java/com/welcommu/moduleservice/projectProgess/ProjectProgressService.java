@@ -42,14 +42,17 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
-    public void modifyProgress(User user, Long projectId, Long progressId, ProgressModifyRequest request) {
+    public void modifyProgress(User user, Long projectId, Long progressId,
+        ProgressModifyRequest request) {
 
         findProject(projectId);
         findProgress(progressId);
 
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
-        if(request.getPosition() != null){checkIsDuplicatedPosition(projectId, request.getPosition());}
+        if (request.getPosition() != null) {
+            checkIsDuplicatedPosition(projectId, request.getPosition());
+        }
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
@@ -80,7 +83,8 @@ public class ProjectProgressService {
         Project project = findProject(projectId);
         ProjectProgress projectProgress = findProgress(progressId);
 
-        if (!projectProgress.getProject().getName().equals(project.getName()) || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
+        if (!projectProgress.getProject().getName().equals(project.getName())
+            || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
             throw new CustomException(CustomErrorCode.MISMATCH_PROJECT_PROGRESS);
         }
         return projectProgress;
@@ -88,8 +92,11 @@ public class ProjectProgressService {
 
     private void checkUserPermission(User user, Long projectId) {
         ProjectUser projectUser = projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), projectId).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
-        if (user.getCompany() == null || (!Objects.equals(user.getRole().toString(), "ADMIN") && !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER"))) {
+            .findByUserIdAndProjectId(user.getId(), projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
+        if (user.getCompany() == null || (!Objects.equals(user.getRole().toString(), "ADMIN")
+            && !Objects.equals(projectUser.getProjectUserManageRole().toString(),
+            "DEVELOPER_MANAGER"))) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
         }
     }

@@ -25,7 +25,7 @@ public class UserRequest {
 
     @NotNull
     private String phone;
-  
+
     @NotNull
     private Long companyId;
 }

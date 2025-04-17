@@ -1,22 +1,28 @@
 package com.welcommu.moduledomain.link;
 
-import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduledomain.file.ReferenceType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
-@Table(name="link")
+@Table(name = "link")
 @Getter
 @Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 public class Link {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,17 +43,18 @@ public class Link {
     @Enumerated(EnumType.STRING)
     private ReferenceType referenceType;
 
-    @Column(name="reference_id", nullable = false)
+    @Column(name = "reference_id", nullable = false)
     private Long referenceId;
 
-    public static Link createLink(String title, String url, ReferenceType referenceType, Long referenceId) {
+    public static Link createLink(String title, String url, ReferenceType referenceType,
+        Long referenceId) {
         return Link.builder()
-                .title(title)
-                .url(url)
-                .createdAt(LocalDateTime.now())
-                .referenceType(referenceType)
-                .referenceId(referenceId)
-                .build();
+            .title(title)
+            .url(url)
+            .createdAt(LocalDateTime.now())
+            .referenceType(referenceType)
+            .referenceId(referenceId)
+            .build();
     }
 
     public void setDeletedAt() {

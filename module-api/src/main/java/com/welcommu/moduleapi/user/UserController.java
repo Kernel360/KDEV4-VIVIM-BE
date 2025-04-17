@@ -24,6 +24,7 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 @Tag(name = "유저 API", description = "유저를 생성, 수정, 삭제시킬 수 있습니다.")
 public class UserController {
+
     private final UserService userService;
 
     @PostMapping
@@ -71,22 +72,24 @@ public class UserController {
 
     @PutMapping("/resetpassword")
     @Operation(summary = "비밀번호를 잊었을 시 해당 email의 비밀번호를 초기화합니다.")
-    public ResponseEntity<ApiResponse> resetPasswordByUserWithoutLogin(@RequestParam String email){
-        if(userService.resetPasswordWithoutLogin(email)){
+    public ResponseEntity<ApiResponse> resetPasswordByUserWithoutLogin(@RequestParam String email) {
+        if (userService.resetPasswordWithoutLogin(email)) {
             return ResponseEntity.ok(new ApiResponse(200, "Password changed"));
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "User not found with email: " + email));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(404, "User not found with email: " + email));
         }
     }
 
     @PutMapping("/modifypassword/{id}")
     @Operation(summary = "id를 바탕으로 비밀번호를 수정합니다.")
     public ResponseEntity<ApiResponse> modifyPasswordByUserWithLogin(@PathVariable Long id,
-                                                                     @RequestParam String password){
-        if(userService.modifyPassword(id, password)){
+        @RequestParam String password) {
+        if (userService.modifyPassword(id, password)) {
             return ResponseEntity.ok(new ApiResponse(200, "Password changed"));
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(404, "User not found with id: " + id));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(404, "User not found with id: " + id));
         }
     }
 

@@ -5,7 +5,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 
-
 @Table(name = "project_post_comments")
 @Getter
 @Builder
@@ -13,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostComment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,10 +35,10 @@ public class ProjectPostComment {
     @Column(name = "creator_id", nullable = false)
     private Long creatorId;
 
-    @Column(name="creator_name")
+    @Column(name = "creator_name")
     private String creatorName;
 
-    @Column(name="creator_role")
+    @Column(name = "creator_role")
     private String creatorRole;
 
     @Column(name = "project_post_id", nullable = false)
@@ -47,10 +47,14 @@ public class ProjectPostComment {
     @Column(name = "parent_id")
     private Long parentId;
 
-    public void setContent(String content) { this.content = content; }
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public void setModifiedAt() {
         this.modifiedAt = LocalDateTime.now();
     }
+
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();
     }

@@ -23,6 +23,7 @@ import java.util.Map;
 
 @Component
 public class JwtTokenHelper {
+
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenHelper.class);
 
     private final String secretKey;
@@ -53,10 +54,10 @@ public class JwtTokenHelper {
 
         // HMAC-SHA256 알고리즘으로 서명
         String jwtToken = Jwts.builder()
-                .setClaims(data) // 사용자 정보 및 클레임
-                .setExpiration(expiredAt) // 만료 시간 설정
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256) // 서명
-                .compact();
+            .setClaims(data) // 사용자 정보 및 클레임
+            .setExpiration(expiredAt) // 만료 시간 설정
+            .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256) // 서명
+            .compact();
         logger.info("생성된 Access Token: {}", jwtToken);
         logger.info("Access Token 만료 시간: {}", expiredLocalDateTime);
 
@@ -69,10 +70,10 @@ public class JwtTokenHelper {
 
         // HMAC-SHA256 알고리즘으로 서명
         String jwtToken = Jwts.builder()
-                .setClaims(data)
-                .setExpiration(expiredAt)
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
-                .compact();
+            .setClaims(data)
+            .setExpiration(expiredAt)
+            .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
+            .compact();
 
         logger.info("Refresh Token 생성 완료, 만료 시간: {}", expiredLocalDateTime);
         return new TokenDto(jwtToken, expiredLocalDateTime);

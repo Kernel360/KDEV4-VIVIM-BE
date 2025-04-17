@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface FileRepository extends JpaRepository<File, Long> {
-    List<File> findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(Long referenceId, ReferenceType referenceType);
+
+    List<File> findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(Long referenceId,
+        ReferenceType referenceType);
 }

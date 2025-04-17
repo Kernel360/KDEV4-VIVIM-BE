@@ -3,6 +3,7 @@ package com.welcommu.moduleapi.company;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduleservice.company.CompanyManagementService;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.CompanyService;
@@ -10,6 +11,9 @@ import com.welcommu.moduleservice.logging.CompanyAuditLog;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,6 +24,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -40,7 +52,8 @@ public class CompanyController {
         Long actorId = userDetails.getUser().getId();
         companyManagementService.createCompany(companyRequest, actorId);
 
-        ApiResponse apiResponse = new ApiResponse(HttpStatus.CREATED.value(), "Company created successfully"
+        ApiResponse apiResponse = new ApiResponse(HttpStatus.CREATED.value(),
+            "Company created successfully"
         );
 
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
@@ -52,8 +65,8 @@ public class CompanyController {
         log.info("전체 회사 조회 API 호출됨.");
         List<Company> companies = companyManagementService.getAllCompany();
         return companies.stream()
-                .map(CompanyResponse::from)
-                .collect(Collectors.toList());
+            .map(CompanyResponse::from)
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -61,7 +74,7 @@ public class CompanyController {
     public ResponseEntity<CompanyResponse> getCompanyById(@PathVariable Long id) {
         Optional<Company> company = companyManagementService.getCompanyById(id);
         return company.map(c -> ResponseEntity.ok(CompanyResponse.from(c)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "id를 바탕으로 해당 회사에 소속된 유저를 전체 조회합니다.")
@@ -72,10 +85,12 @@ public class CompanyController {
         List<UserResponse> employeeList = companyManagementService.getEmployeesByCompany(companyId);
 
         if (employeeList == null || employeeList.isEmpty()) {
-            return ResponseEntity.status(404).body(new ApiResponse(404, "No employees found for the company"));
+            return ResponseEntity.status(404)
+                .body(new ApiResponse(404, "No employees found for the company"));
         }
 
-        return ResponseEntity.ok(new ApiResponse(200, "Employees retrieved successfully", employeeList));
+        return ResponseEntity.ok(
+            new ApiResponse(200, "Employees retrieved successfully", employeeList));
     }
 
     @PutMapping("/{id}")

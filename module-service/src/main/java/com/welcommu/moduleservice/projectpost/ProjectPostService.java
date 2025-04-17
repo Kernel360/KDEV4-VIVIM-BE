@@ -24,14 +24,14 @@ public class ProjectPostService {
         ProjectPost newPost = request.toEntity(user, projectId, request, clientIp);
 
         projectPostRepository.save(newPost);
-        return  newPost.getId();
+        return newPost.getId();
     }
 
     @Transactional
     public void modifyPost(Long projectId, Long postId, ProjectPostRequest request) {
 
-        ProjectPost existingPost= projectPostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
+        ProjectPost existingPost = projectPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
 
         existingPost.setTitle(request.getTitle());
         existingPost.setContent(request.getContent());
@@ -40,20 +40,20 @@ public class ProjectPostService {
     }
 
 
-
     public List<ProjectPostListResponse> getPostList(Long projectId) {
-        List<ProjectPost> posts = projectPostRepository.findAllByProjectIdAndDeletedAtIsNull(projectId);
+        List<ProjectPost> posts = projectPostRepository.findAllByProjectIdAndDeletedAtIsNull(
+            projectId);
 
         return posts.stream()
-                .map(ProjectPostListResponse::from)
-                .collect(Collectors.toList());
+            .map(ProjectPostListResponse::from)
+            .collect(Collectors.toList());
     }
 
 
     @Transactional(readOnly = true)
     public ProjectPostDetailResponse getPostDetail(Long projectId, Long postId) {
-        ProjectPost existingPost= projectPostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
+        ProjectPost existingPost = projectPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
 
         return ProjectPostDetailResponse.from(existingPost);
     }
@@ -61,7 +61,7 @@ public class ProjectPostService {
     @Transactional
     public void deletePost(Long projectId, Long postId) {
         ProjectPost existingPost = projectPostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
         existingPost.setDeletedAt();
     }
 }

@@ -12,14 +12,15 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class ProjectUserCreateRequest {
+
     private final Long userId;
     private final ProjectUserManageRole manageRole;
 
     public ProjectUser toEntity(Project project, User user) {
         return ProjectUser.builder()
-                .project(project)
-                .user(user)
-                .projectUserManageRole(manageRole)
-                .build();
+            .project(project)
+            .user(user)
+            .projectUserManageRole(manageRole)
+            .build();
     }
 }

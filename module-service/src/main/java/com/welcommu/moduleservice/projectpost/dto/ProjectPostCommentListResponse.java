@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostCommentListResponse {
+
     private Long commentId;
     private String content;
     private Long parentId;
@@ -25,14 +26,14 @@ public class ProjectPostCommentListResponse {
 
     public static ProjectPostCommentListResponse from(ProjectPostComment comment) {
         return new ProjectPostCommentListResponse(
-                comment.getId(),
-                comment.getContent(),
-                comment.getParentId(),
-                comment.getCreatorId(),
-                comment.getCreatedAt(),
-                comment.getCreatorName(),
-                comment.getCreatorRole(),
-                comment.getModifiedAt()
+            comment.getId(),
+            comment.getContent(),
+            comment.getParentId(),
+            comment.getCreatorId(),
+            comment.getCreatedAt(),
+            comment.getCreatorName(),
+            comment.getCreatorRole(),
+            comment.getModifiedAt()
         );
     }
 

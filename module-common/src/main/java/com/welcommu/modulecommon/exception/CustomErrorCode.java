@@ -7,7 +7,7 @@ public enum CustomErrorCode {
 
     // common
     FORBIDDEN_ACCESS("A003", "API 요청 권한이 없습니다."),
-    SERVER_ERROR("BO001","서버에서 오류가 발생했습니다."),
+    SERVER_ERROR("BO001", "서버에서 오류가 발생했습니다."),
 
     // user
     NOT_FOUND_USER("U001", "사용자를 찾을 수 없습니다."),
@@ -15,7 +15,7 @@ public enum CustomErrorCode {
     // company
     NOT_FOUND_COMPANY("C001", "회사를 찾을 수 없습니다."),
     INVALID_TOKEN("T001", "유효하지 않은 토큰입니다."),
-    EXPIRED_TOKEN("T002","토큰이 만료되었습니다."),
+    EXPIRED_TOKEN("T002", "토큰이 만료되었습니다."),
 
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
@@ -27,8 +27,8 @@ public enum CustomErrorCode {
     NOT_FOUND_POST("PO001", "게시글을 찾을 수 없습니다."),
 
     // project post comment
-    NOT_FOUND_COMMENT("PC001","댓글을 찾을 수 없습니다."),
-  
+    NOT_FOUND_COMMENT("PC001", "댓글을 찾을 수 없습니다."),
+
     // project progress
     NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
