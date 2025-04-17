@@ -1,6 +1,6 @@
 package com.welcommu.moduledomain.approval;
 
-import com.welcommu.moduledomain.checklist.Checklist;
+import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,27 +23,42 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Approval {
+public class ApprovalProposal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
     private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private String modifiedAt;
     private LocalDateTime deletedAt;
 
+    // 추후 승인권자 로직 작성후 필요여부 확인
+    private int totalApprovers;
+    private int approvedApprovers;
+    private boolean isAllApproved;
+
     @OneToOne
-    private User user;
+    private User writer;
 
     @ManyToOne
-    @JoinColumn(name = "checklist_id")
-    private Checklist checklist;
+    @JoinColumn(name = "project_progress_id")
+    private ProjectProgress progress;
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void set(int approvedApprovers) {
+        this.approvedApprovers = approvedApprovers;
+    }
 }
