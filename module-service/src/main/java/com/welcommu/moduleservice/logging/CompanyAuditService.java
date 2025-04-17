@@ -29,12 +29,8 @@ public class CompanyAuditService implements AuditableService<CompanySnapshot>{
 
     @Override
     public void modifyAuditLog(CompanySnapshot before, CompanySnapshot after, Long userId) {
-        AuditLog log = auditLogFactory.create(TargetType.COMPANY, after.getId(), ActionType.MODIFY, userId);
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
-        CompanyAuditService.log.info("log {}", log);
-        changedFields.forEach((field, values) ->
-            log.addDetail(field, values[0], values[1])
-        );
+        AuditLog log = auditLogFactory.createWithDetails(TargetType.COMPANY, after.getId(), ActionType.MODIFY, userId,changedFields);
         auditLogRepository.save(log);
     }
     @Override

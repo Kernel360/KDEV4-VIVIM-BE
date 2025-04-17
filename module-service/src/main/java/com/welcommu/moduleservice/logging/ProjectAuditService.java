@@ -28,11 +28,8 @@ public class ProjectAuditService implements AuditableService<ProjectSnapshot>{
 
     @Override
     public void modifyAuditLog(ProjectSnapshot before, ProjectSnapshot after, Long userId) {
-        AuditLog log = auditLogFactory.create(TargetType.PROJECT, after.getId(), ActionType.MODIFY, userId);
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
-        changedFields.forEach((field, values) ->
-            log.addDetail(field, values[0], values[1])
-        );
+        AuditLog log = auditLogFactory.createWithDetails(TargetType.PROJECT, after.getId(), ActionType.MODIFY, userId,changedFields);
         auditLogRepository.save(log);
     }
 

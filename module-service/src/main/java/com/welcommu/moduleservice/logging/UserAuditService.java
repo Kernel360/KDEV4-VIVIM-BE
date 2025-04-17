@@ -27,12 +27,8 @@ public class UserAuditService implements AuditableService<UserSnapshot>{
 
     @Override
     public void modifyAuditLog(UserSnapshot before, UserSnapshot after, Long userId) {
-        AuditLog log = auditLogFactory.create(TargetType.USER, after.getId(), ActionType.MODIFY, userId);
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
-        changedFields.forEach((field, values) ->
-            log.addDetail(field, values[0], values[1])
-        );
-
+        AuditLog log = auditLogFactory.createWithDetails(TargetType.USER, after.getId(), ActionType.MODIFY, userId, changedFields);
         auditLogRepository.save(log);
 
     }
