@@ -1,5 +1,6 @@
 package com.welcommu.moduleservice.logging;
 
+
 import com.welcommu.moduledomain.logging.AuditLog;
 import com.welcommu.moduledomain.logging.AuditLogDetail;
 import com.welcommu.moduledomain.logging.enums.ActionType;
@@ -21,6 +22,7 @@ public class ProjectAuditService implements AuditableService<Project> {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectAuditService.class);
     private final AuditLogRepository auditLogRepository;
+    private final AuditLogFieldComparator auditLogFieldComparator;
 
     @Override
     public void createAuditLog(Project entity, Long userId) {
@@ -36,7 +38,8 @@ public class ProjectAuditService implements AuditableService<Project> {
 
     @Override
     public void modifyAuditLog(Project before, Project after, Long userId) {
-        Map<String, String[]> changedFields = compareChanges(before, after);
+        Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
+
 
         AuditLog log = AuditLog.builder()
             .actorId(userId)
@@ -63,28 +66,5 @@ public class ProjectAuditService implements AuditableService<Project> {
                 .loggedAt(LocalDateTime.now())
                 .build();
         auditLogRepository.save(log);
-    }
-
-    private Map<String, String[]> compareChanges(Project before, Project after) {
-        Map<String, String[]> changes = new HashMap<>();
-
-        if (!Objects.equals(before.getName(), after.getName())) {
-            changes.put("name", new String[]{before.getName(), after.getName()});
-        }
-        if (!Objects.equals(before.getDescription(), after.getDescription())) {
-            changes.put("description", new String[]{before.getDescription(), after.getDescription()});
-        }
-        if (!Objects.equals(before.getStartDate(), after.getStartDate())) {
-            changes.put("startDate", new String[]{
-                String.valueOf(before.getStartDate()), String.valueOf(after.getStartDate())
-            });
-        }
-        if (!Objects.equals(before.getEndDate(), after.getEndDate())) {
-            changes.put("endDate", new String[]{
-                String.valueOf(before.getEndDate()), String.valueOf(after.getEndDate())
-            });
-        }
-
-        return changes;
     }
 }
