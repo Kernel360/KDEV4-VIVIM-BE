@@ -2,7 +2,7 @@ package com.welcommu.moduleapi.approval;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
-import com.welcommu.moduleservice.approval.approvalProposal.ApprovalProposalService;
+import com.welcommu.moduleservice.approval.approvalProposal.ProposalService;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalCreateRequest;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalModifyRequest;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponse;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "승인요청 API", description = "승인요청을 생성, 수정, 삭제시킬 수 있습니다.")
 public class ApprovalProposalController {
 
-    private final ApprovalProposalService approvalProposalService;
+    private final ProposalService proposalService;
 
     @PostMapping("/{progressId}/approval")
     @Operation(summary = "승인요청 생성")
@@ -37,7 +37,7 @@ public class ApprovalProposalController {
         @PathVariable Long progressId,
         @RequestBody ProposalCreateRequest request) {
 
-        approvalProposalService.createApproval(userDetails.getUser(), progressId, request);
+        proposalService.createApproval(userDetails.getUser(), progressId, request);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 생성을 성공했습니다."));
     }
@@ -50,7 +50,7 @@ public class ApprovalProposalController {
         @PathVariable Long approvalId,
         @RequestBody ProposalModifyRequest request) {
 
-        approvalProposalService.modifyApproval(userDetails.getUser(), progressId, approvalId,
+        proposalService.modifyApproval(userDetails.getUser(), progressId, approvalId,
             request);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 수정을 성공했습니다."));
@@ -61,7 +61,7 @@ public class ApprovalProposalController {
     public ResponseEntity<ApiResponse> deleteApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long approvalId) {
 
-        approvalProposalService.deleteApproval(userDetails.getUser(), approvalId);
+        proposalService.deleteApproval(userDetails.getUser(), approvalId);
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
     }
 
@@ -69,7 +69,7 @@ public class ApprovalProposalController {
     @Operation(summary = "승인요청 단일조회")
     public ResponseEntity<ProposalResponse> getApproval(@PathVariable Long approvalId) {
 
-        ProposalResponse response = approvalProposalService.getApproval(approvalId);
+        ProposalResponse response = proposalService.getApproval(approvalId);
         return ResponseEntity.ok(response);
     }
 
@@ -77,7 +77,7 @@ public class ApprovalProposalController {
     @Operation(summary = "승인요청 전체조회")
     public ResponseEntity<ProposalResponseList> getApprovalList(@PathVariable Long progressId) {
 
-        ProposalResponseList response = approvalProposalService.getApprovalList(progressId);
+        ProposalResponseList response = proposalService.getApprovalList(progressId);
         return ResponseEntity.ok(response);
     }
 }

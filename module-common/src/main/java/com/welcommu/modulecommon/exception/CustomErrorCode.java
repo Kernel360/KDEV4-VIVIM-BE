@@ -11,6 +11,7 @@ public enum CustomErrorCode {
 
     // company
     NOT_FOUND_COMPANY("C001", "회사를 찾을 수 없습니다."),
+    YOUR_ARE_NOT_DEVELOPER("C002", "개발사만 사용할 수 있는 API 요청입니다."),
 
     // user
     NOT_FOUND_USER("U001", "사용자를 찾을 수 없습니다."),

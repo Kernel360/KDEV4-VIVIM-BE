@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class ApprovalProposalService {
+public class ProposalService {
 
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
@@ -91,14 +91,20 @@ public class ApprovalProposalService {
     // TODO ApprovalDecision 저장 시 Approval 상태 갱신 흐름
 
     private void checkUserPermission(User user, Long projectId) {
-        if (isAdmin(user)) {
-            return;
+        if (isAdmin(user)) return;
+        if (isDeveloper(user)) {
+            findProjectUser(user, projectId);
+        } else {
+            throw new CustomException(CustomErrorCode.YOUR_ARE_NOT_DEVELOPER);
         }
-        findProjectUser(user, projectId);
     }
 
     private boolean isAdmin(User user) {
-        return "ADMIN".equals(user.getRole().toString());
+        return user.getRole() != null && user.getRole().toString().equals("ADMIN");
+    }
+
+    private boolean isDeveloper(User user) {
+        return user.getRole() != null && user.getRole().toString().equals("DEVELOPER");
     }
 
     private void findProjectUser(User user, Long projectId) {
