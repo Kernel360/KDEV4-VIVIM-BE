@@ -35,8 +35,7 @@ public class UserService {
 
     @Transactional
     public void createUser(UserRequest request, Long creatorId) {
-        Company company = companyRepository.findById(request.getCompanyId())
-            .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
+        Company company = findCompany(request.getCompanyId());
 
         User user = request.toEntity(company, passwordEncoder);
         User savedUser =  userRepository.saveAndFlush(user);
@@ -44,12 +43,8 @@ public class UserService {
     }
 
     public UserResponse modifyUser(Long id, Long creatorId, UserModifyRequest request) {
-
         User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
-
-        Company company = companyRepository.findById(request.getCompanyId())
-            .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
-
+        Company company = findCompany(request.getCompanyId());
         UserSnapshot beforeSnapshot = UserSnapshot.from(existingUser);
         request.modifyUser(existingUser, company);
         User savedUser = userRepository.save(existingUser);
@@ -57,6 +52,11 @@ public class UserService {
 
         userAuditService.modifyAuditLog(beforeSnapshot, afterSnapshot,creatorId);
         return UserResponse.from(savedUser);
+    }
+
+    private Company findCompany(Long request) {
+        return companyRepository.findById(request)
+            .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
     }
 
 
@@ -92,8 +92,7 @@ public class UserService {
     }
 
     public void deleteUser(Long id,Long actorId ) {
-        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(
-            CustomErrorCode.NOT_FOUND_USER));
+        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
         userAuditService.deleteAuditLog(UserSnapshot.from(user),actorId);
         userRepository.deleteById(id);
     }
