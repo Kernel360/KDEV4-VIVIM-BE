@@ -29,7 +29,7 @@ public class ProposalResponse {
             .title(approvalProposal.getTitle())
             .content(approvalProposal.getContent())
             .createdAt(approvalProposal.getCreatedAt())
-            .creator(approvalProposal.getWriter())
+            .creator(approvalProposal.getUser())
             .progress(approvalProposal.getProgress())
             .approverList(
                 approverList.stream()
