@@ -1,9 +1,7 @@
 package com.welcommu.moduleservice.approval.approvalProposal.dto;
 
-import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import java.util.List;
-import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,21 +9,16 @@ import lombok.Getter;
 @Builder
 public class ProposalResponseList {
 
-    private List<ProposalResponse> approvalListResponse;
+    private List<ProposalResponse> approvalList;
 
-    public static ProposalResponseList from(
-        List<ApprovalProposal> approvalProposalList,
-        Map<Long, List<ApprovalApprover>> approverMap
-    ) {
-        List<ProposalResponse> approvalListResponse = approvalProposalList.stream()
-            .map(approval -> ProposalResponse.of(
-                approval,
-                approverMap.getOrDefault(approval.getId(), List.of())
-            ))
+    public static ProposalResponseList from(List<ApprovalProposal> approvalList) {
+
+        List<ProposalResponse> approvalListResponse = approvalList.stream()
+            .map(ProposalResponse::of) // approver 미포함
             .toList();
 
         return ProposalResponseList.builder()
-            .approvalListResponse(approvalListResponse)
+            .approvalList(approvalListResponse)
             .build();
     }
 }

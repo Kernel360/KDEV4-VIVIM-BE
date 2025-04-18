@@ -2,12 +2,10 @@ package com.welcommu.moduleservice.approval.approvalProposal;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
 import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
@@ -15,9 +13,8 @@ import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalCreateRe
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalModifyRequest;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponse;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponseList;
+import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalSendResponse;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +26,6 @@ public class ProposalService {
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
-    private final ApprovalApproverRepository approverRepository;
 
     public void createApproval(User creator, Long progressId, ProposalCreateRequest request) {
         ProjectProgress progress = findProgress(progressId);
@@ -43,7 +39,7 @@ public class ProposalService {
         ProposalModifyRequest request) {
 
         ApprovalProposal approvalProposal = findApproval(approvalId);
-        ProjectProgress progress = findProgress(approvalProposal.getProgress().getId());
+        ProjectProgress progress = findProgress(approvalProposal.getProjectProgress().getId());
         checkUserPermission(user, progress.getProject().getId());
 
         if (request.getTitle() != null) {
@@ -63,37 +59,23 @@ public class ProposalService {
 
     public ProposalResponse getApproval(Long approvalId) {
         ApprovalProposal approvalProposal = findApproval(approvalId);
-        List<ApprovalApprover> approvers = approverRepository.findByApprovalProposal(
-            approvalProposal);
-
-        return ProposalResponse.of(approvalProposal, approvers);
+        return ProposalResponse.of(approvalProposal);
     }
 
-    public ProposalResponseList getApprovalList(Long progressId) {
+    public ProposalResponseList getAllApproval(Long progressId) {
         ProjectProgress progress = findProgress(progressId);
-        List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProgress(
+        List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(
             progress);
 
-        List<ApprovalApprover> approvers = approverRepository.findByApprovalProposalIn(
-            approvalProposalList);
-
-        Map<Long, List<ApprovalApprover>> approverMap = approvers.stream()
-            .collect(Collectors.groupingBy(a -> a.getApprovalProposal().getId()));
-
-        return ProposalResponseList.from(approvalProposalList, approverMap);
+        return ProposalResponseList.from(approvalProposalList);
     }
 
     @Transactional
-    public void resendApproval(User user, Long approvalId) {
-        ApprovalProposal proposal = approvalProposalRepository.findById(approvalId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+    public ProposalSendResponse sendApproval(User user, Long approvalId) {
+        ApprovalProposal proposal = findApproval(approvalId);
+        checkUserPermission(user, proposal.getProjectProgress().getProject().getId());
 
-        checkUserPermission(user, proposal.getProgress().getProject().getId());
-        if (!proposal.canResend()) {
-            throw new CustomException(CustomErrorCode.INVALID_APPROVAL_STATUS);
-        }
-
-        proposal.resend();
+        return ProposalSendResponse.from(user, proposal);
     }
 
     // TODO ApprovalDecision 저장 시 Approval 상태 갱신 흐름
@@ -110,11 +92,11 @@ public class ProposalService {
     }
 
     private boolean isAdmin(User user) {
-        return user.getRole() != null && user.getRole().toString().equals("ADMIN");
+        return user.getRole().toString().equals("ADMIN");
     }
 
     private boolean isDeveloper(User user) {
-        return user.getRole() != null && user.getRole().toString().equals("DEVELOPER");
+        return user.getRole() != null && user.getRole().name().equals("DEVELOPER");
     }
 
     private void findProjectUser(User user, Long projectId) {

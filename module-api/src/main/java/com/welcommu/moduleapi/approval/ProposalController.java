@@ -7,8 +7,10 @@ import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalCreateRe
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalModifyRequest;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponse;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponseList;
+import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalSendResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,18 +26,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/progress")
+@RequestMapping("/api")
 @Tag(name = "승인요청 API", description = "승인요청을 생성, 수정, 삭제시킬 수 있습니다.")
 public class ProposalController {
 
     private final ProposalService proposalService;
 
-    @PostMapping("/{progressId}/approval")
+    @PostMapping("/progress/{progressId}/approval")
     @Operation(summary = "승인요청 생성")
     public ResponseEntity<ApiResponse> createApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long progressId,
-        @RequestBody ProposalCreateRequest request) {
+        @Valid @RequestBody ProposalCreateRequest request) {
 
         proposalService.createApproval(userDetails.getUser(), progressId, request);
         return ResponseEntity.ok()
@@ -70,21 +72,22 @@ public class ProposalController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{progressId}/approval")
+    @GetMapping("/progress/{progressId}/approval")
     @Operation(summary = "승인요청 전체조회")
     public ResponseEntity<ProposalResponseList> getApprovalList(@PathVariable Long progressId) {
 
-        ProposalResponseList response = proposalService.getApprovalList(progressId);
+        ProposalResponseList response = proposalService.getAllApproval(progressId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/approval/{approvalId}/resend")
-    @Operation(summary = "수정요청에 대한 재승인요청")
-    public ResponseEntity<ApiResponse> resendApproval(
+    @Operation(summary = "작업 완료 후, 승인요청 고객사에 보내기")
+    public ResponseEntity<ProposalSendResponse> sendApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long approvalId) {
 
-        proposalService.resendApproval(userDetails.getUser(), approvalId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "재승인 요청을 성공했습니다."));
+        ProposalSendResponse response = proposalService.sendApproval(userDetails.getUser(),
+            approvalId);
+        return ResponseEntity.ok().body(response);
     }
 }
