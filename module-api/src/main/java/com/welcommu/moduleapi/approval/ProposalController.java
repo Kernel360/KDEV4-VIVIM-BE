@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RequestMapping("/api/progress")
 @Tag(name = "승인요청 API", description = "승인요청을 생성, 수정, 삭제시킬 수 있습니다.")
-public class ApprovalProposalController {
+public class ProposalController {
 
     private final ProposalService proposalService;
 
@@ -42,26 +42,23 @@ public class ApprovalProposalController {
             .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 생성을 성공했습니다."));
     }
 
-    @PatchMapping("/{progressId}/approval/{approvalId}")
+    @PatchMapping("/approval/{approvalId}")
     @Operation(summary = "승인요청 수정")
     public ResponseEntity<ApiResponse> modifyApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
-        @PathVariable Long progressId,
         @PathVariable Long approvalId,
         @RequestBody ProposalModifyRequest request) {
 
-        proposalService.modifyApproval(userDetails.getUser(), progressId, approvalId,
-            request);
+        proposalService.modifyApproval(userDetails.getUser(), approvalId, request);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 수정을 성공했습니다."));
     }
 
     @DeleteMapping("/approval/{approvalId}")
     @Operation(summary = "승인요청 삭제")
-    public ResponseEntity<ApiResponse> deleteApproval(
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long approvalId) {
+    public ResponseEntity<ApiResponse> deleteApproval(@PathVariable Long approvalId) {
 
-        proposalService.deleteApproval(userDetails.getUser(), approvalId);
+        proposalService.deleteApproval(approvalId);
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
     }
 
@@ -79,5 +76,15 @@ public class ApprovalProposalController {
 
         ProposalResponseList response = proposalService.getApprovalList(progressId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/approval/{approvalId}/resend")
+    @Operation(summary = "수정요청에 대한 재승인요청")
+    public ResponseEntity<ApiResponse> resendApproval(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
+        @PathVariable Long approvalId) {
+
+        proposalService.resendApproval(userDetails.getUser(), approvalId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "재승인 요청을 성공했습니다."));
     }
 }

@@ -39,7 +39,8 @@ public enum CustomErrorCode {
     DUPLICATE_PROGRESS_POSITION("PG004", "중복되는 포지션입니다."),
 
     // approval
-    NOT_FOUND_APPROVAL("AP001", "승인요청을 찾을 수 없습니다."),
+    NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),
+    INVALID_APPROVAL_STATUS("AP002", ""),
 
     // file
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),

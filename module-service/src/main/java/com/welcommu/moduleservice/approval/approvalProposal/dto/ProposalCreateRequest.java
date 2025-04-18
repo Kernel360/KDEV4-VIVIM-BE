@@ -28,7 +28,7 @@ public class ProposalCreateRequest {
             .title(this.title)
             .content(this.content)
             .createdAt(LocalDateTime.now())
-            .writer(creator)
+            .user(creator)
             .progress(progress)
             .build();
     }

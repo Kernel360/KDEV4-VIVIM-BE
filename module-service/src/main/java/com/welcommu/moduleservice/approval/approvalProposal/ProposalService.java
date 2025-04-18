@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -44,12 +45,12 @@ public class ProposalService {
         approverRepository.saveAll(approvalApprovers);
     }
 
-    public void modifyApproval(User user, Long progressId, Long approvalId,
+    public void modifyApproval(User user, Long approvalId,
         ProposalModifyRequest request) {
-        ProjectProgress progress = findProgress(progressId);
-        checkUserPermission(user, progress.getProject().getId());
 
         ApprovalProposal approvalProposal = findApproval(approvalId);
+        ProjectProgress progress = findProgress(approvalProposal.getProgress().getId());
+        checkUserPermission(user, progress.getProject().getId());
 
         if (request.getTitle() != null) {
             approvalProposal.setTitle(request.getTitle());
@@ -60,7 +61,7 @@ public class ProposalService {
         approvalProposalRepository.save(approvalProposal);
     }
 
-    public void deleteApproval(User user, Long approvalId) {
+    public void deleteApproval(Long approvalId) {
 
         ApprovalProposal approvalProposal = findApproval(approvalId);
         approvalProposalRepository.delete(approvalProposal);
@@ -88,10 +89,25 @@ public class ProposalService {
         return ProposalResponseList.from(approvalProposalList, approverMap);
     }
 
+    @Transactional
+    public void resendApproval(User user, Long approvalId) {
+        ApprovalProposal proposal = approvalProposalRepository.findById(approvalId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+
+        checkUserPermission(user, proposal.getProgress().getProject().getId());
+        if (!proposal.canResend()) {
+            throw new CustomException(CustomErrorCode.INVALID_APPROVAL_STATUS);
+        }
+
+        proposal.resend();
+    }
+
     // TODO ApprovalDecision 저장 시 Approval 상태 갱신 흐름
 
     private void checkUserPermission(User user, Long projectId) {
-        if (isAdmin(user)) return;
+        if (isAdmin(user)) {
+            return;
+        }
         if (isDeveloper(user)) {
             findProjectUser(user, projectId);
         } else {
@@ -120,7 +136,7 @@ public class ProposalService {
 
     private ApprovalProposal findApproval(Long approvalId) {
         return approvalProposalRepository.findById(approvalId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
     }
 
     private List<ProjectUser> findApproverListById(List<Long> approverId) {
