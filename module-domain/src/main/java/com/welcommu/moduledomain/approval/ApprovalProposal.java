@@ -64,21 +64,11 @@ public class ApprovalProposal {
     }
 
     public boolean canResend() {
-        return this.approvalStatus == ApprovalStatus.REQUEST_MODIFY;
+        return this.approvalStatus == ApprovalStatus.APPROVAL_REJECTED_DECISION;
     }
 
     public void resend() {
-        this.approvalStatus = ApprovalStatus.WAITING_APPROVAL;
-        this.modifiedAt = LocalDateTime.now(); // 필요 시 타임스탬프 갱신
-    }
-
-    // 승인자 상태가 APPROVED 인 경우를 읽어들여 카운팅
-    public void countApprovedApprovers(ApprovalStatus status) {
-        if (status == ApprovalStatus.WAIT_APPROVAL) {
-            this.countApprovedApprovers++;
-        }
-        if (this.countTotalApprovers == this.countApprovedApprovers) {
-            this.isAllApproved = true;
-        }
+        this.approvalStatus = ApprovalStatus.APPROVAL_AFTER_PROPOSAL;
+        this.modifiedAt = LocalDateTime.now();
     }
 }
