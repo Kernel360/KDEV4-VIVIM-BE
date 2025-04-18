@@ -61,7 +61,7 @@ public class ProposalController {
     public ResponseEntity<ApiResponse> deleteApproval(@PathVariable Long approvalId) {
 
         proposalService.deleteApproval(approvalId);
-        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
     }
 
     @GetMapping("/approval/{approvalId}")
@@ -69,7 +69,7 @@ public class ProposalController {
     public ResponseEntity<ProposalResponse> getApproval(@PathVariable Long approvalId) {
 
         ProposalResponse response = proposalService.getApproval(approvalId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/progress/{progressId}/approval")
@@ -77,7 +77,7 @@ public class ProposalController {
     public ResponseEntity<ProposalResponseList> getApprovalList(@PathVariable Long progressId) {
 
         ProposalResponseList response = proposalService.getAllApproval(progressId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/approval/{approvalId}/resend")
