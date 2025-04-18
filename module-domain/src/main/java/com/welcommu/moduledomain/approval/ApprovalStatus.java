@@ -2,8 +2,8 @@ package com.welcommu.moduledomain.approval;
 
 public enum ApprovalStatus {
 
-    REQUEST_APPROVAL,
-    READ,
+    WAITING_APPROVAL,
+    REVIEWING,
     REQUEST_MODIFY,
-    APPROVED
+    WAIT_APPROVAL
 }
