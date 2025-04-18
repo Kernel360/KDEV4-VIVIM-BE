@@ -2,7 +2,7 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduleservice.logging.ProjectAuditService;
+import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -11,6 +11,7 @@ import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
@@ -41,7 +42,7 @@ public class ProjectService {
 
         Project project = dto.toEntity();
         Project createProject = projectRepository.save(project);
-        projectAuditService.createAuditLog(createProject, creatorId);
+        projectAuditService.createAuditLog(ProjectSnapshot.from(createProject) , creatorId);
 
         initializeDefaultProgress(createProject);
 
@@ -59,16 +60,23 @@ public class ProjectService {
 
     @Transactional
     public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
-        Project project = projectRepository.findById(projectId)
+        Project existingProject = projectRepository.findById(projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
 
-        Project beforeModifyProject = project.snapshot();
-        Project afterModifyProject = dto.modifyProject(project);
-        projectAuditService.modifyAuditLog(beforeModifyProject, afterModifyProject, modifierId);
+        // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
+        ProjectSnapshot beforeSnapshot = ProjectSnapshot.from(existingProject);
 
-        projectUserRepository.deleteByProject(afterModifyProject);
+        dto.modifyProject(existingProject);
+
+        // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
+        ProjectSnapshot afterSnapshot = ProjectSnapshot.from(existingProject);
+
+        // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
+        projectAuditService.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
+
+        projectUserRepository.deleteByProject(existingProject);
         projectUserRepository.flush();
-        List<ProjectUser> updatedUsers = dto.toProjectUsers(project, id ->
+        List<ProjectUser> updatedUsers = dto.toProjectUsers(existingProject, id ->
             userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER))
         );
@@ -99,7 +107,7 @@ public class ProjectService {
     public void deleteProject(Long projectId, Long deleterId) {
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
-        projectAuditService.deleteAuditLog(project, deleterId);
+        projectAuditService.deleteAuditLog(ProjectSnapshot.from(project), deleterId);
         ProjectDeleteRequest.deleteProject(project);
     }
 

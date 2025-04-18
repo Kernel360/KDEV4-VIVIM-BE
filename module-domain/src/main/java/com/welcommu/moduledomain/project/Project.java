@@ -41,17 +41,4 @@ public class Project {
 
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
-
-    public Project snapshot() {
-        return Project.builder()
-                .id(this.id)
-                .name(this.name)
-                .description(this.description)
-                .startDate(this.startDate)
-                .endDate(this.endDate)
-                .createdAt(this.createdAt)
-                .modifiedAt(this.modifiedAt)
-                .isDeleted(this.isDeleted)
-                .build();
-    }
 }
