@@ -12,10 +12,7 @@ public class AuditLogDetailResponse {
     private String newValue;
 
     public static AuditLogDetailResponse from(AuditLogDetail detail) {
-        return new AuditLogDetailResponse(
-                detail.getFieldName(),
-        detail.getOldValue(),
-        detail.getNewValue()
+        return new AuditLogDetailResponse(detail.getFieldName(), detail.getOldValue(), detail.getNewValue()
         );
     }
 }
