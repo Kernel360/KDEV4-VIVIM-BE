@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class UserModifyRequest {
     @NotNull
     private String name;

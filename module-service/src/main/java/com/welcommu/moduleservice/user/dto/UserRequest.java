@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Getter
-@Setter
 public class UserRequest {
     @NotBlank(message = "이메일은 필수 입력값입니다.")
     @Email
