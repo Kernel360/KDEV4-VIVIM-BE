@@ -53,7 +53,8 @@ public class User {
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
