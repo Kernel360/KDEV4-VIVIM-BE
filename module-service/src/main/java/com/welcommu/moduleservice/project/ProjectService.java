@@ -63,10 +63,15 @@ public class ProjectService {
         Project existingProject = projectRepository.findById(projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
 
+        // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
         ProjectSnapshot beforeSnapshot = ProjectSnapshot.from(existingProject);
+
         dto.modifyProject(existingProject);
+
+        // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
         ProjectSnapshot afterSnapshot = ProjectSnapshot.from(existingProject);
 
+        // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
         projectAuditService.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
 
         projectUserRepository.deleteByProject(existingProject);

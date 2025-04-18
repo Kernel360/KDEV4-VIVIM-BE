@@ -45,11 +45,17 @@ public class UserService {
     public UserResponse modifyUser(Long id, Long creatorId, UserModifyRequest request) {
         User existingUser = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
         Company company = findCompany(request.getCompanyId());
+
+        // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
         UserSnapshot beforeSnapshot = UserSnapshot.from(existingUser);
+
         request.modifyUser(existingUser, company);
         User savedUser = userRepository.save(existingUser);
+
+        // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
         UserSnapshot afterSnapshot = UserSnapshot.from(savedUser);
 
+        // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
         userAuditService.modifyAuditLog(beforeSnapshot, afterSnapshot,creatorId);
         return UserResponse.from(savedUser);
     }

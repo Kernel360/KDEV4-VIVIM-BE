@@ -55,11 +55,16 @@ public class CompanyService {
         Company existingCompany = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
 
+        // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
         CompanySnapshot beforeSnapshot = CompanySnapshot.from(existingCompany);
+
         request.modifyCompany(existingCompany);
         Company savedCompany =  companyRepository.save(existingCompany);
+
+        // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
         CompanySnapshot afterSnapshot = CompanySnapshot.from(savedCompany);
 
+        // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
         companyAuditLog.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
 
         return savedCompany;
