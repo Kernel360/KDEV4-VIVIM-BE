@@ -37,12 +37,6 @@ public class ProposalService {
 
         ApprovalProposal approvalProposal = request.toEntity(creator, progress);
         approvalProposalRepository.save(approvalProposal);
-
-        List<ProjectUser> approvers = findApproverListById(request.getApproverIdList());
-        List<ApprovalApprover> approvalApprovers = request.toApprovalApprovers(approvalProposal,
-            approvers);
-
-        approverRepository.saveAll(approvalApprovers);
     }
 
     public void modifyApproval(User user, Long approvalId,
