@@ -16,7 +16,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByPhone(String phone);
 
     List<User> findByCompanyId(Long companyId);  // 회사 ID로 직원 목록 조회
-
-    @Query("SELECT u FROM User u JOIN FETCH u.company WHERE u.company = :company")
-    List<User> findByCompanyWithJoinFetch(@Param("company") Company company);
 }
