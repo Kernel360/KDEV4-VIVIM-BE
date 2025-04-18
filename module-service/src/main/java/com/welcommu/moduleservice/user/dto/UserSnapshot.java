@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.logging.dto;
+package com.welcommu.moduleservice.user.dto;
 
 import com.welcommu.moduledomain.user.User;
 import lombok.AllArgsConstructor;

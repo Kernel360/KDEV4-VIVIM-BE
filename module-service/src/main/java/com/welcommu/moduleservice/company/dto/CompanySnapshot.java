@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.logging.dto;
+package com.welcommu.moduleservice.company.dto;
 
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.company.CompanyRole;

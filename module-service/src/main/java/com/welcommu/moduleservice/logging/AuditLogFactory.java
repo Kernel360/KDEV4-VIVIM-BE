@@ -19,7 +19,7 @@ public class AuditLogFactory {
             .build();
     }
 
-    public AuditLog createWithDetails(TargetType type, Long targetId, ActionType action, Long actorId,
+    public AuditLog createWithFieldChanges(TargetType type, Long targetId, ActionType action, Long actorId,
         Map<String, String[]> fields) {
         AuditLog log = create(type, targetId, action, actorId);
         for (Map.Entry<String, String[]> entry : fields.entrySet()) {

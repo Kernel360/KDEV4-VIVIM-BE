@@ -1,20 +1,22 @@
-package com.welcommu.moduleservice.logging;
+package com.welcommu.moduleservice.project.audit;
 
 
 import com.welcommu.moduledomain.logging.AuditLog;
 import com.welcommu.moduledomain.logging.enums.ActionType;
 import com.welcommu.moduledomain.logging.enums.TargetType;
 import com.welcommu.modulerepository.logging.AuditLogRepository;
-import com.welcommu.moduleservice.logging.dto.ProjectSnapshot;
+import com.welcommu.moduleservice.logging.AuditLogFactory;
+import com.welcommu.moduleservice.logging.AuditLogFieldComparator;
+import com.welcommu.moduleservice.logging.AuditableService;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @RequiredArgsConstructor
 @Service
-public class ProjectAuditService implements AuditableService<ProjectSnapshot>{
+public class ProjectAuditService implements AuditableService<ProjectSnapshot> {
 
     private final AuditLogRepository auditLogRepository;
     private final AuditLogFieldComparator auditLogFieldComparator;
@@ -29,7 +31,7 @@ public class ProjectAuditService implements AuditableService<ProjectSnapshot>{
     @Override
     public void modifyAuditLog(ProjectSnapshot before, ProjectSnapshot after, Long userId) {
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
-        AuditLog log = auditLogFactory.createWithDetails(TargetType.PROJECT, after.getId(), ActionType.MODIFY, userId,changedFields);
+        AuditLog log = auditLogFactory.createWithFieldChanges(TargetType.PROJECT, after.getId(), ActionType.MODIFY, userId,changedFields);
         auditLogRepository.save(log);
     }
 

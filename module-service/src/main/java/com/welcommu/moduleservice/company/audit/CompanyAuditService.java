@@ -1,11 +1,13 @@
-package com.welcommu.moduleservice.logging;
+package com.welcommu.moduleservice.company.audit;
 
 import com.welcommu.moduledomain.logging.AuditLog;
 import com.welcommu.moduledomain.logging.enums.ActionType;
 import com.welcommu.moduledomain.logging.enums.TargetType;
 import com.welcommu.modulerepository.logging.AuditLogRepository;
-import com.welcommu.moduleservice.logging.dto.CompanySnapshot;
-import java.time.LocalDateTime;
+import com.welcommu.moduleservice.company.dto.CompanySnapshot;
+import com.welcommu.moduleservice.logging.AuditLogFactory;
+import com.welcommu.moduleservice.logging.AuditLogFieldComparator;
+import com.welcommu.moduleservice.logging.AuditableService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class CompanyAuditService implements AuditableService<CompanySnapshot>{
+public class CompanyAuditService implements AuditableService<CompanySnapshot> {
 
     private static final Logger log = LoggerFactory.getLogger(CompanyAuditService.class);
     private final AuditLogRepository auditLogRepository;
@@ -30,7 +32,7 @@ public class CompanyAuditService implements AuditableService<CompanySnapshot>{
     @Override
     public void modifyAuditLog(CompanySnapshot before, CompanySnapshot after, Long userId) {
         Map<String, String[]> changedFields = auditLogFieldComparator.compare(before, after);
-        AuditLog log = auditLogFactory.createWithDetails(TargetType.COMPANY, after.getId(), ActionType.MODIFY, userId,changedFields);
+        AuditLog log = auditLogFactory.createWithFieldChanges(TargetType.COMPANY, after.getId(), ActionType.MODIFY, userId,changedFields);
         auditLogRepository.save(log);
     }
     @Override

@@ -2,7 +2,7 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduleservice.logging.ProjectAuditService;
+import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -11,7 +11,7 @@ import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.modulerepository.user.UserRepository;
-import com.welcommu.moduleservice.logging.dto.ProjectSnapshot;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;

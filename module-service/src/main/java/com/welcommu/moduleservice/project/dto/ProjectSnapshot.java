@@ -1,4 +1,4 @@
-package com.welcommu.moduleservice.logging.dto;
+package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
 import java.time.LocalDate;
