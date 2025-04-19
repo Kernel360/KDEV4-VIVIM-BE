@@ -9,11 +9,14 @@ public enum CustomErrorCode {
     FORBIDDEN_ACCESS("A003", "API 요청 권한이 없습니다."),
     SERVER_ERROR("BO001", "서버에서 오류가 발생했습니다."),
 
+    // company
+    NOT_FOUND_COMPANY("C001", "회사를 찾을 수 없습니다."),
+    YOUR_ARE_NOT_DEVELOPER("C002", "개발사만 사용할 수 있는 API 요청입니다."),
+
     // user
     NOT_FOUND_USER("U001", "사용자를 찾을 수 없습니다."),
 
-    // company
-    NOT_FOUND_COMPANY("C001", "회사를 찾을 수 없습니다."),
+    // auth
     INVALID_TOKEN("T001", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("T002", "토큰이 만료되었습니다."),
 
@@ -35,9 +38,9 @@ public enum CustomErrorCode {
     DUPLICATE_PROGRESS_NAME("PG003", "중복되는 프로젝트명입니다."),
     DUPLICATE_PROGRESS_POSITION("PG004", "중복되는 포지션입니다."),
 
-    // checklist
-    NOT_FOUND_CHECKLIST("CH001", "체크리스트를 찾을 수 없습니다."),
-    ALREADY_DELETED_CHECKLIST("CH002", "이미 삭제된 체크리스트입니다."),
+    // approval
+    NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),
+    INVALID_APPROVAL_STATUS("AP002", ""),
 
     // file
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),
