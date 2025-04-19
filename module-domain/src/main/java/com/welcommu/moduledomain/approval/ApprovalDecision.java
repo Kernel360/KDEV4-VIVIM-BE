@@ -42,5 +42,6 @@ public class ApprovalDecision {
     private ApprovalStatus approvalStatus;
 
     @OneToOne
+    @ManyToOne
     private User user;
 }
