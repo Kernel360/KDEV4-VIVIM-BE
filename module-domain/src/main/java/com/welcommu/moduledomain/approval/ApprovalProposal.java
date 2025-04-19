@@ -45,7 +45,7 @@ public class ApprovalProposal {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApprovalStatus approvalStatus;
+    private ApprovalProposalStatus approvalProposalStatus;
 
     @ManyToOne
     private User user;
