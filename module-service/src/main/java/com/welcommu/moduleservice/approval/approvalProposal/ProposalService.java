@@ -27,7 +27,7 @@ public class ProposalService {
     private final ProjectUserRepository projectUserRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
 
-    public void createApproval(User creator, Long progressId, ProposalCreateRequest request) {
+    public void createProposal(User creator, Long progressId, ProposalCreateRequest request) {
         ProjectProgress progress = findProgress(progressId);
         checkUserPermission(creator, progress.getProject().getId());
 
@@ -35,7 +35,7 @@ public class ProposalService {
         approvalProposalRepository.save(approvalProposal);
     }
 
-    public void modifyApproval(User user, Long approvalId,
+    public void modifyProposal(User user, Long approvalId,
         ProposalModifyRequest request) {
 
         ApprovalProposal approvalProposal = findApproval(approvalId);
@@ -51,18 +51,18 @@ public class ProposalService {
         approvalProposalRepository.save(approvalProposal);
     }
 
-    public void deleteApproval(Long approvalId) {
+    public void deleteProposal(Long approvalId) {
 
         ApprovalProposal approvalProposal = findApproval(approvalId);
         approvalProposalRepository.delete(approvalProposal);
     }
 
-    public ProposalResponse getApproval(Long approvalId) {
+    public ProposalResponse getProposal(Long approvalId) {
         ApprovalProposal approvalProposal = findApproval(approvalId);
         return ProposalResponse.of(approvalProposal);
     }
 
-    public ProposalResponseList getAllApproval(Long progressId) {
+    public ProposalResponseList getAllProposal(Long progressId) {
         ProjectProgress progress = findProgress(progressId);
         List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(
             progress);
@@ -71,7 +71,7 @@ public class ProposalService {
     }
 
     @Transactional
-    public ProposalSendResponse sendApproval(User user, Long approvalId) {
+    public ProposalSendResponse sendProposal(User user, Long approvalId) {
         ApprovalProposal proposal = findApproval(approvalId);
         checkUserPermission(user, proposal.getProjectProgress().getProject().getId());
 
@@ -113,9 +113,5 @@ public class ProposalService {
     private ApprovalProposal findApproval(Long approvalId) {
         return approvalProposalRepository.findById(approvalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
-    }
-
-    private List<ProjectUser> findApproverListById(List<Long> approverId) {
-        return projectUserRepository.findAllById(approverId);
     }
 }
