@@ -18,4 +18,6 @@ public interface ApproverRepository extends JpaRepository<ApprovalApprover, Long
     List<ApprovalApprover> findByApprovalProposal(ApprovalProposal proposal);
 
     boolean existsByApprovalProposal(ApprovalProposal proposal);
+
+    void deleteByApprovalProposal(ApprovalProposal proposal);
 }

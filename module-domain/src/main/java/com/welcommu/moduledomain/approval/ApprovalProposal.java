@@ -81,4 +81,8 @@ public class ApprovalProposal {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public void setCountTotalApprover(int size) {
+        this.countTotalApprover = size;
+    }
 }
