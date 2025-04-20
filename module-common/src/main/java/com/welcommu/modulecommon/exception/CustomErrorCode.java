@@ -43,8 +43,8 @@ public enum CustomErrorCode {
     NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),
     NOT_FOUND_APPROVAL_DECISION("AP002", "승인응답을 찾을 수 없습니다."),
     NOT_FOUND_APPROVAL_APPROVER("AP003", "지정된 승인권자를 찾을 수 없습니다."),
-    INVALID_APPROVAL_STATUS("AP004", "현재 상태에서는 해당 작업을 수행할 수 없습니다."),
-    YOUR_ARE_NOT_APPROVER("AP005", "해당 승인요청의 승인권자가 아닙니다."),
+    YOUR_ARE_NOT_APPROVER("AP004", "해당 승인요청의 승인권자가 아닙니다."),
+    NO_APPROVER_ASSIGNED("AP005", "지정된 승인권자가 있어야 승인요청을 보낼 수 있습니다."),
 
     // file
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),

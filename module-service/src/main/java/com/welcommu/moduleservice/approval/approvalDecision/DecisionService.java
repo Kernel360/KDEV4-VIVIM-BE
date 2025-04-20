@@ -5,21 +5,20 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalDecision;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
-import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.approval.ApproverRepository;
 import com.welcommu.modulerepository.approval.DecisionRepository;
 import com.welcommu.modulerepository.approval.ProposalRepository;
-import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionCreateRequest;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionModifyRequest;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponse;
+import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionSendResponse;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
@@ -31,59 +30,84 @@ public class DecisionService {
 
     @Transactional
     public void createDecision(User user, Long proposalId, DecisionCreateRequest request) {
+
         ApprovalProposal proposal = findProposal(proposalId);
         checkUserPermission(user, proposal);
 
         ApprovalApprover approver = findApprover(user, proposal);
         ApprovalDecision decision = request.toEntity(approver);
         decisionRepository.save(decision);
-
-        // 상태 자동 갱신 로직
-        proposal.modifyStatus(proposal);
     }
 
 
     @Transactional
     public void modifyDecision(Long decisionId, DecisionModifyRequest dto) {
+
         ApprovalDecision decision = findDecision(decisionId);
 
-        if (dto.getTitle() != null) decision.setTitle(dto.getTitle());
-        if (dto.getContent() != null) decision.setContent(dto.getContent());
-        if (dto.getDecisionStatus() != null) decision.setDecisionStatus(dto.getDecisionStatus());
-
-        ApprovalProposal proposal = decision.getApprovalApprover().getApprovalProposal();
-        List<ApprovalDecision> decisions = decisionRepository.findByApprovalProposal(proposal);
-        proposal.modifyStatus(decisions, proposal.getCountTotalApprover());
+        if (dto.getTitle() != null) {
+            decision.setTitle(dto.getTitle());
+        }
+        if (dto.getContent() != null) {
+            decision.setContent(dto.getContent());
+        }
+        if (dto.getDecisionStatus() != null) {
+            decision.setDecisionStatus(dto.getDecisionStatus());
+        }
     }
 
     @Transactional
     public void deleteDecision(Long decisionId) {
+
         ApprovalDecision decision = findDecision(decisionId);
         decisionRepository.delete(decision);
     }
 
-    @Transactional
     public DecisionResponse getDecision(Long decisionId) {
+
         ApprovalDecision decision = findDecision(decisionId);
         return DecisionResponse.from(decision);
     }
 
-    @Transactional
-    public List<DecisionResponse> getDecisionListByProposal(Long proposalId) {
+    public List<DecisionResponse> getAllDecision(Long proposalId) {
+
         ApprovalProposal proposal = findProposal(proposalId);
-        return decisionRepository.findByApprovalProposal(proposal)
-                .stream()
-                .map(DecisionResponse::from)
-                .collect(Collectors.toList());
+        return decisionRepository.findByApprovalApprover_ApprovalProposal(proposal)
+            .stream()
+            .map(DecisionResponse::from)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public DecisionSendResponse sendDecision(User user, Long decisionId) {
+
+        ApprovalDecision decision = findDecision(decisionId);
+        checkUserPermission(user, decision.getApprovalApprover().getApprovalProposal());
+
+        // 승인응답 전송할 때를 기준으로 응답시간 기록
+        decision.setDecidedAt(LocalDateTime.now());
+
+        // 승인요청 상태 변경
+        ApprovalProposal proposal = decision.getApprovalApprover().getApprovalProposal();
+        List<ApprovalDecision> allDecisions = decisionRepository.findByApprovalApprover_ApprovalProposal(
+            proposal);
+        proposal.modifyProposalStatus(allDecisions, proposal.getCountTotalApprover());
+
+        return DecisionSendResponse.from(user, decision);
     }
 
     private void checkUserPermission(User user, ApprovalProposal proposal) {
-        if (isAdmin(user)) return;
 
+        // 관리자일 경우 API 사용허가
+        if (isAdmin(user)) {
+            return;
+        }
+
+        // CompanyRole 이 고객사면서 승인권자인 경우 API 사용허가
         if (isCustomer(user)) {
             boolean isApprover = approverRepository
-                    .findByApprovalProposalAndProjectUserUser(proposal, user)
-                    .isPresent();
+                .findByApprovalProposalAndProjectUserUser(proposal, user)
+                .isPresent();
 
             if (!isApprover) {
                 throw new CustomException(CustomErrorCode.YOUR_ARE_NOT_APPROVER);
@@ -104,17 +128,17 @@ public class DecisionService {
 
     private ApprovalProposal findProposal(Long proposalId) {
         return proposalRepository.findById(proposalId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
     }
 
     private ApprovalApprover findApprover(User user, ApprovalProposal proposal) {
 
         return approverRepository.findByApprovalProposalAndProjectUserUser(proposal, user)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_APPROVER));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_APPROVER));
     }
 
     private ApprovalDecision findDecision(Long decisionId) {
         return decisionRepository.findById(decisionId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_DECISION));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_DECISION));
     }
 }
