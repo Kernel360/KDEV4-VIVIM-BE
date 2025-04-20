@@ -1,7 +1,7 @@
 package com.welcommu.moduleservice.approval.approvalProposal.dto;
 
 import com.welcommu.moduledomain.approval.ApprovalProposal;
-import com.welcommu.moduledomain.approval.ApprovalStatus;
+import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import jakarta.validation.constraints.NotBlank;
@@ -25,7 +25,7 @@ public class ProposalCreateRequest {
         return ApprovalProposal.builder()
             .title(this.title)
             .content(this.content)
-            .approvalStatus(ApprovalStatus.APPROVAL_BEFORE_PROPOSAL)
+            .approvalProposalStatus(ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL)
             .createdAt(LocalDateTime.now())
             .user(creator)
             .projectProgress(progress)

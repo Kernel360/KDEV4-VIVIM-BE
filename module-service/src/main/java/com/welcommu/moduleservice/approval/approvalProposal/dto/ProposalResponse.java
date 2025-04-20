@@ -1,7 +1,7 @@
 package com.welcommu.moduleservice.approval.approvalProposal.dto;
 
 import com.welcommu.moduledomain.approval.ApprovalProposal;
-import com.welcommu.moduledomain.approval.ApprovalStatus;
+import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public class ProposalResponse {
     private Long id;
     private String title;
     private String content;
-    private ApprovalStatus approvalStatus;
+    private ApprovalProposalStatus approvalProposalStatus;
     private LocalDateTime createdAt;
     private User creator;
     private ProjectProgress progress;
@@ -26,7 +26,7 @@ public class ProposalResponse {
             .id(approvalProposal.getId())
             .title(approvalProposal.getTitle())
             .content(approvalProposal.getContent())
-            .approvalStatus(approvalProposal.getApprovalStatus())
+            .approvalProposalStatus(approvalProposal.getApprovalProposalStatus())
             .createdAt(approvalProposal.getCreatedAt())
             .creator(approvalProposal.getUser())
             .progress(approvalProposal.getProjectProgress())

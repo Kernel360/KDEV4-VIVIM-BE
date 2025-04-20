@@ -123,7 +123,7 @@ public class ProjectService {
     }
 
     private void initializeDefaultProgress(Project project) {
-        
+
         float position = 1.0f;
         for (DefaultProjectProgress defaultProjectProgress : DefaultProjectProgress.values()) {
             ProjectProgress progress = ProjectProgress.builder()

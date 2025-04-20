@@ -13,13 +13,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Table(name = "approval_proposal")
 @Entity
-@Table
 @Getter
 @Builder
 @NoArgsConstructor
@@ -39,13 +41,13 @@ public class ApprovalProposal {
     private LocalDateTime modifiedAt;
 
     // 승인권자 카운팅
-//    private int countTotalApprovers;
-//    private int countApprovedApprovers;
-//    private boolean isAllApproved;
+    private int countTotalApprover;
+    private int countApprovedApprover;
+    private boolean isAllApproved;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApprovalProposalStatus approvalProposalStatus;
+    private ApprovalProposalStatus proposalStatus;
 
     @ManyToOne
     private User user;
@@ -60,5 +62,24 @@ public class ApprovalProposal {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void modifyStatus(List<ApprovalDecision> decisions, int countTotalApprover) {
+        long approvedCount = decisions.stream()
+                .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
+                .count();
+
+        boolean anyRejected = decisions.stream()
+                .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
+
+        if (anyRejected) {
+            this.proposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
+        } else if (approvedCount == countTotalApprover) {
+            this.proposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
+        } else {
+            this.proposalStatus = ApprovalProposalStatus.IN_PROGRESS_DECISIONS;
+        }
+
+        this.modifiedAt = LocalDateTime.now();
     }
 }
