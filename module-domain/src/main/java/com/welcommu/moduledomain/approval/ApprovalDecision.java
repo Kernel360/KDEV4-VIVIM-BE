@@ -6,10 +6,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Table(name = "approval_decision")
 @Entity
-@Table
+@Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,12 +32,28 @@ public class ApprovalDecision {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApprovalDecisionStatus approvalStatus;
+    private ApprovalDecisionStatus decisionStatus;
 
-    @ManyToOne
-    private User user;
+    // 승인권자
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "approval_approver_id")
+    private ApprovalApprover approvalApprover;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "approver_id")
-    private ApprovalApprover approver;
+    public void approve() {
+        this.decisionStatus = ApprovalDecisionStatus.APPROVED;
+        this.decidedAt = LocalDateTime.now();
+    }
+
+    public void reject() {
+        this.decisionStatus = ApprovalDecisionStatus.REJECTED;
+        this.decidedAt = LocalDateTime.now();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

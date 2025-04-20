@@ -12,6 +12,7 @@ public enum CustomErrorCode {
     // company
     NOT_FOUND_COMPANY("C001", "회사를 찾을 수 없습니다."),
     YOUR_ARE_NOT_DEVELOPER("C002", "개발사만 사용할 수 있는 API 요청입니다."),
+    YOUR_ARE_NOT_CUSTOMER("C003", "고객사만 사용할 수 있는 API 요청입니다."),
 
     // user
     NOT_FOUND_USER("U001", "사용자를 찾을 수 없습니다."),
@@ -40,7 +41,10 @@ public enum CustomErrorCode {
 
     // approval
     NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),
-    INVALID_APPROVAL_STATUS("AP002", ""),
+    NOT_FOUND_APPROVAL_DECISION("AP002", "승인응답을 찾을 수 없습니다."),
+    NOT_FOUND_APPROVAL_APPROVER("AP003", "지정된 승인권자를 찾을 수 없습니다."),
+    INVALID_APPROVAL_STATUS("AP004", "현재 상태에서는 해당 작업을 수행할 수 없습니다."),
+    YOUR_ARE_NOT_APPROVER("AP005", "해당 승인요청의 승인권자가 아닙니다."),
 
     // file
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),

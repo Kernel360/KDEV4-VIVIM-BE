@@ -1,7 +1,6 @@
 package com.welcommu.moduleservice.approval.approvalDecision.dto;
 
-import com.welcommu.moduledomain.approval.ApprovalDecision;
-import com.welcommu.moduledomain.approval.ApprovalStatus;
+import com.welcommu.moduledomain.approval.*;
 import com.welcommu.moduledomain.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,15 +17,15 @@ public class DecisionCreateRequest {
     private String content;
 
     @NotNull
-    private ApprovalStatus approvalStatus;
+    private ApprovalDecisionStatus decisionStatus;  // APPROVED or REJECTED
 
-    public ApprovalDecision toEntity(User creator) {
+    public ApprovalDecision toEntity(ApprovalApprover approvalApprover) {
         return ApprovalDecision.builder()
             .title(this.title)
             .content(this.content)
-            .createdAt(LocalDateTime.now())
-            .user(creator)
-            .approvalStatus(this.approvalStatus)
+            .decidedAt(LocalDateTime.now())
+            .approvalApprover(approvalApprover)
+            .decisionStatus(this.decisionStatus)
             .build();
     }
 }
