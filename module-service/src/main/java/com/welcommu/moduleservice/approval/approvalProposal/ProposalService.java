@@ -5,6 +5,7 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.modulerepository.approval.ApproverRepository;
 import com.welcommu.modulerepository.approval.ProposalRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
@@ -25,6 +26,7 @@ public class ProposalService {
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
     private final ProposalRepository proposalRepository;
+    private final ApproverRepository approverRepository;
 
     public void createProposal(User creator, Long progressId, ProposalCreateRequest request) {
         ProjectProgress progress = findProgress(progressId);
@@ -37,7 +39,7 @@ public class ProposalService {
     public void modifyProposal(User user, Long approvalId,
         ProposalModifyRequest request) {
 
-        ApprovalProposal approvalProposal = findApproval(approvalId);
+        ApprovalProposal approvalProposal = findProposal(approvalId);
         ProjectProgress progress = findProgress(approvalProposal.getProjectProgress().getId());
         checkUserPermission(user, progress.getProject().getId());
 
@@ -52,12 +54,12 @@ public class ProposalService {
 
     public void deleteProposal(Long approvalId) {
 
-        ApprovalProposal approvalProposal = findApproval(approvalId);
+        ApprovalProposal approvalProposal = findProposal(approvalId);
         proposalRepository.delete(approvalProposal);
     }
 
     public ProposalResponse getProposal(Long approvalId) {
-        ApprovalProposal approvalProposal = findApproval(approvalId);
+        ApprovalProposal approvalProposal = findProposal(approvalId);
         return ProposalResponse.of(approvalProposal);
     }
 
@@ -71,13 +73,17 @@ public class ProposalService {
 
     @Transactional
     public ProposalSendResponse sendProposal(User user, Long approvalId) {
-        ApprovalProposal proposal = findApproval(approvalId);
+        ApprovalProposal proposal = findProposal(approvalId);
         checkUserPermission(user, proposal.getProjectProgress().getProject().getId());
+
+        // 승인권자 지정 여부 확인
+        boolean hasApprovers = approverRepository.existsByApprovalProposal(proposal);
+        if (!hasApprovers) {
+            throw new CustomException(CustomErrorCode.NO_APPROVER_ASSIGNED);
+        }
 
         return ProposalSendResponse.from(user, proposal);
     }
-
-    // TODO ApprovalDecision 저장 시 Approval 상태 갱신 흐름
 
     private void checkUserPermission(User user, Long projectId) {
         if (isAdmin(user)) {
@@ -109,7 +115,7 @@ public class ProposalService {
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
     }
 
-    private ApprovalProposal findApproval(Long approvalId) {
+    private ApprovalProposal findProposal(Long approvalId) {
         return proposalRepository.findById(approvalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
     }
