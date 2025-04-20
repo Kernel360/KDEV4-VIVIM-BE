@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,29 +26,11 @@ ApprovalApprover {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private boolean isApproved;
-    private LocalDateTime approvedAt;
-
     @ManyToOne(optional = false)
     @JoinColumn(name = "project_user_id")
     private ProjectUser projectUser;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "approval_proposal_id")
-    private ApprovalProposal proposal;
-
-    public void approve() {
-        this.isApproved = true;
-        this.approvedAt = LocalDateTime.now();
-    }
-
-    public void unapprove() {
-        this.isApproved = false;
-        this.approvedAt = null;
-    }
-
-    public void cancelApproval() {
-        this.isApproved = false;
-        this.approvedAt = null;
-    }
+    private ApprovalProposal approvalProposal;
 }
