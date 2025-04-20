@@ -20,7 +20,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ApprovalApprover {
+public class
+ApprovalApprover {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +36,7 @@ public class ApprovalApprover {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "approval_proposal_id")
-    private ApprovalProposal approvalProposal;
+    private ApprovalProposal proposal;
 
     public void approve() {
         this.isApproved = true;
@@ -43,6 +44,11 @@ public class ApprovalApprover {
     }
 
     public void unapprove() {
+        this.isApproved = false;
+        this.approvedAt = null;
+    }
+
+    public void cancelApproval() {
         this.isApproved = false;
         this.approvedAt = null;
     }
