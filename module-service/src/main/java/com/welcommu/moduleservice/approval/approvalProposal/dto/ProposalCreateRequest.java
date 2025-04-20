@@ -18,28 +18,15 @@ public class ProposalCreateRequest {
 
     @NotBlank
     private String content;
-
-//    private List<Long> approverIdList;
-
+    
     public ApprovalProposal toEntity(User creator, ProjectProgress progress) {
         return ApprovalProposal.builder()
             .title(this.title)
             .content(this.content)
-            .approvalProposalStatus(ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL)
+            .proposalStatus(ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL)
             .createdAt(LocalDateTime.now())
             .user(creator)
             .projectProgress(progress)
             .build();
     }
-
-    // TODO Approver 도메인으로 분리 예정
-//    public List<ApprovalApprover> toApprovalApprovers(ApprovalProposal approvalProposal,
-//        List<ProjectUser> approvers) {
-//        return approvers.stream()
-//            .map(user -> ApprovalApprover.builder()
-//                .approvalProposal(approvalProposal)
-//                .projectUser(user)
-//                .build())
-//            .toList();
-//    }
 }

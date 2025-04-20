@@ -2,8 +2,8 @@ package com.welcommu.moduleservice.approval.approvalProposal.dto;
 
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
-import com.welcommu.moduledomain.projectprogress.ProjectProgress;
-import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressResponse;
+import com.welcommu.moduleservice.user.dto.UserResponse;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,20 +17,18 @@ public class ProposalResponse {
     private String content;
     private ApprovalProposalStatus approvalProposalStatus;
     private LocalDateTime createdAt;
-    private User creator;
-    private ProjectProgress progress;
-//    private List<ApproverResponse> approverList;
+    private UserResponse creator;
+    private ProgressResponse progress;
 
     public static ProposalResponse of(ApprovalProposal approvalProposal) {
         return ProposalResponse.builder()
             .id(approvalProposal.getId())
             .title(approvalProposal.getTitle())
             .content(approvalProposal.getContent())
-            .approvalProposalStatus(approvalProposal.getApprovalProposalStatus())
+            .approvalProposalStatus(approvalProposal.getProposalStatus())
             .createdAt(approvalProposal.getCreatedAt())
-            .creator(approvalProposal.getUser())
-            .progress(approvalProposal.getProjectProgress())
-//            .approverList(null) // 아직 미구현
+            .creator(UserResponse.from(approvalProposal.getUser()))
+            .progress(ProgressResponse.from(approvalProposal.getProjectProgress()))
             .build();
     }
 }

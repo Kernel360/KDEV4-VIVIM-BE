@@ -17,7 +17,7 @@ public class ProposalSendResponse {
         String proposalTitle = proposal.getTitle();
 
         String message = String.format(
-            "[승인요청] %s 회사소속 %s님이 \"%s\" 요청을 보냈습니다.",
+            "[승인요청] %s 개발사 소속 %s님이 \"%s\" 요청을 보냈습니다.",
             companyName, userName, proposalTitle
         );
 

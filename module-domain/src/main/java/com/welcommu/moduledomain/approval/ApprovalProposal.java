@@ -14,7 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,21 +55,13 @@ public class ApprovalProposal {
     @JoinColumn(name = "progress_id")
     private ProjectProgress projectProgress;
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void modifyStatus(List<ApprovalDecision> decisions, int countTotalApprover) {
+    public void modifyProposalStatus(List<ApprovalDecision> decisions, int countTotalApprover) {
         long approvedCount = decisions.stream()
-                .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
-                .count();
+            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
+            .count();
 
         boolean anyRejected = decisions.stream()
-                .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
+            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
 
         if (anyRejected) {
             this.proposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
@@ -81,5 +72,13 @@ public class ApprovalProposal {
         }
 
         this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }
