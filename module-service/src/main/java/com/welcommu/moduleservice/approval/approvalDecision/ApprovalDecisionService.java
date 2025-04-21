@@ -6,9 +6,9 @@ import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalDecision;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.approval.ApproverRepository;
-import com.welcommu.modulerepository.approval.DecisionRepository;
-import com.welcommu.modulerepository.approval.ProposalRepository;
+import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
+import com.welcommu.modulerepository.approval.ApprovalDecisionRepository;
+import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionCreateRequest;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionModifyRequest;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponse;
@@ -22,11 +22,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
-public class DecisionService {
+public class ApprovalDecisionService {
 
-    private final ProposalRepository proposalRepository;
-    private final DecisionRepository decisionRepository;
-    private final ApproverRepository approverRepository;
+    private final ApprovalProposalRepository approvalProposalRepository;
+    private final ApprovalDecisionRepository approvalDecisionRepository;
+    private final ApprovalApproverRepository approvalApproverRepository;
 
     @Transactional
     public void createDecision(User user, Long proposalId, DecisionCreateRequest request) {
@@ -36,7 +36,7 @@ public class DecisionService {
 
         ApprovalApprover approver = findApprover(user, proposal);
         ApprovalDecision decision = request.toEntity(approver);
-        decisionRepository.save(decision);
+        approvalDecisionRepository.save(decision);
     }
 
 
@@ -60,7 +60,7 @@ public class DecisionService {
     public void deleteDecision(Long decisionId) {
 
         ApprovalDecision decision = findDecision(decisionId);
-        decisionRepository.delete(decision);
+        approvalDecisionRepository.delete(decision);
     }
 
     public DecisionResponse getDecision(Long decisionId) {
@@ -72,7 +72,7 @@ public class DecisionService {
     public List<DecisionResponse> getAllDecision(Long proposalId) {
 
         ApprovalProposal proposal = findProposal(proposalId);
-        return decisionRepository.findByApprovalApprover_ApprovalProposal(proposal)
+        return approvalDecisionRepository.findByApprovalApprover_ApprovalProposal(proposal)
             .stream()
             .map(DecisionResponse::from)
             .collect(Collectors.toList());
@@ -89,7 +89,7 @@ public class DecisionService {
 
         // 승인요청 상태 변경
         ApprovalProposal proposal = decision.getApprovalApprover().getApprovalProposal();
-        List<ApprovalDecision> allDecisions = decisionRepository.findByApprovalApprover_ApprovalProposal(
+        List<ApprovalDecision> allDecisions = approvalDecisionRepository.findByApprovalApprover_ApprovalProposal(
             proposal);
         proposal.modifyProposalStatus(allDecisions, proposal.getCountTotalApprover());
 
@@ -105,7 +105,7 @@ public class DecisionService {
 
         // CompanyRole 이 고객사면서 승인권자인 경우 API 사용허가
         if (isCustomer(user)) {
-            boolean isApprover = approverRepository
+            boolean isApprover = approvalApproverRepository
                 .findByApprovalProposalAndProjectUserUser(proposal, user)
                 .isPresent();
 
@@ -127,18 +127,18 @@ public class DecisionService {
     }
 
     private ApprovalProposal findProposal(Long proposalId) {
-        return proposalRepository.findById(proposalId)
+        return approvalProposalRepository.findById(proposalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
     }
 
     private ApprovalApprover findApprover(User user, ApprovalProposal proposal) {
 
-        return approverRepository.findByApprovalProposalAndProjectUserUser(proposal, user)
+        return approvalApproverRepository.findByApprovalProposalAndProjectUserUser(proposal, user)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_APPROVER));
     }
 
     private ApprovalDecision findDecision(Long decisionId) {
-        return decisionRepository.findById(decisionId)
+        return approvalDecisionRepository.findById(decisionId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_DECISION));
     }
 }

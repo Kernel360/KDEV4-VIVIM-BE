@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ApproverRepository extends JpaRepository<ApprovalApprover, Long> {
+public interface ApprovalApproverRepository extends JpaRepository<ApprovalApprover, Long> {
 
     // projectUser.user 로 내부 탐색
     Optional<ApprovalApprover> findByApprovalProposalAndProjectUserUser(ApprovalProposal proposal,

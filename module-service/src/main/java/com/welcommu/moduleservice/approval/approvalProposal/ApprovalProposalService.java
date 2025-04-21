@@ -5,8 +5,8 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.approval.ApproverRepository;
-import com.welcommu.modulerepository.approval.ProposalRepository;
+import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
+import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalCreateRequest;
@@ -21,19 +21,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
-public class ProposalService {
+public class ApprovalProposalService {
 
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
-    private final ProposalRepository proposalRepository;
-    private final ApproverRepository approverRepository;
+    private final ApprovalProposalRepository approvalProposalRepository;
+    private final ApprovalApproverRepository approvalApproverRepository;
 
     public void createProposal(User creator, Long progressId, ProposalCreateRequest request) {
         ProjectProgress progress = findProgress(progressId);
         checkUserPermission(creator, progress.getProject().getId());
 
         ApprovalProposal approvalProposal = request.toEntity(creator, progress);
-        proposalRepository.save(approvalProposal);
+        approvalProposalRepository.save(approvalProposal);
     }
 
     public void modifyProposal(User user, Long approvalId,
@@ -49,13 +49,13 @@ public class ProposalService {
         if (request.getContent() != null) {
             approvalProposal.setContent(request.getContent());
         }
-        proposalRepository.save(approvalProposal);
+        approvalProposalRepository.save(approvalProposal);
     }
 
     public void deleteProposal(Long approvalId) {
 
         ApprovalProposal approvalProposal = findProposal(approvalId);
-        proposalRepository.delete(approvalProposal);
+        approvalProposalRepository.delete(approvalProposal);
     }
 
     public ProposalResponse getProposal(Long approvalId) {
@@ -65,7 +65,7 @@ public class ProposalService {
 
     public ProposalResponseList getAllProposal(Long progressId) {
         ProjectProgress progress = findProgress(progressId);
-        List<ApprovalProposal> approvalProposalList = proposalRepository.findByProjectProgress(
+        List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(
             progress);
 
         return ProposalResponseList.from(approvalProposalList);
@@ -77,7 +77,7 @@ public class ProposalService {
         checkUserPermission(user, proposal.getProjectProgress().getProject().getId());
 
         // 승인권자 지정 여부 확인
-        boolean hasApprovers = approverRepository.existsByApprovalProposal(proposal);
+        boolean hasApprovers = approvalApproverRepository.existsByApprovalProposal(proposal);
         if (!hasApprovers) {
             throw new CustomException(CustomErrorCode.NO_APPROVER_ASSIGNED);
         }
@@ -116,7 +116,7 @@ public class ProposalService {
     }
 
     private ApprovalProposal findProposal(Long approvalId) {
-        return proposalRepository.findById(approvalId)
+        return approvalProposalRepository.findById(approvalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
     }
 }

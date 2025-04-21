@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DecisionRepository extends JpaRepository<ApprovalDecision, Long> {
+public interface ApprovalDecisionRepository extends JpaRepository<ApprovalDecision, Long> {
 
     List<ApprovalDecision> findByApprovalApprover_ApprovalProposal(ApprovalProposal proposal);
 }

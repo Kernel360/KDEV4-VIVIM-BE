@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProposalRepository extends JpaRepository<ApprovalProposal, Long> {
+public interface ApprovalProposalRepository extends JpaRepository<ApprovalProposal, Long> {
 
     List<ApprovalProposal> findByProjectProgress(ProjectProgress progress);
 }

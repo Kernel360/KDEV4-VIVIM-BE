@@ -2,7 +2,7 @@ package com.welcommu.moduleapi.approval;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
-import com.welcommu.moduleservice.approval.approvalDecision.DecisionService;
+import com.welcommu.moduleservice.approval.approvalDecision.ApprovalDecisionService;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionCreateRequest;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionModifyRequest;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponse;
@@ -28,9 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "승인응답 API", description = "승인응답을 생성, 수정, 삭제, 전송시킬 수 있습니다.")
-public class DecisionController {
+public class ApprovalDecisionController {
 
-    private final DecisionService decisionService;
+    private final ApprovalDecisionService approvalDecisionService;
 
     @PostMapping("/approval/{approvalId}/decision")
     @Operation(summary = "승인응답 생성")
@@ -39,7 +39,7 @@ public class DecisionController {
         @PathVariable Long approvalId,
         @Valid @RequestBody DecisionCreateRequest request
     ) {
-        decisionService.createDecision(userDetails.getUser(), approvalId, request);
+        approvalDecisionService.createDecision(userDetails.getUser(), approvalId, request);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(new ApiResponse(HttpStatus.CREATED.value(), "승인응답 생성을 성공했습니다."));
     }
@@ -51,7 +51,7 @@ public class DecisionController {
         @PathVariable Long decisionId,
         @Valid @RequestBody DecisionModifyRequest request
     ) {
-        decisionService.modifyDecision(decisionId, request);
+        approvalDecisionService.modifyDecision(decisionId, request);
         return ResponseEntity.ok().body(
             new ApiResponse(HttpStatus.OK.value(), "승인응답 수정을 성공했습니다.")
         );
@@ -63,7 +63,7 @@ public class DecisionController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long decisionId
     ) {
-        decisionService.deleteDecision(decisionId);
+        approvalDecisionService.deleteDecision(decisionId);
         return ResponseEntity.ok().body(
             new ApiResponse(HttpStatus.OK.value(), "승인응답 삭제를 성공했습니다.")
         );
@@ -72,7 +72,7 @@ public class DecisionController {
     @GetMapping("/decision/{decisionId}")
     @Operation(summary = "승인응답 단일조회")
     public ResponseEntity<DecisionResponse> getDecision(@PathVariable Long decisionId) {
-        DecisionResponse response = decisionService.getDecision(decisionId);
+        DecisionResponse response = approvalDecisionService.getDecision(decisionId);
         return ResponseEntity.ok().body(response);
     }
 
@@ -81,7 +81,7 @@ public class DecisionController {
     public ResponseEntity<List<DecisionResponse>> getDecisionsByProposal(
         @PathVariable Long approvalId
     ) {
-        List<DecisionResponse> responses = decisionService.getAllDecision(approvalId);
+        List<DecisionResponse> responses = approvalDecisionService.getAllDecision(approvalId);
         return ResponseEntity.ok().body(responses);
     }
 
@@ -91,7 +91,7 @@ public class DecisionController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long decisionId
     ) {
-        DecisionSendResponse response = decisionService.sendDecision(userDetails.getUser(),
+        DecisionSendResponse response = approvalDecisionService.sendDecision(userDetails.getUser(),
             decisionId);
         return ResponseEntity.ok().body(response);
     }
