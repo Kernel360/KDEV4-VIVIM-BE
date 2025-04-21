@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
@@ -61,15 +63,15 @@ public class AuthController {
             claims.put("jti", tokenId);
 
             TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
-            //TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
+            TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // Refresh Token 저장 (사용자 ID, 토큰 ID(jti), 토큰 값 저장)
-            //saveRefreshToken(user.getId(), tokenId, refreshToken.getToken(), refreshToken.getExpiredAt());
+            saveRefreshToken(user.getId(), tokenId, refreshToken.getToken(), refreshToken.getExpiredAt());
 
             // 토큰을 JSON 형식으로 반환
             Map<String, String> response = new HashMap<>();
             response.put("access_token", "Bearer " + accessToken.getToken());
-            //response.put("refresh_token", "Bearer " + refreshToken.getToken());
+            response.put("refresh_token", "Bearer " + refreshToken.getToken());
 
             return ResponseEntity.ok(response);
 
@@ -94,6 +96,8 @@ public class AuthController {
     @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
     public ResponseEntity<Map<String, String>> refreshAccessToken(
         @RequestParam String refreshToken) {
+
+        log.info("리프레시 토큰으로 액세스 재발급");
         try {
             // Bearer 접두사 제거
             if (refreshToken.startsWith("Bearer ")) {
