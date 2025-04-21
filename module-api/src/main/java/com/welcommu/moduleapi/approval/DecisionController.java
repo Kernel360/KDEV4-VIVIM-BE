@@ -70,14 +70,14 @@ public class DecisionController {
     }
 
     @GetMapping("/decision/{decisionId}")
-    @Operation(summary = "승인응답 단건 조회")
+    @Operation(summary = "승인응답 단일조회")
     public ResponseEntity<DecisionResponse> getDecision(@PathVariable Long decisionId) {
         DecisionResponse response = decisionService.getDecision(decisionId);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/approval/{approvalId}/decisions")
-    @Operation(summary = "승인요청별 응답 전체 조회")
+    @Operation(summary = "승인요청별 응답 전체조회")
     public ResponseEntity<List<DecisionResponse>> getDecisionsByProposal(
         @PathVariable Long approvalId
     ) {

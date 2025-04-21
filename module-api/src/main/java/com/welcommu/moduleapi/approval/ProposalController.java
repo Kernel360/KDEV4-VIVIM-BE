@@ -81,7 +81,7 @@ public class ProposalController {
     }
 
     @PostMapping("/approval/{approvalId}/resend")
-    @Operation(summary = "작업 완료 후, 승인요청 고객사에 보내기")
+    @Operation(summary = "승인요청 전송 : 작업 완료 후, 승인요청 고객사에 보내기")
     public ResponseEntity<ProposalSendResponse> sendApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long approvalId) {
