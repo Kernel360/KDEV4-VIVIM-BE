@@ -28,13 +28,14 @@ public class AuditLogController {
     private final AuditLogSearchService auditLogSearchService;
 
     @GetMapping
-    @Operation(summary = "감사 로그 전체 조회 (관리자용)")
+    @Operation(summary = "감사 로그 전체 조회")
     public ResponseEntity<List<AuditLogResponse>> getAllLogs() {
         List<AuditLogResponse> logs = auditLogSearchService.getAllLogs();
         return ResponseEntity.ok(logs);
     }
 
     @GetMapping("/search")
+    @Operation(summary = "감사 로그 검색")
     public ResponseEntity<Map<String, List<AuditLogResponse>>> searchAuditLogs(
         @RequestParam(required = false) ActionType actionType,
         @RequestParam(required = false) TargetType entityType,
