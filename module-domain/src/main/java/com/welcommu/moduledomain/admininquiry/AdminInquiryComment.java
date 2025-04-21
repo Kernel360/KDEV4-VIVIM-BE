@@ -50,4 +50,8 @@ public class AdminInquiryComment {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }

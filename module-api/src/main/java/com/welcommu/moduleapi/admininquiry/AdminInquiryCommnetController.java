@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,5 +59,12 @@ public class AdminInquiryCommnetController {
         @PathVariable Long admininquiryId) {
         return ResponseEntity.ok(
             adminInquiryCommentService.getAdminInquiryCommentList(admininquiryId));
+    }
+
+    @PatchMapping("/api/admininquiry/{admininquiryId}/comment/delete")
+    @Operation(summary = "관리자가 문의를 삭제합니다.")
+    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long admininquiryId) {
+        adminInquiryCommentService.deleteAdminInquiryComment(admininquiryId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "문의가 삭제 되었습니다."));
     }
 }

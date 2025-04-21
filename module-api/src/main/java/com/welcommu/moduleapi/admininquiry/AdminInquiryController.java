@@ -87,6 +87,12 @@ public class AdminInquiryController {
 
     }
 
+    @PatchMapping("/api/admininquiry/{admininquiryId}/delete")
+    @Operation(summary = "관리자가 문의를 삭제합니다.")
+    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long admininquiryId) {
+        adminInquiryService.deleteAdminInquiry(admininquiryId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "문의가 삭제 되었습니다."));
+    }
 }
 
 

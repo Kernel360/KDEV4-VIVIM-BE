@@ -10,6 +10,7 @@ import com.welcommu.modulerepository.admininquiry.AdminInquiryCommentRepository;
 import com.welcommu.modulerepository.admininquiry.AdminInquiryRepository;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryCommentListResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryCommentRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,13 @@ public class AdminInquiryCommentService {
         return adminInquiryList.stream()
             .map(AdminInquiryCommentListResponse::from)
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteAdminInquiryComment(Long commentId) {
+        AdminInquiryComment existingInquiryComment = adminInquiryCommentRepository.findById(
+                commentId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_INQUIRY_COMMENT));
+        existingInquiryComment.setDeletedAt(LocalDateTime.now());
     }
 }

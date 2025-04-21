@@ -12,6 +12,7 @@ import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryDetailResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryListResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -81,5 +82,12 @@ public class AdminInquiryService {
         AdminInquiry existingInquiry = adminInquiryRepository.findById(admininquiryId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_INQUIRY));
         existingInquiry.setInquiryStatus(AdminInquiryStatus.COMPLETED);
+    }
+
+    @Transactional
+    public void deleteAdminInquiry(Long admininquiryId) {
+        AdminInquiry existingInquiry = adminInquiryRepository.findById(admininquiryId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_INQUIRY));
+        existingInquiry.setDeletedAt(LocalDateTime.now());
     }
 }

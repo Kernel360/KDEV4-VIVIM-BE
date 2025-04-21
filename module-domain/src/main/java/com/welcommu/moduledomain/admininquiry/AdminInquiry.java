@@ -76,4 +76,8 @@ public class AdminInquiry {
     public void setInquiryStatus(AdminInquiryStatus status) {
         this.inquiryStatus = status;
     }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 }
