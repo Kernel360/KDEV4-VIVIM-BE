@@ -5,9 +5,11 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
-import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.modulerepository.company.CompanyRepository;
+import com.welcommu.moduleservice.company.audit.CompanyAuditService;
+import com.welcommu.moduleservice.company.dto.CompanySnapshot;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,23 +22,17 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CompanyManagementService {
+public class CompanyService {
 
     private final CompanyRepository companyRepository;
     private final UserRepository userRepository;
+    private final CompanyAuditService companyAuditLog;
 
-    public CompanyResponse createCompany(CompanyRequest companyRequest) {
+    public void createCompany(CompanyRequest companyRequest, Long userId) {
         Company company = companyRequest.toEntity();
         Company savedCompany = companyRepository.save(company);
 
-        return CompanyResponse.builder()
-            .id(savedCompany.getId())
-            .name(savedCompany.getName())
-            .address(savedCompany.getAddress())
-            .phone(savedCompany.getPhone())
-            .email(savedCompany.getEmail())
-            .coOwner(savedCompany.getCoOwner())
-            .build();
+        companyAuditLog.createAuditLog(CompanySnapshot.from(savedCompany), userId);
     }
 
     public List<Company> getAllCompany() {
@@ -55,20 +51,29 @@ public class CompanyManagementService {
             .collect(Collectors.toList());
     }
 
-    public Company updateCompany(Long id, Company updatedCompany) {
+    public Company modifyCompany(Long id, CompanyModifyRequest request, Long modifierId) {
         Company existingCompany = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
-        existingCompany.setName(updatedCompany.getName());
-        existingCompany.setAddress(updatedCompany.getAddress());
-        existingCompany.setPhone(updatedCompany.getPhone());
-        existingCompany.setEmail(updatedCompany.getEmail());
-        existingCompany.setCoOwner(updatedCompany.getCoOwner());
-        return companyRepository.save(existingCompany);
+
+        // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
+        CompanySnapshot beforeSnapshot = CompanySnapshot.from(existingCompany);
+
+        request.modifyCompany(existingCompany);
+        Company savedCompany =  companyRepository.save(existingCompany);
+
+        // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
+        CompanySnapshot afterSnapshot = CompanySnapshot.from(savedCompany);
+
+        // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
+        companyAuditLog.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
+
+        return savedCompany;
     }
 
-    public void deleteCompany(Long id) {
+    public void deleteCompany(Long id, Long deleterId) {
         Company existingCompany = companyRepository.findById(id)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+        companyAuditLog.deleteAuditLog(CompanySnapshot.from(existingCompany) , deleterId);
         companyRepository.delete(existingCompany);
     }
 }
