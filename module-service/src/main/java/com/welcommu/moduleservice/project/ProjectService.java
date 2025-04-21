@@ -2,6 +2,7 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
@@ -122,18 +123,15 @@ public class ProjectService {
     }
 
     private void initializeDefaultProgress(Project project) {
-        List<String> defaultSteps = Arrays.asList(
-            "요구사항 정의", "화면설계", "디자인", "퍼블리싱", "개발", "검수"
-        );
-        // 시작 순서를 1.0부터 부여
+
         float position = 1.0f;
-        for (String step : defaultSteps) {
+        for (DefaultProjectProgress defaultProjectProgress : DefaultProjectProgress.values()) {
             ProjectProgress progress = ProjectProgress.builder()
-                .name(step)
-                .position(position)
-                .createdAt(LocalDateTime.now())
-                .project(project)
-                .build();
+                    .name(defaultProjectProgress.getLabel())
+                    .position(position)
+                    .createdAt(LocalDateTime.now())
+                    .project(project)
+                    .build();
             progressRepository.save(progress);
             position += 1.0f;
         }
