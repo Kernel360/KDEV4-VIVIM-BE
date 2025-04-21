@@ -33,7 +33,7 @@ public class ApproverController {
         @RequestBody ApproverRegisterRequest request) {
 
         approverService.registerApprovers(approvalId, request);
-        return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 등록 완료"));
+        return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 등록을 성공했습니다."));
     }
 
     @PatchMapping("/{approvalId}/approvers")
@@ -43,19 +43,19 @@ public class ApproverController {
         @RequestBody ApproverRegisterRequest request) {
 
         approverService.modifyApprovers(approvalId, request);
-        return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 수정 완료"));
+        return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 수정을 성공했습니다."));
     }
 
     @DeleteMapping("/{approvalId}/approvers")
     @Operation(summary = "승인권자 전체 삭제")
     public ResponseEntity<ApiResponse> deleteApprovers(@PathVariable Long approvalId) {
         approverService.deleteAllApprovers(approvalId);
-        return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 전체 삭제 완료"));
+        return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 전체 삭제를 성공했습니다."));
     }
 
     @GetMapping("/{approvalId}/approvers")
     public ResponseEntity<List<ApproverResponse>> getAllApprover(@PathVariable Long approvalId) {
         List<ApproverResponse> responses = approverService.getAllApprover(approvalId);
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok().body(responses);
     }
 }
