@@ -53,7 +53,8 @@ public enum CustomErrorCode {
     NOT_FOUND_LINK("L001", "링크를 찾을 수 없습니다."),
 
     // admin inquiry
-    NOT_FOUND_INQUIRY("I001", "문의를 찾을 수 없습니다.");
+    NOT_FOUND_INQUIRY("I001", "문의를 찾을 수 없습니다."),
+    NOT_FOUND_INQUIRY_COMMENT("I002", "답변을 찾을 수 없습니다.");
     private final String code;
     private final String errorMessage;
 
