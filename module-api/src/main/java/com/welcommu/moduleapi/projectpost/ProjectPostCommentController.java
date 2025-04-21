@@ -45,8 +45,8 @@ public class ProjectPostCommentController {
     @PutMapping("/{commentId}")
     @Operation(summary = "댓글 수정")
     public ResponseEntity<ApiResponse> modifyComment(@PathVariable Long postId,
-        @PathVariable Long commentId, @RequestBody ProjectPostCommentRequest request) {
-        projectPostCommentService.modifyComment(postId, commentId, request);
+        @PathVariable Long commentId, @RequestBody ProjectPostCommentRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails)  {
+        projectPostCommentService.modifyComment(userDetails.getUser(), postId, commentId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 수정되었습니다."));
     }
 
@@ -63,8 +63,8 @@ public class ProjectPostCommentController {
     @DeleteMapping("/{commentId}")
     @Operation(summary = "댓글 삭제")
     public ResponseEntity<ApiResponse> deleteComment(@PathVariable Long postId,
-        @PathVariable Long commentId) {
-        projectPostCommentService.deleteComment(postId, commentId);
+        @PathVariable Long commentId, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        projectPostCommentService.deleteComment(userDetails.getUser(), postId, commentId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 삭제되었습니다."));
     }
 }

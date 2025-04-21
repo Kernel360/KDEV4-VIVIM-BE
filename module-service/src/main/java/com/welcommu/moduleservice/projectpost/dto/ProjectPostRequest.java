@@ -1,9 +1,11 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
 
+import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.company.dto.CompanySnapshot;
 import lombok.*;
 
 import java.time.LocalDateTime;
