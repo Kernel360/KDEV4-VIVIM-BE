@@ -14,7 +14,7 @@ public class ProgressListResponse {
     public static ProgressListResponse of(List<ProjectProgress> progressList) {
 
         List<ProgressResponse> progressResponse = progressList.stream()
-            .map(ProgressResponse::of)
+            .map(ProgressResponse::from)
             .toList();
 
         return ProgressListResponse.builder()
