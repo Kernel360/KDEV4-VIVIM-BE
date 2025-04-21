@@ -1,11 +1,8 @@
 package com.welcommu.moduledomain.admininquiry;
 
-import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,56 +21,33 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminInquiry {
+public class AdminInquiryComment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User creator;
 
-    @Enumerated(EnumType.STRING)
-    private AdminInquiryType inquiryType;
-
-    @Enumerated(EnumType.STRING)
-    private AdminInquiryStatus inquiryStatus;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = true)
-    private Project project;
-
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    @JoinColumn(name = "admininquiry_id", referencedColumnName = "id", nullable = true)
+    private AdminInquiry adminInquiry;
 
     public void setContent(String content) {
         this.content = content;
-    }
-
-    public void setInquiryType(AdminInquiryType type) {
-        this.inquiryType = type;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public void setInquiryStatus(AdminInquiryStatus status) {
-        this.inquiryStatus = status;
     }
 }

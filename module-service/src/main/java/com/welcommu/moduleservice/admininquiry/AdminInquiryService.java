@@ -3,9 +3,17 @@ package com.welcommu.moduleservice.admininquiry;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.admininquiry.AdminInquiry;
+import com.welcommu.moduledomain.admininquiry.AdminInquiryStatus;
+import com.welcommu.moduledomain.admininquiry.AdminInquiryType;
+import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.admininquiry.AdminInquiryRepository;
+import com.welcommu.modulerepository.project.ProjectRepository;
+import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryDetailResponse;
+import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryListResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryRequest;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminInquiryService {
 
     private final AdminInquiryRepository adminInquiryRepository;
+    private final ProjectRepository projectRepository;
 
     public void createAdminInquiry(User user, AdminInquiryRequest adminInquiryRequest) {
-        AdminInquiry newInquiry = adminInquiryRequest.toEnity(user, adminInquiryRequest);
 
+        Project project = null;
+
+        if (adminInquiryRequest.getInquiryType() == AdminInquiryType.PROJECT) {
+            project = projectRepository.findById(adminInquiryRequest.getProjectId())
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
+        }
+
+        AdminInquiry newInquiry = adminInquiryRequest.toEntity(user, adminInquiryRequest, project);
         adminInquiryRepository.save(newInquiry);
     }
 
@@ -28,19 +44,42 @@ public class AdminInquiryService {
         AdminInquiry existingInquiry = adminInquiryRepository.findById(admininquiryId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_INQUIRY));
 
+        if (adminInquiryRequest.getInquiryType() == AdminInquiryType.PROJECT) {
+            Project changedProject = projectRepository.findById(adminInquiryRequest.getProjectId())
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
+            existingInquiry.setProject(changedProject);
+        }
+
         existingInquiry.setInquiryType(adminInquiryRequest.getInquiryType());
-        existingInquiry.setProjectId(adminInquiryRequest.getProjectId());
         existingInquiry.setTitle(adminInquiryRequest.getTitle());
         existingInquiry.setContent(adminInquiryRequest.getContent());
     }
-    /*
-    public List<AdminInquiryListResponse> getAllAdminInquirys() {
-        List<AdminInquiry> adminInquiryList = adminInquiryRepository.findAllByDeletedAtIsNull();
 
+    public List<AdminInquiryListResponse> getAdminInquiryList() {
+        List<AdminInquiry> adminInquiryList = adminInquiryRepository.findAllByDeletedAtIsNull();
         return adminInquiryList.stream()
             .map(AdminInquiryListResponse::from)
             .collect(Collectors.toList());
+    }
 
-    }*/
+    public AdminInquiryDetailResponse getAdminInquiryDetail(Long admininquiryId) {
+        AdminInquiry existingInquiry = adminInquiryRepository.findById(admininquiryId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_INQUIRY));
+        return AdminInquiryDetailResponse.from(existingInquiry);
+    }
 
+    public List<AdminInquiryListResponse> getUserAdminInquiries(User user) {
+        List<AdminInquiry> userInquiries = adminInquiryRepository.findByCreatorAndDeletedAtIsNull(
+            user);
+        return userInquiries.stream()
+            .map(AdminInquiryListResponse::from)
+            .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void completeAdminInquiry(Long admininquiryId) {
+        AdminInquiry existingInquiry = adminInquiryRepository.findById(admininquiryId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_INQUIRY));
+        existingInquiry.setInquiryStatus(AdminInquiryStatus.COMPLETED);
+    }
 }
