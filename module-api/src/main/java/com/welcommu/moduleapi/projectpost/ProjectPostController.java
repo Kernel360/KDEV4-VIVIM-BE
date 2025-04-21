@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -90,5 +91,15 @@ public class ProjectPostController {
         @PathVariable Long postId) {
         projectPostService.deletePost(projectId, postId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 삭제되었습니다."));
+    }
+
+    @PatchMapping("/api/projects/{projectId}/posts/{postId}/answer")
+    @Operation(summary = "질문 게시글 답변")
+    public ResponseEntity<ApiResponse> answerPost(@PathVariable Long postId,
+        @RequestBody String answer
+    ) {
+        projectPostService.completeAnswer(postId, answer);
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.OK.value(), "질문에 대한 답변이 등록되었습니다."));
     }
 }

@@ -61,23 +61,18 @@ public class ProjectPostService {
     }
 
     public List<ProjectPostListResponse> getRecentUserPostList(User user) {
-        // 1. 사용자가 참여한 프로젝트 ID 리스트 조회
         List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
 
-        // 2. 프로젝트 ID 리스트 추출
         List<Long> projectIds = projectUsers.stream()
             .map(projectUser -> projectUser.getProject().getId())
             .collect(Collectors.toList());
 
-        // 3. 참여한 프로젝트들의 최신 5개의 게시글을 조회
         List<ProjectPost> posts = projectPostRepository.findTop5PostsByProjectIds(projectIds);
 
-        // 4. 최신 5개의 게시글만 가져오기
         List<ProjectPost> latestPosts = posts.stream()
-            .limit(5) // 리스트에서 5개만 가져옵니다.
+            .limit(5)
             .toList();
 
-        // 5. 결과 변환
         return latestPosts.stream()
             .map(ProjectPostListResponse::from)
             .collect(Collectors.toList());
@@ -97,5 +92,12 @@ public class ProjectPostService {
         ProjectPost existingPost = projectPostRepository.findById(postId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
         existingPost.setDeletedAt();
+    }
+
+    @Transactional
+    public void completeAnswer(Long postId, String answer) {
+        ProjectPost existingPost = projectPostRepository.findById(postId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
+        existingPost.setResponseToQuestion(answer);
     }
 }

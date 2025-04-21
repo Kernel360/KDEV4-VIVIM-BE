@@ -2,11 +2,10 @@ package com.welcommu.moduleservice.projectpost.dto;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 
 @Getter
@@ -24,6 +23,7 @@ public class ProjectPostDetailResponse {
     private String creatorName;
     private String creatorRole;
     private LocalDateTime modifiedAt;
+    private String responseToQuestion;
 
 
     public static ProjectPostDetailResponse from(ProjectPost post) {
@@ -37,7 +37,8 @@ public class ProjectPostDetailResponse {
             post.getCreatedAt(),
             post.getCreatorName(),
             post.getCreatorRole(),
-            post.getModifiedAt()
+            post.getModifiedAt(),
+            post.getResponseToQuestion()
         );
     }
 }
