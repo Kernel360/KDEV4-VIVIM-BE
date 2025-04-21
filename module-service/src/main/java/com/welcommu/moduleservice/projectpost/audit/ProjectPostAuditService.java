@@ -37,7 +37,7 @@ public class ProjectPostAuditService implements AuditableService<ProjectPostSnap
 
     @Override
     public void deleteAuditLog(ProjectPostSnapshot post, Long userId) {
-        AuditLog log = auditLogFactory.create(TargetType.USER, post.getId(), ActionType.DELETE, userId);
+        AuditLog log = auditLogFactory.create(TargetType.POST, post.getId(), ActionType.DELETE, userId);
         auditLogRepository.save(log);
     }
 
