@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "관리자 문의 API", description = "관리자 문의를 생성, 전체 조회, 상세 조회, 수정, 삭제 시킬 수 있습니다.")
 public class AdminInquiryController {
 
+
     private final AdminInquiryService adminInquiryService;
 
     @PostMapping("/api/admininquiry")
