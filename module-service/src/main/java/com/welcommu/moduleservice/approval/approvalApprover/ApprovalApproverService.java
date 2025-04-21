@@ -55,7 +55,7 @@ public class ApprovalApproverService {
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
 
         return approvalApproverRepository.findByApprovalProposal(proposal).stream()
-            .map(ApproverResponse::of)
+            .map(ApproverResponse::from)
             .collect(Collectors.toList());
     }
 
