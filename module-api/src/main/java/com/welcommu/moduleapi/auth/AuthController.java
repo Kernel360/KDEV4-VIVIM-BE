@@ -160,6 +160,9 @@ public class AuthController {
         }
     }
 
+
+    // TODO : Logout도 Redis 적용 필요
+
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
     public ResponseEntity<?> logout(@RequestParam String refreshToken) {
