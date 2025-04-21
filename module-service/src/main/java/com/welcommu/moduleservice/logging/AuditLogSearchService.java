@@ -36,7 +36,7 @@ public class AuditLogSearchService {
         List<AuditLog> logs = auditLogRepository.findByConditions(actionType, targetType, start, end, userId);
 
         return logs.stream()
-            .map(AuditLogResponse::from) // 🔥 기존 DTO 활용
+            .map(AuditLogResponse::from)
             .toList();
     }
 
