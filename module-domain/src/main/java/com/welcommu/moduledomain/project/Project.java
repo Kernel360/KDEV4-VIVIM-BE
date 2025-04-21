@@ -22,6 +22,7 @@ public class Project {
     @Column(nullable = false)
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "start_date", nullable = false)
