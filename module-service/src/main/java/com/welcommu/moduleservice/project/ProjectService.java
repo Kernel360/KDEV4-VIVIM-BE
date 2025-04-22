@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +104,16 @@ public class ProjectService {
         return projects.stream()
             .map(ProjectAdminSummaryResponse::from)
             .collect(Collectors.toList());
+    }
+
+    public Page<ProjectAdminSummaryResponse> searchProjects(
+        String name,
+        String description,
+        Boolean isDeleted,
+        Pageable pageable
+    ) {
+        Page<Project> projects = projectRepository.searchByConditions(name, description, isDeleted, pageable);
+        return projects.map(ProjectAdminSummaryResponse::from);
     }
 
     @Transactional
