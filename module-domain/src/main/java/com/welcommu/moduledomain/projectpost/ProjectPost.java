@@ -63,6 +63,9 @@ public class ProjectPost {
     @Column(name = "project_id")
     private Long projectId;
 
+    @Column(name = "response_to_question")
+    private String responseToQuestion;
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -81,5 +84,9 @@ public class ProjectPost {
 
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void setResponseToQuestion(String responseToQuestion) {
+        this.responseToQuestion = responseToQuestion;
     }
 }
