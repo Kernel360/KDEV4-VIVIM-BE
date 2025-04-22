@@ -27,6 +27,8 @@ public enum CustomErrorCode {
 
     // project user
     NOT_FOUND_PROJECT_USER("PU001", "프로젝트가 없거나 해당 프로젝트에 참여하는 사용자를 찾을 수 없습니다."),
+    NOT_FOUND_PROJECT_USER_LIST("PU002", "요청한 프로젝트 사용자 목록을 찾을 수 없습니다."),
+    SOME_PROJECT_USERS_NOT_FOUND("PU003", "일부 프로젝트 사용자가 존재하지 않습니다."),
 
     // project post
     NOT_FOUND_POST("PO001", "게시글을 찾을 수 없습니다."),
@@ -44,8 +46,10 @@ public enum CustomErrorCode {
     NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),
     NOT_FOUND_APPROVAL_DECISION("AP002", "승인응답을 찾을 수 없습니다."),
     NOT_FOUND_APPROVAL_APPROVER("AP003", "지정된 승인권자를 찾을 수 없습니다."),
-    YOUR_ARE_NOT_APPROVER("AP004", "해당 승인요청의 승인권자가 아닙니다."),
-    NO_APPROVER_ASSIGNED("AP005", "지정된 승인권자가 있어야 승인요청을 보낼 수 있습니다."),
+    APPROVAL_PROPOSAL_HAS_NO_APPROVERS("AP004", "해당 승인요청에는 승인권자가 등록되어 있지 않습니다."),
+    YOUR_ARE_NOT_APPROVER("AP005", "해당 승인요청의 승인권자가 아닙니다."),
+    NO_APPROVER_ASSIGNED("AP006", "지정된 승인권자가 있어야 승인요청을 보낼 수 있습니다."),
+    DUPLICATED_APPROVAL_APPROVER("AP007", "이미 등록된 승인권자입니다."),
 
     // file
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),

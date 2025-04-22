@@ -2,6 +2,7 @@ package com.welcommu.moduleinfra.approval;
 
 import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
+import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.user.User;
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +23,7 @@ public interface ApprovalApproverRepository extends JpaRepository<ApprovalApprov
     boolean existsByApprovalProposal(ApprovalProposal proposal);
 
     void deleteByApprovalProposal(ApprovalProposal proposal);
+
+    boolean existsByApprovalProposalAndProjectUser(ApprovalProposal proposal,
+        ProjectUser projectUser);
 }
