@@ -39,7 +39,7 @@ public class AdminInquiryCommnetController {
             adminInquiryCommentRequest, admininquiryId);
 
         return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.OK.value(), "답변이 생성 되었습니다."));
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "답변이 생성 되었습니다."));
     }
 
     @PutMapping("/api/admininquiry/{admininquiryId}/comment/{commentId}")
