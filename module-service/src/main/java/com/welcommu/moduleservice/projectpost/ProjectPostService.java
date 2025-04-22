@@ -12,11 +12,7 @@ import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostSnapshot;
-import com.welcommu.moduleservice.user.dto.UserSnapshot;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +29,8 @@ public class ProjectPostService {
     private final ProjectPostAuditService projectPostAuditService;
 
     @Transactional
-    public Long createPost(User user, Long projectId, ProjectPostRequest request, String clientIp, Long creatorId) {
+    public Long createPost(User user, Long projectId, ProjectPostRequest request, String clientIp,
+        Long creatorId) {
         ProjectPost newPost = request.toEntity(user, projectId, request, clientIp);
 
         ProjectPost savedPost = projectPostRepository.save(newPost);
@@ -43,7 +40,8 @@ public class ProjectPostService {
     }
 
     @Transactional
-    public void modifyPost(Long projectId, Long postId, ProjectPostRequest request, Long modifierId) {
+    public void modifyPost(Long projectId, Long postId, ProjectPostRequest request,
+        Long modifierId) {
 
         ProjectPost existingPost = projectPostRepository.findById(postId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
@@ -87,6 +85,7 @@ public class ProjectPostService {
         List<ProjectPost> posts = projectPostRepository.findTop5PostsByProjectIds(projectIds);
 
         List<ProjectPost> latestPosts = posts.stream()
+            .sorted(Comparator.comparing(ProjectPost::getCreatedAt).reversed())
             .limit(5)
             .toList();
 
@@ -109,7 +108,7 @@ public class ProjectPostService {
         ProjectPost existingPost = projectPostRepository.findById(postId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
         existingPost.setDeletedAt();
-        projectPostAuditService.deleteAuditLog(ProjectPostSnapshot.from(existingPost),deleterId);
+        projectPostAuditService.deleteAuditLog(ProjectPostSnapshot.from(existingPost), deleterId);
     }
 
     @Transactional
