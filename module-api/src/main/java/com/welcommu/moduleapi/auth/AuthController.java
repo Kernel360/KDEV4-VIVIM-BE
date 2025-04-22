@@ -160,9 +160,6 @@ public class AuthController {
         }
     }
 
-
-    // TODO : Logout도 Redis 적용 필요
-
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
     public ResponseEntity<?> logout(@RequestParam String refreshToken) {
@@ -173,10 +170,10 @@ public class AuthController {
 
             // 토큰 검증 및 클레임 추출
             Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-            String tokenId = (String) claims.get("jti");
+            Long userId = ((Integer) claims.get("userId")).longValue(); // ← 여기 중요!
 
-            // DB에서 해당 토큰 삭제
-            refreshTokenRepository.deleteByTokenId(tokenId);
+            // Redis에서 해당 사용자 토큰 삭제
+            refreshTokenService.delete(userId);
 
             return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
         } catch (Exception e) {
