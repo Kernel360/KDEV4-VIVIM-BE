@@ -1,14 +1,14 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
 
+import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.company.dto.CompanySnapshot;
+import lombok.*;
+
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -34,7 +34,6 @@ public class ProjectPostRequest {
             .creatorRole(user.getCompany().getCompanyRole().toString())
             .writerIp(clientIp)
             .parentId(request.parentId)
-            .responseToQuestion(null)
             .build();
     }
 }

@@ -40,16 +40,18 @@ public class ProjectPostController {
         @RequestBody ProjectPostRequest request, HttpServletRequest httpRequest,
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         String clientIp = getClientIp(httpRequest);
+        Long actorId = userDetails.getUser().getId();
         Long postId = projectPostService.createPost(userDetails.getUser(), projectId, request,
-            clientIp);
+            clientIp, actorId);
         return ResponseEntity.ok().body(postId);
     }
 
     @PutMapping("/api/projects/{projectId}/posts/{postId}")
     @Operation(summary = "게시글 수정")
     public ResponseEntity<ApiResponse> modifyPost(@PathVariable Long projectId,
-        @PathVariable Long postId, @RequestBody ProjectPostRequest request) {
-        projectPostService.modifyPost(projectId, postId, request);
+        @PathVariable Long postId, @RequestBody ProjectPostRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        projectPostService.modifyPost(projectId, postId, request,actorId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 수정되었습니다."));
     }
 
@@ -88,8 +90,9 @@ public class ProjectPostController {
     @DeleteMapping("/api/projects/{projectId}/posts/{postId}")
     @Operation(summary = "게시글 삭제")
     public ResponseEntity<ApiResponse> deletePost(@PathVariable Long projectId,
-        @PathVariable Long postId) {
-        projectPostService.deletePost(projectId, postId);
+        @PathVariable Long postId, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        projectPostService.deletePost(projectId, postId, actorId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 삭제되었습니다."));
     }
 

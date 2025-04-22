@@ -61,15 +61,15 @@ public class AuthController {
             claims.put("jti", tokenId);
 
             TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
-            //TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
+            TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
             // Refresh Token 저장 (사용자 ID, 토큰 ID(jti), 토큰 값 저장)
-            //saveRefreshToken(user.getId(), tokenId, refreshToken.getToken(), refreshToken.getExpiredAt());
+            saveRefreshToken(user.getId(), tokenId, refreshToken.getToken(), refreshToken.getExpiredAt());
 
             // 토큰을 JSON 형식으로 반환
             Map<String, String> response = new HashMap<>();
             response.put("access_token", "Bearer " + accessToken.getToken());
-            //response.put("refresh_token", "Bearer " + refreshToken.getToken());
+            response.put("refresh_token", "Bearer " + refreshToken.getToken());
 
             return ResponseEntity.ok(response);
 
