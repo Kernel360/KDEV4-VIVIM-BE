@@ -11,8 +11,6 @@ public interface ProjectPostRepository extends JpaRepository<ProjectPost, Long> 
 
     List<ProjectPost> findAllByProjectIdAndDeletedAtIsNull(Long projectId);
 
-    List<ProjectPost> findTop5ByProjectIdAndDeletedAtIsNullOrderByCreatedAtDesc(Long projectId);
-
     List<ProjectPost> findTop5ByDeletedAtIsNullOrderByCreatedAtDesc();
 
     @Query("SELECT p FROM ProjectPost p WHERE p.deletedAt IS NULL AND p.projectId IN :projectIds ORDER BY p.createdAt DESC")
