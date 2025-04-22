@@ -38,7 +38,7 @@ public class AdminInquiryController {
 
         adminInquiryService.createAdminInquiry(userDetails.getUser(), adminInquiryRequest);
         return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.OK.value(), "관리자 문의가 생성 되었습니다."));
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "관리자 문의가 생성 되었습니다."));
     }
 
     @PutMapping("/api/admininquiry/{admininquiryId}")
@@ -50,7 +50,7 @@ public class AdminInquiryController {
         adminInquiryService.modifyAdminInquiry(admininquiryId, userDetails.getUser(),
             adminInquiryRequest);
         return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.CREATED.value(), "관리자 문의가 생성 되었습니다."));
+            .body(new ApiResponse(HttpStatus.OK.value(), "관리자 문의가 생성 되었습니다."));
     }
 
     @GetMapping("/api/admininquiry")
