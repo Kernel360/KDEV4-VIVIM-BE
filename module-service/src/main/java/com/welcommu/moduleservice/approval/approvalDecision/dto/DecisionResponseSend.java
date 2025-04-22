@@ -7,11 +7,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class DecisionSendResponse {
+public class DecisionResponseSend {
 
     private String message;
 
-    public static DecisionSendResponse from(User user, ApprovalDecision decision) {
+    public static DecisionResponseSend from(User user, ApprovalDecision decision) {
         String companyName = user.getCompany().getName();
         String userName = user.getName();
         String decisionTitle = decision.getTitle();
@@ -21,6 +21,6 @@ public class DecisionSendResponse {
             companyName, userName, decisionTitle
         );
 
-        return new DecisionSendResponse(message);
+        return new DecisionResponseSend(message);
     }
 }

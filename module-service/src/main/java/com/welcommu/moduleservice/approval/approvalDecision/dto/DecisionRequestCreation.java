@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
-public class DecisionCreateRequest {
+public class DecisionRequestCreation {
 
     @NotBlank
     private String content;
