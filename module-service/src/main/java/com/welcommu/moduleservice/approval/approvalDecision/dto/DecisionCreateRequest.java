@@ -1,7 +1,8 @@
 package com.welcommu.moduleservice.approval.approvalDecision.dto;
 
-import com.welcommu.moduledomain.approval.*;
-import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduledomain.approval.ApprovalApprover;
+import com.welcommu.moduledomain.approval.ApprovalDecision;
+import com.welcommu.moduledomain.approval.ApprovalDecisionStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -11,9 +12,6 @@ import lombok.Getter;
 public class DecisionCreateRequest {
 
     @NotBlank
-    private String title;
-
-    @NotBlank
     private String content;
 
     @NotNull
@@ -21,7 +19,6 @@ public class DecisionCreateRequest {
 
     public ApprovalDecision toEntity(ApprovalApprover approvalApprover) {
         return ApprovalDecision.builder()
-            .title(this.title)
             .content(this.content)
             .decidedAt(LocalDateTime.now())
             .approvalApprover(approvalApprover)
