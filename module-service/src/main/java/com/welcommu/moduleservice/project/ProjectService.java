@@ -2,6 +2,7 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
@@ -17,12 +18,15 @@ import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,7 +58,9 @@ public class ProjectService {
         projectUserRepository.saveAll(participants);
     }
 
-    public Optional<Project> getProject(Long projectId) {
+    public Optional<Project> getProject(User user, Long projectId) {
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));;
+        checkUserPermission(user, projectId);
         return projectRepository.findById(projectId);
 
     }
@@ -122,6 +128,23 @@ public class ProjectService {
             .collect(Collectors.toList());
     }
 
+    public List<ProjectAdminSummaryResponse> getCompanyProjects(Long companyId) {
+        return projectRepository.findAllByCompanyId(companyId).stream()
+            .map(ProjectAdminSummaryResponse::from)
+            .toList();
+    }
+
+    public List<ProjectSummaryWithRoleDto> getCompanyProjectsWithMyRole(Long companyId, Long userId) {
+        List<Project> projects = projectRepository.findAllByCompanyId(companyId);
+
+        Map<Long, ProjectUser> myRoles = projectUserRepository.findByUserId(userId).stream()
+            .collect(Collectors.toMap(pu -> pu.getProject().getId(), Function.identity()));
+
+        return projects.stream()
+            .map(project -> ProjectSummaryWithRoleDto.from(project, myRoles.get(project.getId())))
+            .toList();
+    }
+
     private void initializeDefaultProgress(Project project) {
 
         float position = 1.0f;
@@ -134,6 +157,13 @@ public class ProjectService {
                     .build();
             progressRepository.save(progress);
             position += 1.0f;
+        }
+    }
+
+    private void checkUserPermission(User user, Long projectId) {
+        if (projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId).isEmpty() && !(
+            user.getCompany().getCompanyRole() == CompanyRole.ADMIN)) {
+            throw new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER);
         }
     }
 }
