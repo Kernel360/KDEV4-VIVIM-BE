@@ -40,7 +40,6 @@ public class AuthController {
     private final JwtTokenHelper jwtTokenHelper;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final RefreshTokenRepository refreshTokenRepository; // Refresh Token을 저장할 레포지토리
     private final RefreshTokenService refreshTokenService;
 
 
@@ -181,15 +180,4 @@ public class AuthController {
             return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
         }
     }
-
-//    // Refresh Token을 DB에 저장하는 메소드
-//    private void saveRefreshToken(Long userId, String tokenId, String token,
-//        java.time.LocalDateTime expiresAt) {
-//        RefreshTokenEntity entity = new RefreshTokenEntity();
-//        entity.setUserId(userId);
-//        entity.setTokenId(tokenId);
-//        entity.setToken(token);
-//        entity.setExpiresAt(expiresAt);
-//        refreshTokenRepository.save(entity);
-//    }
 }
