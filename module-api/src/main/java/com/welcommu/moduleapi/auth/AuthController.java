@@ -169,7 +169,7 @@ public class AuthController {
 
             // 토큰 검증 및 클레임 추출
             Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-            Long userId = ((Integer) claims.get("userId")).longValue(); // ← 여기 중요!
+            Long userId = ((Integer) claims.get("userId")).longValue();
 
             // Redis에서 해당 사용자 토큰 삭제
             refreshTokenService.delete(userId);
