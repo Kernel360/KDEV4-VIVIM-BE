@@ -67,7 +67,7 @@ public class ProjectPostService {
     }
 
     public List<ProjectPostListResponse> getRecentPostList() {
-        List<ProjectPost> posts = projectPostRepository.findTop5ByDeletedAtIsNullOrderByCreatedAtDesc();
+        List<ProjectPost> posts = projectPostRepository.findTop5RecentPostsByDeletedAtIsNullOrderByCreatedAtDesc();
 
         return posts.stream()
             .map(ProjectPostListResponse::from)
