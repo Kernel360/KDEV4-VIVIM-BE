@@ -71,7 +71,7 @@ public class AdminInquiryController {
     public ResponseEntity<List<AdminInquiryListResponse>> getUserAdminInquiryList(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
 
-        List<AdminInquiryListResponse> inquiries = adminInquiryService.getUserAdminInquiries(
+        List<AdminInquiryListResponse> inquiries = adminInquiryService.getAdminInquiriesByUser(
             userDetails.getUser());
         return ResponseEntity.ok(inquiries);
     }

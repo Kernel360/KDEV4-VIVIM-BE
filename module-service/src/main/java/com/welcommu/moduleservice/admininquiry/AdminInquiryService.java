@@ -69,7 +69,7 @@ public class AdminInquiryService {
         return AdminInquiryDetailResponse.from(existingInquiry);
     }
 
-    public List<AdminInquiryListResponse> getUserAdminInquiries(User user) {
+    public List<AdminInquiryListResponse> getAdminInquiriesByUser(User user) {
         List<AdminInquiry> userInquiries = adminInquiryRepository.findByCreatorAndDeletedAtIsNull(
             user);
         return userInquiries.stream()
