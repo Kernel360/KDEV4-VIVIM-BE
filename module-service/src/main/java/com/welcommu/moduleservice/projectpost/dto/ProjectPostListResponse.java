@@ -2,9 +2,10 @@ package com.welcommu.moduleservice.projectpost.dto;
 
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
-import lombok.*;
-
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 
 @Getter
@@ -22,6 +23,7 @@ public class ProjectPostListResponse {
     private String creatorRole;
     private LocalDateTime modifiedAt;
     private Long parentId;
+    private Long projectId;
 
     public static ProjectPostListResponse from(ProjectPost post) {
         return new ProjectPostListResponse(
@@ -34,7 +36,8 @@ public class ProjectPostListResponse {
             post.getCreatorName(),
             post.getCreatorRole(),
             post.getModifiedAt(),
-            post.getParentId()
+            post.getParentId(),
+            post.getProjectId()
         );
     }
 
