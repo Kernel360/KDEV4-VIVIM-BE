@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 로그인 요청은 JWT 필터를 건너뛰어야 하므로 처리
-        if ("/api/auth/login".equals(request.getRequestURI()) || "/api/users/resetpassword".equals(
-            request.getRequestURI())) {
-            filterChain.doFilter(request, response); // 토큰 검사 없이 다음 필터로 진행
+        Set<String> excludedPaths = Set.of("/api/auth/refresh-token", "/api/auth/login", "/api/users/resetpassword");
+
+        if (excludedPaths.contains(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
             return;
         }
 

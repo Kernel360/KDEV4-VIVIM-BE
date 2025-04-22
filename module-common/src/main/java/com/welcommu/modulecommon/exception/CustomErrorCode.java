@@ -20,6 +20,7 @@ public enum CustomErrorCode {
     // auth
     INVALID_TOKEN("T001", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("T002", "토큰이 만료되었습니다."),
+    INVALID_USERID_TYPE("T003", "유효하지 않은 userId 타입입니다."),
 
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),

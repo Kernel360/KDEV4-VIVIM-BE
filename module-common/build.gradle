@@ -38,6 +38,8 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
+    // Redis 설정
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //AWS S3설정
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
