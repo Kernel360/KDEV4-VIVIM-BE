@@ -5,6 +5,7 @@ import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import com.welcommu.moduleservice.auth.AuthService;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
+import com.welcommu.moduleservice.auth.dto.RefreshTokenRequest;
 import com.welcommu.moduleservice.redis.RefreshTokenService;
 import com.welcommu.moduleservice.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,9 +59,9 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody String refreshToken) {
+    public ResponseEntity<?> refreshAccessToken(@RequestBody RefreshTokenRequest refreshToken) {
         try {
-            LoginResponse response = authService.reIssueToken(refreshToken);
+            LoginResponse response = authService.reIssueToken(refreshToken.getRefreshToken());
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -71,9 +72,9 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
-    public ResponseEntity<?> logout(@RequestBody String refreshToken) {
+    public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest refreshToken) {
         try {
-            authService.deleteToken(refreshToken);
+            authService.deleteToken(refreshToken.getRefreshToken());
             return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
         } catch (Exception e) {
             // 실패해도 로그아웃은 성공했다고 간주
