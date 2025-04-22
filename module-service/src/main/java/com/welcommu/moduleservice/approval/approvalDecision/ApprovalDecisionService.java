@@ -34,7 +34,15 @@ public class ApprovalDecisionService {
         ApprovalProposal proposal = findProposal(proposalId);
         checkUserPermission(user, proposal);
 
-        ApprovalApprover approver = findApprover(user, proposal);
+        ApprovalApprover approver;
+        if (isAdmin(user)) {
+            approver = approvalApproverRepository.findFirstByApprovalProposal(proposal)
+                .orElseThrow(
+                    () -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_APPROVER));
+        } else {
+            approver = findApprover(user, proposal);
+        }
+
         ApprovalDecision decision = request.toEntity(approver);
         approvalDecisionRepository.save(decision);
     }

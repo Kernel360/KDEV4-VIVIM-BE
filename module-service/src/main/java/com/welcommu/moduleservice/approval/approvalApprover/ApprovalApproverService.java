@@ -6,9 +6,10 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
-import com.welcommu.moduleinfra.approval.ApprovalApproverRepository;
-import com.welcommu.moduleinfra.approval.ApprovalProposalRepository;
-import com.welcommu.moduleinfra.project.ProjectUserRepository;
+import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
+import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
+import com.welcommu.modulerepository.project.ProjectUserRepository;
+import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverRegisterRequest;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverResponse;
 import java.util.List;
@@ -24,6 +25,7 @@ public class ApprovalApproverService {
     private final ApprovalApproverRepository approvalApproverRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
     private final ProjectUserRepository projectUserRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void registerApprovers(Long approvalId, ApproverRegisterRequest request) {

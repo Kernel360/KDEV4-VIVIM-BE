@@ -80,7 +80,7 @@ public class ApprovalProposalController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PostMapping("/approval/{approvalId}/resend")
+    @PostMapping("/approval/{approvalId}/send")
     @Operation(summary = "승인요청 전송 : 작업 완료 후, 승인요청 고객사에 보내기")
     public ResponseEntity<ProposalSendResponse> sendApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
