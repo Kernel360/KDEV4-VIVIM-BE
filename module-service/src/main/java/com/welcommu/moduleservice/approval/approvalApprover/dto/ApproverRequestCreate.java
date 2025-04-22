@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ApproverRegisterRequest {
+public class ApproverRequestCreate {
 
     private List<Long> approverUserIds;
 
