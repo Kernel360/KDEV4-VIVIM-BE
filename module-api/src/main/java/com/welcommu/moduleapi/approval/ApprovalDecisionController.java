@@ -5,7 +5,6 @@ import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.approval.approvalDecision.ApprovalDecisionService;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestCreation;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestModification;
-import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponse;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseByFilteredApproverList;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseSend;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,19 +58,11 @@ public class ApprovalDecisionController {
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "승인응답 삭제를 성공했습니다."));
     }
     
-    @GetMapping("/decision/{decisionId}")
-    @Operation(summary = "승인응답 단일조회")
-    public ResponseEntity<DecisionResponse> getDecision(@PathVariable Long decisionId) {
-        DecisionResponse response = approvalDecisionService.getDecision(decisionId);
-        return ResponseEntity.ok().body(response);
-    }
-    
     @GetMapping("/proposals/{proposalId}with-approvers-decisions")
     @Operation(summary = "승인응답 전체조회 (필터링 기준 : 승인요청, 승인권자)")
     public ResponseEntity<DecisionResponseByFilteredApproverList> getAllApprover(
         @PathVariable Long proposalId) {
-        DecisionResponseByFilteredApproverList response = approvalDecisionService.getAllDecision(
-            proposalId);
+        DecisionResponseByFilteredApproverList response = approvalDecisionService.getAllDecision();
         return ResponseEntity.ok().body(response);
     }
     

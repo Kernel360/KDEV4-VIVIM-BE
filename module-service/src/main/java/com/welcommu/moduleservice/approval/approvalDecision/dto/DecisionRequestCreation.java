@@ -10,19 +10,15 @@ import lombok.Getter;
 
 @Getter
 public class DecisionRequestCreation {
-
+    
     @NotBlank
     private String content;
-
+    
     @NotNull
-    private ApprovalDecisionStatus decisionStatus;  // APPROVED or REJECTED
-
+    private ApprovalDecisionStatus decisionStatus;  // APPROVED, REJECTED, PENDING
+    
     public ApprovalDecision toEntity(ApprovalApprover approvalApprover) {
-        return ApprovalDecision.builder()
-            .content(this.content)
-            .decidedAt(LocalDateTime.now())
-            .approvalApprover(approvalApprover)
-            .decisionStatus(this.decisionStatus)
-            .build();
+        return ApprovalDecision.builder().content(this.content).decidedAt(LocalDateTime.now())
+            .approvalApprover(approvalApprover).decisionStatus(this.decisionStatus).build();
     }
 }

@@ -11,7 +11,6 @@ import com.welcommu.modulerepository.approval.ApprovalDecisionRepository;
 import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestCreation;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestModification;
-import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponse;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseByFilteredApproverList;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseSend;
 import jakarta.transaction.Transactional;
@@ -46,7 +45,6 @@ public class ApprovalDecisionService {
         approvalDecisionRepository.save(decision);
     }
     
-    
     @Transactional
     public void modifyDecision(Long decisionId, DecisionRequestModification dto) {
         
@@ -70,13 +68,14 @@ public class ApprovalDecisionService {
         approvalDecisionRepository.delete(decision);
     }
     
-    public DecisionResponse getDecision(Long decisionId) {
-        
-        ApprovalDecision decision = findDecision(decisionId);
-        return DecisionResponse.from(decision);
+    public DecisionResponseByFilteredApproverList getDecision(Long proposalId) {
+        ApprovalProposal proposal = approvalProposalRepository.findById(proposalId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+        return DecisionResponseByFilteredApproverList.getFilteredDecisionResponses(
+            List.of(proposal), approvalApproverRepository, approvalDecisionRepository);
     }
     
-    public DecisionResponseByFilteredApproverList getAllDecision(Long proposalId) {
+    public DecisionResponseByFilteredApproverList getAllDecision() {
         List<ApprovalProposal> proposals = approvalProposalRepository.findAll();
         return DecisionResponseByFilteredApproverList.getFilteredDecisionResponses(proposals,
             approvalApproverRepository, approvalDecisionRepository);
