@@ -8,6 +8,7 @@ import com.welcommu.moduleservice.projectpost.ProjectPostService;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
+import com.welcommu.moduleservice.projectpost.dto.RecentUserPostListRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,9 +50,10 @@ public class ProjectPostController {
     @PutMapping("/api/projects/{projectId}/posts/{postId}")
     @Operation(summary = "게시글 수정")
     public ResponseEntity<ApiResponse> modifyPost(@PathVariable Long projectId,
-        @PathVariable Long postId, @RequestBody ProjectPostRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        @PathVariable Long postId, @RequestBody ProjectPostRequest request,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         Long actorId = userDetails.getUser().getId();
-        projectPostService.modifyPost(projectId, postId, request,actorId);
+        projectPostService.modifyPost(projectId, postId, request, actorId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "게시글이 수정되었습니다."));
     }
 
@@ -73,8 +75,12 @@ public class ProjectPostController {
     @Operation(summary = "최근 게시글 5개 조회")
     public ResponseEntity<List<ProjectPostListResponse>> getRecentUserPostList(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+
+        RecentUserPostListRequest request = new RecentUserPostListRequest(userDetails.getUser());
+
         List<ProjectPostListResponse> resultList = projectPostService.getRecentUserPostList(
-            userDetails.getUser());
+            request);
+
         return ResponseEntity.ok(resultList);
     }
 

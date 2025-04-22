@@ -2,7 +2,6 @@ package com.welcommu.moduleservice.projectpost;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
@@ -12,7 +11,7 @@ import com.welcommu.moduleservice.projectpost.dto.ProjectPostDetailResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostListResponse;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostRequest;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostSnapshot;
-import java.util.Comparator;
+import com.welcommu.moduleservice.projectpost.dto.RecentUserPostListRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -75,23 +74,8 @@ public class ProjectPostService {
             .collect(Collectors.toList());
     }
 
-    public List<ProjectPostListResponse> getRecentUserPostList(User user) {
-        List<ProjectUser> projectUsers = projectUserRepository.findByUser(user);
-
-        List<Long> projectIds = projectUsers.stream()
-            .map(projectUser -> projectUser.getProject().getId())
-            .collect(Collectors.toList());
-
-        List<ProjectPost> posts = projectPostRepository.findTop5PostsByProjectIds(projectIds);
-
-        List<ProjectPost> latestPosts = posts.stream()
-            .sorted(Comparator.comparing(ProjectPost::getCreatedAt).reversed())
-            .limit(5)
-            .toList();
-
-        return latestPosts.stream()
-            .map(ProjectPostListResponse::from)
-            .collect(Collectors.toList());
+    public List<ProjectPostListResponse> getRecentUserPostList(RecentUserPostListRequest request) {
+        return request.getRecentUserPostList(projectUserRepository, projectPostRepository);
     }
 
 
