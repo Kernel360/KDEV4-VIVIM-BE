@@ -2,25 +2,27 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
-import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
 import com.welcommu.modulerepository.user.UserRepository;
-import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
+import com.welcommu.moduleservice.project.audit.ProjectAuditService;
+import com.welcommu.moduleservice.project.dto.DashboardInspectionCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProgressCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProjectFeeResponse;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,7 +45,7 @@ public class ProjectService {
 
         Project project = dto.toEntity();
         Project createProject = projectRepository.save(project);
-        projectAuditService.createAuditLog(ProjectSnapshot.from(createProject) , creatorId);
+        projectAuditService.createAuditLog(ProjectSnapshot.from(createProject), creatorId);
 
         initializeDefaultProgress(createProject);
 
@@ -122,18 +124,35 @@ public class ProjectService {
             .collect(Collectors.toList());
     }
 
+    public DashboardProjectFeeResponse getDashboardProjectFee() {
+        List<Project> projects = projectRepository.findAll();
+        return new DashboardProjectFeeResponse(projects);
+    }
+
+    public DashboardInspectionCountResponse getDashboardInspectionCount() {
+        List<Project> projects = projectRepository.findAll();
+        return new DashboardInspectionCountResponse(projects);
+    }
+
+    public DashboardProgressCountResponse getDashboardProgressCount() {
+        List<Project> projects = projectRepository.findAll();
+        return new DashboardProgressCountResponse(projects);
+    }
+
     private void initializeDefaultProgress(Project project) {
 
         float position = 1.0f;
         for (DefaultProjectProgress defaultProjectProgress : DefaultProjectProgress.values()) {
             ProjectProgress progress = ProjectProgress.builder()
-                    .name(defaultProjectProgress.getLabel())
-                    .position(position)
-                    .createdAt(LocalDateTime.now())
-                    .project(project)
-                    .build();
+                .name(defaultProjectProgress.getLabel())
+                .position(position)
+                .createdAt(LocalDateTime.now())
+                .project(project)
+                .build();
             progressRepository.save(progress);
             position += 1.0f;
         }
     }
+
+
 }
