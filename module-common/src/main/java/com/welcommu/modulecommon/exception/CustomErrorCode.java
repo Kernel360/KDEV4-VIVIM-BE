@@ -20,6 +20,7 @@ public enum CustomErrorCode {
     // auth
     INVALID_TOKEN("T001", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("T002", "토큰이 만료되었습니다."),
+    INVALID_USERID_TYPE("T003", "유효하지 않은 userId 타입입니다."),
 
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
@@ -50,8 +51,11 @@ public enum CustomErrorCode {
     NOT_FOUND_FILE("F001", "파일을 찾을 수 없습니다."),
 
     // link
-    NOT_FOUND_LINK("L001", "링크를 찾을 수 없습니다.");
+    NOT_FOUND_LINK("L001", "링크를 찾을 수 없습니다."),
 
+    // admin inquiry
+    NOT_FOUND_INQUIRY("I001", "문의를 찾을 수 없습니다."),
+    NOT_FOUND_INQUIRY_COMMENT("I002", "답변을 찾을 수 없습니다.");
     private final String code;
     private final String errorMessage;
 
