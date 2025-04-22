@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long>, AuditLogRepositoryCustom  {
     List<AuditLog> findByTargetId(Long targetId);
 
-    @Query("SELECT a FROM AuditLog a LEFT JOIN FETCH a.details")
+    @Query("SELECT DISTINCT a FROM AuditLog a LEFT JOIN FETCH a.details")
     List<AuditLog> findAllWithDetails();
 }

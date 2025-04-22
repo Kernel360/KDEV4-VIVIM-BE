@@ -79,9 +79,7 @@ public class AuthService {
         log.info("리프레시 토큰으로 액세스 재발급 시도");
 
         // Bearer 접두사 제거
-        if (refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
-        }
+        refreshToken = getRefreshTokenWithoutBearer(refreshToken);
 
         // Refresh Token 검증
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
@@ -120,18 +118,40 @@ public class AuthService {
     }
 
     public void deleteToken(String refreshToken){
-        if (refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
-        }
+        refreshToken = getRefreshTokenWithoutBearer(refreshToken);
 
         // 토큰 검증 및 클레임 추출
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-        Long userId = ((Integer) claims.get("userId")).longValue();
+        Object rawUserId = claims.get("userId");
 
+        long userId;
+
+        try {
+            if (rawUserId instanceof Integer i) {
+                userId = i.longValue();
+            } else if (rawUserId instanceof Long l) {
+                userId = l;
+            } else if (rawUserId instanceof String s) {
+                userId = Long.parseLong(s);
+            } else {
+                log.error("지원하지 않는 userId 타입: {}", rawUserId);
+                throw  new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
+            }
+        } catch (Exception e) {
+            log.error("JWT userId 파싱 실패: {}", rawUserId, e);
+            throw  new CustomException(CustomErrorCode.INVALID_TOKEN);
+        }
         // Redis에서 해당 사용자 토큰 삭제
         refreshTokenService.delete(userId);
 
 
+    }
+
+    private String getRefreshTokenWithoutBearer(String refreshToken) {
+        if (refreshToken.startsWith("Bearer ")) {
+            refreshToken = refreshToken.substring(7);
+        }
+        return refreshToken;
     }
 
 }
