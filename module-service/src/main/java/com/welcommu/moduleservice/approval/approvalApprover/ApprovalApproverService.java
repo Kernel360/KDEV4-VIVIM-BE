@@ -6,10 +6,10 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
 import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
-import com.welcommu.modulerepository.user.UserRepository;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverRegisterRequest;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverResponse;
 import java.util.List;
@@ -25,18 +25,33 @@ public class ApprovalApproverService {
     private final ApprovalApproverRepository approvalApproverRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
     private final ProjectUserRepository projectUserRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public void registerApprovers(Long approvalId, ApproverRegisterRequest request) {
         ApprovalProposal proposal = findProposal(approvalId);
-        List<ProjectUser> allProjectUser = projectUserRepository.findAllById(
-            request.getProjectUserIdList());
-        List<ApprovalApprover> approvers = request.toAllApprover(proposal, allProjectUser);
+        Long projectId = proposal.getProjectProgress().getProject().getId();
 
-        approvalApproverRepository.saveAll(approvers);
-        proposal.setCountTotalApprover(approvers.size());
+        for (Long userId : request.getApproverUserIds()) {
+            ProjectUser projectUser = findProjectUser(userId, projectId);
+            checkClientCompanyRole(projectUser);
+
+            // 중복 승인권자 방지
+            if (approvalApproverRepository.existsByApprovalProposalAndProjectUser(proposal,
+                projectUser)) {
+                throw new CustomException(CustomErrorCode.DUPLICATED_APPROVAL_APPROVER);
+            }
+
+            approvalApproverRepository.save(
+                ApprovalApprover.builder()
+                    .approvalProposal(proposal)
+                    .projectUser(projectUser)
+                    .build()
+            );
+        }
+
+        proposal.setCountTotalApprover(request.getApproverUserIds().size());
     }
+
 
     @Transactional
     public void modifyApprovers(Long approvalId, ApproverRegisterRequest request) {
@@ -61,8 +76,22 @@ public class ApprovalApproverService {
             .collect(Collectors.toList());
     }
 
+    private void checkClientCompanyRole(ProjectUser projectUser) {
+        ProjectUserManageRole role = projectUser.getProjectUserManageRole();
+
+        if (role != ProjectUserManageRole.CLIENT_USER
+            && role != ProjectUserManageRole.CLIENT_MANAGER) {
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        }
+    }
+
     private ApprovalProposal findProposal(Long approvalId) {
         return approvalProposalRepository.findById(approvalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+    }
+
+    private ProjectUser findProjectUser(Long userId, Long projectId) {
+        return projectUserRepository.findByUserIdAndProjectId(userId, projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
 }
