@@ -61,9 +61,9 @@ public class ApprovalDecisionController {
     @GetMapping("/approval/{approvalId}/approver/decision")
     @Operation(summary = "하나의 승인요청에 대한 응답 전체조회 (필터링 기준 : 승인요청, 승인권자)")
     public ResponseEntity<DecisionResponseByFilteredApproverList> getDecision(
-        @PathVariable Long proposalId) {
+        @PathVariable Long approvalId) {
         DecisionResponseByFilteredApproverList response = approvalDecisionService.getDecision(
-            proposalId);
+            approvalId);
         return ResponseEntity.ok().body(response);
     }
     
