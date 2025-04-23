@@ -58,10 +58,18 @@ public class ApprovalDecisionController {
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "승인응답 삭제를 성공했습니다."));
     }
     
-    @GetMapping("/proposals/{proposalId}with-approvers-decisions")
-    @Operation(summary = "승인응답 전체조회 (필터링 기준 : 승인요청, 승인권자)")
-    public ResponseEntity<DecisionResponseByFilteredApproverList> getAllApprover(
+    @GetMapping("/approval/{approvalId}/approver/decision")
+    @Operation(summary = "하나의 승인요청에 대한 응답 전체조회 (필터링 기준 : 승인요청, 승인권자)")
+    public ResponseEntity<DecisionResponseByFilteredApproverList> getDecision(
         @PathVariable Long proposalId) {
+        DecisionResponseByFilteredApproverList response = approvalDecisionService.getDecision(
+            proposalId);
+        return ResponseEntity.ok().body(response);
+    }
+    
+    @GetMapping("/approval/approver/decision")
+    @Operation(summary = "모든 승인요청에 대한 응답 전체조회 (필터링 기준 : 승인요청, 승인권자)")
+    public ResponseEntity<DecisionResponseByFilteredApproverList> getAllApprover() {
         DecisionResponseByFilteredApproverList response = approvalDecisionService.getAllDecision();
         return ResponseEntity.ok().body(response);
     }
