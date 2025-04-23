@@ -15,7 +15,6 @@ import com.welcommu.moduleservice.user.dto.UserSnapshot;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -67,7 +67,7 @@ public class UserService {
         return companyRepository.findById(request)
             .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
     }
-
+    @Transactional(readOnly = true)
     public Page<UserResponse> searchUsers(String name, String email, String phone,
         Long companyId, CompanyRole companyRole,
         Boolean isDeleted, Pageable pageable) {

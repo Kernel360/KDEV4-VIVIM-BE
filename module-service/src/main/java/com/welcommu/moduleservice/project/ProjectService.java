@@ -148,6 +148,7 @@ public class ProjectService {
             .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Page<ProjectAdminSummaryResponse> searchProjects(
         String name,
         String description,
