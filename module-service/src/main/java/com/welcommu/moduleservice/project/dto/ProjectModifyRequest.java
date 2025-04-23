@@ -28,6 +28,8 @@ public class ProjectModifyRequest {
     private List<ProjectUserRoleRequest> devManagers;
     private List<ProjectUserRoleRequest> devUsers;
 
+    private List<Long> companyIds;
+
 
     public Project modifyProject(Project project) {
         project.setName(this.name);
