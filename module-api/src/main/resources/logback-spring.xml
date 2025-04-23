@@ -1,9 +1,9 @@
 <configuration>
   <springProfile name="dev">
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <file>/home/ec2-user/app/logs/application.log</file>
+      <file>/home/ubuntu/app/logs/application.log</file>
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-        <fileNamePattern>/home/ec2-user/app/logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <fileNamePattern>/home/ubuntu/app/logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
         <maxHistory>30</maxHistory>
       </rollingPolicy>
       <encoder>
@@ -14,6 +14,7 @@
     <logger name ="com.welcommu" level = "DEBUG"></logger>
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="FILE"/>
     </root>
   </springProfile>
 
