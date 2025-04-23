@@ -5,9 +5,11 @@ import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduleservice.project.ProjectService;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
+import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,10 +55,9 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}")
-    @Operation(summary = "프로젝트 개별 조회")
-    public ResponseEntity<Optional<Project>> readProject(@PathVariable Long projectId
+    @Operation(summary = "프로젝트 개별 조회") public ResponseEntity<Project> readProject(@PathVariable Long projectId, @AuthenticationPrincipal AuthUserDetailsImpl userDetails
     ) {
-        Optional<Project> project = projectService.getProject(projectId);
+        Project project = projectService.getProject(userDetails.getUser(), projectId);
         return ResponseEntity.ok(project);
     }
 
@@ -117,5 +118,24 @@ public class ProjectController {
     public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(@PathVariable Long projectId){
         List<ProjectUserResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
+    }
+
+    // ProjectController.java
+    @GetMapping("/company")
+    @Operation(summary = "내 회사 소속 프로젝트 전체 조회")
+    public ResponseEntity<List<ProjectSummaryWithRoleDto>> readAllMyCompanyProjects(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long companyId = userDetails.getUser().getCompany().getId();
+        return ResponseEntity.ok(projectService.getCompanyProjectsWithMyRole(companyId, userDetails.getUser()
+            .getId()));
+    }
+
+    @GetMapping("/{projectId}/companies")
+    @Operation(summary = "프로젝트 소속 회사 목록 조회")
+    public ResponseEntity<List<ProjectCompanyResponse>> getProjectCompanies(
+        @PathVariable Long projectId
+    ) {
+        List<ProjectCompanyResponse> responses = projectService.getCompaniesByProjectId(projectId);
+        return ResponseEntity.ok(responses);
     }
 }

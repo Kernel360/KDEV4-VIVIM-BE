@@ -5,17 +5,47 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-@Repository
 @RequiredArgsConstructor
 public class ProjectRepositoryImpl implements ProjectRepositoryCustom{
 
     private final EntityManager em;
+
+    @Override
+    public List<Project> findAllByCompanyId(Long companyId) {
+        String jpql = """
+            SELECT DISTINCT p
+            FROM Project p
+            JOIN ProjectUser pu ON pu.project = p
+            JOIN User u ON pu.user = u
+            WHERE u.company.id = :companyId
+        """;
+
+        return em.createQuery(jpql, Project.class)
+            .setParameter("companyId", companyId)
+            .getResultList();
+    }
+
+    @Override
+    public List<Object[]> findAllByCompanyIdWithMyRole(Long companyId, Long myUserId) {
+        String jpql = """
+        SELECT p, pu
+        FROM Project p
+        JOIN ProjectUser pu ON pu.project = p
+        JOIN User u ON pu.user = u
+        WHERE u.company.id = :companyId
+    """;
+
+        return em.createQuery(jpql, Object[].class)
+            .setParameter("companyId", companyId)
+            .getResultList();
+    }
 
     @Override
     public Page<Project> searchByConditions(String name, String description, Boolean isDeleted, Pageable pageable) {
@@ -56,5 +86,5 @@ public class ProjectRepositoryImpl implements ProjectRepositoryCustom{
         query.setMaxResults(pageable.getPageSize());
 
         return new PageImpl<>(query.getResultList(), pageable, countQuery.getSingleResult());
-        }
     }
+}
