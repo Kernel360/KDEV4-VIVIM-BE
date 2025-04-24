@@ -16,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Table(name = "approval_decision")
 @Entity
@@ -42,6 +44,7 @@ public class ApprovalDecision {
     // 승인권자
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "approval_approver_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ApprovalApprover approvalApprover;
 
     public void approve() {
