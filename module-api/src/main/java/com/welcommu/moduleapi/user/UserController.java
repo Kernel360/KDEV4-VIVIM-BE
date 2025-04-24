@@ -8,7 +8,6 @@ import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
-import com.welcommu.moduleservice.user.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
