@@ -2,6 +2,7 @@ package com.welcommu.moduleapi.user;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
+import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
@@ -11,6 +12,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,6 +46,23 @@ public class UserController {
     @Operation(summary = "모든 유저를 조회합니다.")
     public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "유저 검색 (페이징)")
+    public ResponseEntity<Page<UserResponse>> searchUsers(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String phone,
+        @RequestParam(required = false) Long companyId,
+        @RequestParam(required = false) CompanyRole companyRole,
+        @RequestParam(required = false) Boolean isDeleted,
+        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<UserResponse> results = userService.searchUsers(
+            name, email, phone, companyId, companyRole, isDeleted, pageable
+        );
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/{id}")
