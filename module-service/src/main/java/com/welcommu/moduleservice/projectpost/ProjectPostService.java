@@ -2,8 +2,10 @@ package com.welcommu.moduleservice.projectpost;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.modulerepository.project.ProjectRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.modulerepository.projectpost.ProjectPostRepository;
 import com.welcommu.moduleservice.projectpost.audit.ProjectPostAuditService;
@@ -24,13 +26,15 @@ public class ProjectPostService {
 
     private final ProjectPostRepository projectPostRepository;
     private final ProjectUserRepository projectUserRepository;
-
+    private final ProjectRepository projectRepository;
     private final ProjectPostAuditService projectPostAuditService;
 
     @Transactional
     public Long createPost(User user, Long projectId, ProjectPostRequest request, String clientIp,
         Long creatorId) {
-        ProjectPost newPost = request.toEntity(user, projectId, request, clientIp);
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
+        ProjectPost newPost = request.toEntity(user, project, request, clientIp);
 
         ProjectPost savedPost = projectPostRepository.save(newPost);
 

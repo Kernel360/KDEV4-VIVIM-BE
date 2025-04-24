@@ -1,12 +1,17 @@
 package com.welcommu.moduledomain.projectpost;
 
+import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -51,17 +56,13 @@ public class ProjectPost {
     @Column(name = "parent_id")
     private Long parentId;
 
-    @Column(name = "creator_id")
-    private Long creatorId;
+    @ManyToOne
+    @JoinColumn(name = "creator_id", referencedColumnName = "id", nullable = false)
+    private User creator;
 
-    @Column(name = "creator_name")
-    private String creatorName;
-
-    @Column(name = "creator_role")
-    private String creatorRole;
-
-    @Column(name = "project_id")
-    private Long projectId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", referencedColumnName = "id", nullable = false)
+    private Project project;
 
     @Column(name = "response_to_question")
     private String responseToQuestion;
