@@ -8,7 +8,7 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
 import com.welcommu.moduleservice.redis.RefreshTokenService;
-import com.welcommu.moduleservice.user.UserService;
+import com.welcommu.moduleservice.user.UserServiceImpl;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
     private final JwtTokenHelper jwtTokenHelper;
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
