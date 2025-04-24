@@ -10,7 +10,7 @@
 
     <appender name="CLOUDWATCH" class="ca.pjer.logback.AwsLogsAppender">
       <layout>
-        <pattern>[%thread] [%date] [%level] [%file:%line] - %msg%n</pattern>
+        <pattern> (%d{yyyy-MM-dd HH:mm:ss.SSS}) ([%thread]) (%5level) (%logger) - %msg%n)</pattern>
       </layout>
       <logGroupName>vivim-dev</logGroupName>
       <logStreamUuidPrefix>vivim-dev-log</logStreamUuidPrefix>
