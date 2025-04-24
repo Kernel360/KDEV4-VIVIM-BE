@@ -12,7 +12,7 @@ public class ProjectAdminSummaryResponse {
 
     private Long projectId;
     private String name;
-    private Long projectFee;
+    private int projectFee;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isDeleted;

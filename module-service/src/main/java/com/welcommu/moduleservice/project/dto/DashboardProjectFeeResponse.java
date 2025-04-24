@@ -11,11 +11,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class DashboardProjectFeeResponse {
 
-    private Long week1;
-    private Long week2;
-    private Long week3;
-    private Long week4;
-    private Long week5;
+    private int week1;
+    private int week2;
+    private int week3;
+    private int week4;
+    private int week5;
 
 
     public DashboardProjectFeeResponse(List<Project> projects) {
@@ -24,15 +24,15 @@ public class DashboardProjectFeeResponse {
         LocalDate firstDayOfMonth = currentDate.withDayOfMonth(1);
         LocalDate lastDayOfMonth = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
 
-        week1 = 0L;
-        week2 = 0L;
-        week3 = 0L;
-        week4 = 0L;
-        week5 = 0L;
+        week1 = 0;
+        week2 = 0;
+        week3 = 0;
+        week4 = 0;
+        week5 = 0;
 
         for (Project project : projects) {
             LocalDate projectFeeDate = project.getProjectFeePaidDate();
-            Long projectFee = project.getProjectFee();
+            Integer projectFee = project.getProjectFee();
 
             if (projectFeeDate != null && projectFeeDate.getYear() == currentDate.getYear()
                 && projectFeeDate.getMonth() == currentDate.getMonth()) {

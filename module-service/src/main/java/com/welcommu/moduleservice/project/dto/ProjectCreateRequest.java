@@ -26,7 +26,7 @@ public class ProjectCreateRequest {
     private String name;
     private String description;
 
-    private Long projectFee;
+    private int projectFee;
 
     @NotNull
     private LocalDate startDate;

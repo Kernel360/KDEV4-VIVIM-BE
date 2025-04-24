@@ -58,7 +58,7 @@ public class Project {
     private DefaultProjectProgress currentProgress;
 
     @Column(name = "project_fee")
-    private Long projectFee;
+    private Integer projectFee;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "project_status")
