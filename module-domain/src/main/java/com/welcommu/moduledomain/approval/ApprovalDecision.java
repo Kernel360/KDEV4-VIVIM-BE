@@ -29,6 +29,8 @@ public class ApprovalDecision {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    private String title;
+    
     @Column(nullable = false)
     private String content;
     
@@ -52,6 +54,10 @@ public class ApprovalDecision {
     public void reject() {
         this.decisionStatus = ApprovalDecisionStatus.REJECTED;
         this.decidedAt = LocalDateTime.now();
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
     }
     
     public void setContent(String content) {
