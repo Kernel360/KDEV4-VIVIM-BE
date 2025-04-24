@@ -42,10 +42,6 @@ public class DecisionService {
     public void modifyDecision(Long decisionId, DecisionRequestModification dto) {
 
         ApprovalDecision decision = findDecision(decisionId);
-
-        if (dto.getTitle() != null) {
-            decision.setTitle(dto.getTitle());
-        }
         if (dto.getContent() != null) {
             decision.setContent(dto.getContent());
         }

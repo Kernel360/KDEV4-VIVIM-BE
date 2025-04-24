@@ -12,14 +12,18 @@ public class DecisionResponseSend {
     private String message;
 
     public static DecisionResponseSend from(User user, ApprovalDecision decision) {
-        String companyName = user.getCompany().getName();
+        String companyName = user.getCompany()
+            .getName();
         String userName = user.getName();
-        String decisionTitle = decision.getTitle();
 
-        String message = String.format(
-            "[승인응답] %s 고객사 소속 %s님이 \"%s\" 요청을 보냈습니다.",
-            companyName, userName, decisionTitle
-        );
+        String statusMessage = switch (decision.getDecisionStatus()) {
+            case APPROVED -> "승인";
+            case REJECTED -> "수정요청 및 반려";
+            default -> decision.getDecisionStatus()
+                .toString();
+        };
+
+        String message = String.format("[승인응답] %s 고객사 소속 %s 님으로부터 \"%s\" 응답이 돌아왔습니다.", companyName, userName, statusMessage);
 
         return new DecisionResponseSend(message);
     }
