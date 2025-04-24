@@ -16,14 +16,12 @@ public interface ApprovalApproverRepository extends JpaRepository<ApprovalApprov
     Optional<ApprovalApprover> findByApprovalProposalAndProjectUserUser(ApprovalProposal proposal,
         User user);
 
-    Optional<ApprovalApprover> findFirstByApprovalProposal(ApprovalProposal proposal);
-
     List<ApprovalApprover> findByApprovalProposal(ApprovalProposal proposal);
 
     boolean existsByApprovalProposal(ApprovalProposal proposal);
 
-    void deleteByApprovalProposal(ApprovalProposal proposal);
-
     boolean existsByApprovalProposalAndProjectUser(ApprovalProposal proposal,
         ProjectUser projectUser);
+
+    void deleteByApprovalProposal(ApprovalProposal proposal);
 }

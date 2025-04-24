@@ -10,17 +10,16 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ApproverResponseList {
-    
+
     private List<ApproverResponse> approverResponses;
-    
+
     public static ApproverResponseList from(List<ApprovalApprover> approvalApprovers) {
         List<ApproverResponse> approverResponses = approvalApprovers.stream().map(
-                approver -> ApproverResponse.builder().approverId(approver.getId())
-                    .userId(approver.getProjectUser().getUser().getId())
-                    .name(approver.getProjectUser().getUser().getName()).decisionStatus("PENDING")
-                    .latestDecisionContent(null).latestDecidedAt(null).build())
-            .collect(Collectors.toList());
-        
+            approver -> ApproverResponse.builder().approverId(approver.getId())
+                .userId(approver.getProjectUser().getUser().getId())
+                .name(approver.getProjectUser().getUser().getName()).decisionStatus("PENDING")
+                .build()).collect(Collectors.toList());
+
         return new ApproverResponseList(approverResponses);
     }
 }
