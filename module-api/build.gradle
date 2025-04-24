@@ -38,7 +38,7 @@ dependencies {
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
-    implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
+    implementation 'com.j256.cloudwatchlogbackappender:cloudwatchlogbackappender:2.0'
     implementation 'com.amazonaws:aws-java-sdk-logs'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
