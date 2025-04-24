@@ -2,23 +2,28 @@ package com.welcommu.moduleapi.file;
 
 import static com.welcommu.modulecommon.util.FileUtil.getExtensionFromContentType;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.Headers;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduleservice.file.FileService;
+import com.welcommu.moduleservice.file.dto.FileDownloadUrlResponse;
 import com.welcommu.moduleservice.file.dto.FileListResponse;
+import com.welcommu.moduleservice.file.dto.FileMetadataRequest;
+import com.welcommu.moduleservice.file.dto.PreSignedUrlResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +31,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriUtils;
 
 @RestController
@@ -49,52 +52,46 @@ public class FileController {
     private String fileName;
     private ObjectMetadata metadata;
 
-    @PostMapping(path = "/posts/{postId}/file/stream", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "게시글에 파일 생성 및 S3 업로드")
-    public ResponseEntity<ApiResponse> createPostFile(@PathVariable Long postId,
-        @RequestPart("file") MultipartFile file) throws IOException {
-        metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
 
-        bucketName = "vivim-s3";
-        today = LocalDate.now().toString();
-        uuid = UUID.randomUUID().toString();
-        extension = getExtensionFromContentType(file.getContentType());
-        objectKey = "uploads/" + today + "/" + uuid + extension;
-        fileName = file.getOriginalFilename();
+    @PostMapping(path = "/posts/{postId}/file/presigned", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "게시물에 파일 업로드용 PreSigned URL 생성")
+    public ResponseEntity<PreSignedUrlResponse> createPostFilePresignedUrl(
+        @PathVariable Long postId,
+        @RequestBody FileMetadataRequest fileMetadata) {
 
-        amazonS3Client.putObject(bucketName, objectKey, file.getInputStream(), metadata);
+        // S3 경로 설정
+        String bucketName = "vivim-s3";
+        String today = LocalDate.now().toString();
+        String uuid = UUID.randomUUID().toString();
+        String extension = getExtensionFromContentType(fileMetadata.getContentType());
+        String objectKey = "uploads/" + today + "/" + uuid + extension;
+
+        // PreSigned URL 생성을 위한 메타데이터 설정
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
+            bucketName, objectKey)
+            .withMethod(HttpMethod.PUT)
+            .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)); // 15분 유효
+
+        // Content-Type 설정
+        generatePresignedUrlRequest.addRequestParameter(
+            Headers.CONTENT_TYPE, fileMetadata.getContentType());
+
+        // PreSigned URL 생성
+        URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
         String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
 
-        fileService.createPostFile(fileName, fileUrl, file.getSize(), postId);
+        // DB에 파일 정보 저장 (실제 업로드는 클라이언트가 URL을 통해 직접 수행)
+        fileService.createPostFile(fileMetadata.getFileName(), fileUrl, fileMetadata.getFileSize(),
+            postId);
 
-        return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.CREATED.value(), "파일이 업로드되었습니다."));
-    }
+        // 클라이언트에게 PreSigned URL 반환
+        PreSignedUrlResponse response = new PreSignedUrlResponse(
+            preSignedUrl.toString(),
+            fileUrl,
+            objectKey
+        );
 
-    @PostMapping(path = "/approvals/{approvalId}/file/stream", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "승인요청에 파일 생성 및 S3 업로드")
-    public ResponseEntity<ApiResponse> createApprovalFile(@PathVariable Long approvalId,
-        @RequestParam("file") MultipartFile file) throws IOException {
-        metadata = new ObjectMetadata();
-        metadata.setContentType(file.getContentType());
-        metadata.setContentLength(file.getSize());
-
-        bucketName = "vivim-s3";
-        today = LocalDate.now().toString();
-        uuid = UUID.randomUUID().toString();
-        extension = getExtensionFromContentType(file.getContentType());
-        objectKey = "uploads/" + today + "/" + uuid + extension;
-        fileName = file.getOriginalFilename();
-
-        amazonS3Client.putObject(bucketName, objectKey, file.getInputStream(), metadata);
-        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
-
-        fileService.createApprovalFile(fileName, fileUrl, file.getSize(), approvalId);
-
-        return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.CREATED.value(), "파일이 완료되었습니다."));
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/posts/{postId}/files")
@@ -110,21 +107,39 @@ public class FileController {
     }
 
     @GetMapping("/files/{fileId}/download")
-    @Operation(summary = "파일 다운로드")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
-        File file = fileService.getFileInfo(fileId); // DB에서 파일 정보 조회
+    @Operation(summary = "파일 다운로드용 PreSigned URL 생성")
+    public ResponseEntity<FileDownloadUrlResponse> getFileDownloadUrl(
+        @PathVariable Long fileId) {
+        // DB에서 파일 정보 조회
+        File file = fileService.getFileInfo(fileId);
 
+        // S3 객체 키 추출 (URL에서 추출하거나 DB에 별도 저장된 경우 그대로 사용)
         String objectKey = file.getFileUrl().substring(file.getFileUrl().indexOf("uploads"));
-        S3Object s3Object = amazonS3Client.getObject("vivim-s3", objectKey);
-        InputStreamResource resource = new InputStreamResource(s3Object.getObjectContent());
+        String bucketName = "vivim-s3";
 
+        // 다운로드용 PreSigned URL 생성 (유효시간 15분)
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+            new GeneratePresignedUrlRequest(bucketName, objectKey)
+                .withMethod(HttpMethod.GET)
+                .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15));
+
+        // 파일명 지정을 위한 응답 헤더 설정
+        ResponseHeaderOverrides headerOverrides = new ResponseHeaderOverrides();
         String encodedFileName = UriUtils.encode(file.getFileName(), StandardCharsets.UTF_8);
+        headerOverrides.setContentDisposition("attachment; filename=\"" + encodedFileName + "\"");
+        generatePresignedUrlRequest.setResponseHeaders(headerOverrides);
 
-        return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"")
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
-            .contentLength(file.getFileSize())
-            .body(resource);
+        // PreSigned URL 생성
+        URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+
+        // 응답 생성
+        FileDownloadUrlResponse response = new FileDownloadUrlResponse(
+            preSignedUrl.toString(),
+            file.getFileName(),
+            file.getFileSize()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/files/{fileId}")
