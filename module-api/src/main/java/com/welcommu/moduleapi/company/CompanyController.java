@@ -15,6 +15,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -60,6 +65,19 @@ public class CompanyController {
         return companies.stream()
             .map(CompanyResponse::from)
             .collect(Collectors.toList());
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "회사 검색 (페이징)")
+    public ResponseEntity<Page<CompanyResponse>> searchCompanies(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String businessNumber,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) Boolean isDeleted,
+        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<CompanyResponse> results = companyService.searchCompanies(name, businessNumber, email, isDeleted, pageable);
+        return ResponseEntity.ok(results);
     }
 
     @GetMapping("/{id}")

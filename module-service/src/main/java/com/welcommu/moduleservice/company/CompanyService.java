@@ -9,15 +9,19 @@ import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.modulerepository.company.CompanyRepository;
 import com.welcommu.moduleservice.company.audit.CompanyAuditService;
+import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.dto.CompanySnapshot;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,5 +79,11 @@ public class CompanyService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
         companyAuditLog.deleteAuditLog(CompanySnapshot.from(existingCompany) , deleterId);
         companyRepository.delete(existingCompany);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CompanyResponse> searchCompanies(String name, String businessNumber, String email, Boolean isDeleted, Pageable pageable) {
+        return companyRepository.searchByConditions(name, businessNumber, email, isDeleted, pageable)
+            .map(CompanyResponse::from);
     }
 }
