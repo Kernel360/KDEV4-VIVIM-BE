@@ -51,7 +51,7 @@ dependencies {
 
 	implementation project(':module-common')
 	implementation project(':module-domain')
-	implementation project(':module-repository')
+	implementation project(':module-infra')
 }
 
 tasks.named('test') {

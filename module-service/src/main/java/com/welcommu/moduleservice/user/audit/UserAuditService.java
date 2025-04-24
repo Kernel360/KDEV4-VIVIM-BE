@@ -3,7 +3,7 @@ package com.welcommu.moduleservice.user.audit;
 import com.welcommu.moduledomain.logging.AuditLog;
 import com.welcommu.moduledomain.logging.enums.ActionType;
 import com.welcommu.moduledomain.logging.enums.TargetType;
-import com.welcommu.modulerepository.logging.AuditLogRepository;
+import com.welcommu.moduleinfra.logging.AuditLogRepository;
 import com.welcommu.moduleservice.logging.AuditLogFactory;
 import com.welcommu.moduleservice.logging.AuditLogFieldComparator;
 import com.welcommu.moduleservice.logging.AuditableService;
