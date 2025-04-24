@@ -7,18 +7,16 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ProposalResponseList {
-
+public class ProposalResponseItemList {
+    
     private List<ProposalResponse> approvalList;
-
-    public static ProposalResponseList from(List<ApprovalProposal> approvalList) {
-
+    
+    public static ProposalResponseItemList from(List<ApprovalProposal> approvalList) {
+        
         List<ProposalResponse> approvalListResponse = approvalList.stream()
             .map(ProposalResponse::of) // approver 미포함
             .toList();
-
-        return ProposalResponseList.builder()
-            .approvalList(approvalListResponse)
-            .build();
+        
+        return ProposalResponseItemList.builder().approvalList(approvalListResponse).build();
     }
 }

@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DecisionResponse {
-
+    
     private Long id;
     private String title;
     private String content;
@@ -18,16 +18,11 @@ public class DecisionResponse {
     private Long approverId;
     private String approverName;
     private LocalDateTime decidedAt;
-
+    
     public static DecisionResponse from(ApprovalDecision decision) {
-        return DecisionResponse.builder()
-            .id(decision.getId())
-            .title(decision.getTitle())
-            .title(decision.getContent())
-            .status(decision.getDecisionStatus())
-            .approverId(decision.getApprovalApprover().getId())
+        return DecisionResponse.builder().id(decision.getId()).title(decision.getContent())
+            .status(decision.getDecisionStatus()).approverId(decision.getApprovalApprover().getId())
             .approverName(decision.getApprovalApprover().getProjectUser().getUser().getName())
-            .decidedAt(decision.getDecidedAt())
-            .build();
+            .decidedAt(decision.getDecidedAt()).build();
     }
 }

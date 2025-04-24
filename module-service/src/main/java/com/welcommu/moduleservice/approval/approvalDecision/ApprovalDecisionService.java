@@ -50,9 +50,6 @@ public class ApprovalDecisionService {
         
         ApprovalDecision decision = findDecision(decisionId);
         
-        if (dto.getTitle() != null) {
-            decision.setTitle(dto.getTitle());
-        }
         if (dto.getContent() != null) {
             decision.setContent(dto.getContent());
         }
