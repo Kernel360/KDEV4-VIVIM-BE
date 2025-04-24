@@ -22,27 +22,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @AllArgsConstructor
 public class ApprovalProposalService {
-
+    
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
     private final ApprovalApproverRepository approvalApproverRepository;
-
-    public void createProposal(User creator, Long progressId, ProposalCreateRequest request) {
+    
+    public Long createProposal(User creator, Long progressId, ProposalCreateRequest request) {
         ProjectProgress progress = findProgress(progressId);
         checkUserPermission(creator, progress.getProject().getId());
-
+        
         ApprovalProposal approvalProposal = request.toEntity(creator, progress);
         approvalProposalRepository.save(approvalProposal);
+        return approvalProposal.getId();
     }
-
-    public void modifyProposal(User user, Long approvalId,
-        ProposalModifyRequest request) {
-
+    
+    public void modifyProposal(User user, Long approvalId, ProposalModifyRequest request) {
+        
         ApprovalProposal approvalProposal = findProposal(approvalId);
         ProjectProgress progress = findProgress(approvalProposal.getProjectProgress().getId());
         checkUserPermission(user, progress.getProject().getId());
-
+        
         if (request.getTitle() != null) {
             approvalProposal.setTitle(request.getTitle());
         }
@@ -51,40 +51,40 @@ public class ApprovalProposalService {
         }
         approvalProposalRepository.save(approvalProposal);
     }
-
+    
     public void deleteProposal(Long approvalId) {
-
+        
         ApprovalProposal approvalProposal = findProposal(approvalId);
         approvalProposalRepository.delete(approvalProposal);
     }
-
+    
     public ProposalResponse getProposal(Long approvalId) {
         ApprovalProposal approvalProposal = findProposal(approvalId);
         return ProposalResponse.of(approvalProposal);
     }
-
+    
     public ProposalResponseList getAllProposal(Long progressId) {
         ProjectProgress progress = findProgress(progressId);
         List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(
             progress);
-
+        
         return ProposalResponseList.from(approvalProposalList);
     }
-
+    
     @Transactional
     public ProposalSendResponse sendProposal(User user, Long approvalId) {
         ApprovalProposal proposal = findProposal(approvalId);
         checkUserPermission(user, proposal.getProjectProgress().getProject().getId());
-
+        
         // 승인권자 지정 여부 확인
         boolean hasApprovers = approvalApproverRepository.existsByApprovalProposal(proposal);
         if (!hasApprovers) {
             throw new CustomException(CustomErrorCode.NO_APPROVER_ASSIGNED);
         }
-
+        
         return ProposalSendResponse.from(user, proposal);
     }
-
+    
     private void checkUserPermission(User user, Long projectId) {
         if (isAdmin(user)) {
             return;
@@ -95,26 +95,25 @@ public class ApprovalProposalService {
             throw new CustomException(CustomErrorCode.YOUR_ARE_NOT_DEVELOPER);
         }
     }
-
+    
     private boolean isAdmin(User user) {
         return user.getRole().toString().equals("ADMIN");
     }
-
+    
     private boolean isDeveloper(User user) {
         return user.getRole() != null && user.getRole().name().equals("DEVELOPER");
     }
-
+    
     private void findProjectUser(User user, Long projectId) {
-        projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), projectId)
+        projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
-
+    
     private ProjectProgress findProgress(Long progressId) {
         return progressRepository.findById(progressId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
     }
-
+    
     private ApprovalProposal findProposal(Long approvalId) {
         return approvalProposalRepository.findById(approvalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));

@@ -1,6 +1,7 @@
 package com.welcommu.moduleapi.approval;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.approval.approvalApprover.ApprovalApproverService;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverRequestCreate;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverResponseList;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,19 +29,21 @@ public class ApprovalApproverController {
     
     @PostMapping("/{proposalId}/approvers")
     @Operation(summary = "승인요청별 승인권자 등록")
-    public ResponseEntity<ApiResponse> createApprover(@PathVariable Long proposalId,
+    public ResponseEntity<ApiResponse> createApprover(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long proposalId,
         @RequestBody ApproverRequestCreate request) {
         
-        approvalApproverService.createApprover(proposalId, request);
+        approvalApproverService.createApprover(userDetails.getUser(), proposalId, request);
         return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 등록을 성공했습니다."));
     }
     
     @PutMapping("/{proposalId}/approvers")
     @Operation(summary = "승인권자 수정")
-    public ResponseEntity<ApiResponse> modifyApprovers(@PathVariable Long proposalId,
+    public ResponseEntity<ApiResponse> modifyApprovers(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long proposalId,
         @RequestBody ApproverRequestCreate request) {
         
-        approvalApproverService.modifyApprovers(proposalId, request);
+        approvalApproverService.modifyApprovers(userDetails.getUser(), proposalId, request);
         return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 수정을 성공했습니다."));
     }
     

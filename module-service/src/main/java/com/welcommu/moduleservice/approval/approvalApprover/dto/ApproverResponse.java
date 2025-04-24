@@ -15,7 +15,6 @@ public class ApproverResponse {
     private Long userId;
     private String name;
     private String decisionStatus; // PENDING, APPROVED, REJECTED
-    private String latestDecisionTitle;
     private String latestDecisionContent;
     private LocalDateTime latestDecidedAt;
     
@@ -34,7 +33,6 @@ public class ApproverResponse {
         return ApproverResponse.builder().approverId(approver.getId())
             .userId(approver.getProjectUser().getUser().getId())
             .name(approver.getProjectUser().getUser().getName()).decisionStatus(status)
-            .latestDecisionTitle(latestDecision != null ? latestDecision.getTitle() : null)
             .latestDecisionContent(latestDecision != null ? latestDecision.getContent() : null)
             .latestDecidedAt(latestDecision != null ? latestDecision.getDecidedAt() : null).build();
     }

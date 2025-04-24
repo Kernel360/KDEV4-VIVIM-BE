@@ -7,8 +7,8 @@ import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
+import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
-import com.welcommu.modulerepository.approval.ApprovalDecisionRepository;
 import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
 import com.welcommu.modulerepository.project.ProjectUserRepository;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverRequestCreate;
@@ -24,15 +24,16 @@ public class ApprovalApproverService {
     
     private final ApprovalApproverRepository approvalApproverRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
-    private final ApprovalDecisionRepository approvalDecisionRepository;
     private final ProjectUserRepository projectUserRepository;
     
+    // ApprovalProposal.java createProposal() 사용중이므로 주의 필요
     @Transactional
-    public void createApprover(Long proposalId, ApproverRequestCreate request) {
+    public void createApprover(User user, Long proposalId, ApproverRequestCreate request) {
         ApprovalProposal proposal = findProposal(proposalId);
         Long projectId = proposal.getProjectProgress().getProject().getId();
+        checkUserPermission(user, projectId);
         
-        for (Long userId : request.getApproverUserIds()) {
+        for (Long userId : request.getApproverIds()) {
             ProjectUser projectUser = findProjectUser(userId, projectId);
             checkClientCompanyRole(projectUser);
             
@@ -42,18 +43,17 @@ public class ApprovalApproverService {
                 throw new CustomException(CustomErrorCode.DUPLICATED_APPROVAL_APPROVER);
             }
             
-            approvalApproverRepository.save(
-                ApprovalApprover.builder().approvalProposal(proposal).projectUser(projectUser)
-                    .build());
+            ApprovalApprover approver = request.toEntity(proposal, projectUser);
+            approvalApproverRepository.save(approver);
         }
         
-        proposal.setCountTotalApprover(request.getApproverUserIds().size());
+        proposal.setCountTotalApprover(request.getApproverIds().size());
     }
     
     @Transactional
-    public void modifyApprovers(Long proposalId, ApproverRequestCreate request) {
+    public void modifyApprovers(User user, Long proposalId, ApproverRequestCreate request) {
         deleteAllApprovers(proposalId);
-        createApprover(proposalId, request);
+        createApprover(user, proposalId, request);
     }
     
     @Transactional
@@ -78,6 +78,30 @@ public class ApprovalApproverService {
             role != ProjectUserManageRole.CLIENT_MANAGER) {
             throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
         }
+    }
+    
+    private void checkUserPermission(User user, Long projectId) {
+        if (isAdmin(user)) {
+            return;
+        }
+        if (isDeveloper(user)) {
+            findProjectUser(user, projectId);
+        } else {
+            throw new CustomException(CustomErrorCode.YOUR_ARE_NOT_DEVELOPER);
+        }
+    }
+    
+    private boolean isAdmin(User user) {
+        return user.getRole().toString().equals("ADMIN");
+    }
+    
+    private boolean isDeveloper(User user) {
+        return user.getRole() != null && user.getRole().name().equals("DEVELOPER");
+    }
+    
+    private void findProjectUser(User user, Long projectId) {
+        projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
     
     private ApprovalProposal findProposal(Long proposalId) {
