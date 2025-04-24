@@ -21,13 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
-public class ApprovalProposalService {
+public class ProposalService {
     
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
     private final ApprovalProposalRepository approvalProposalRepository;
     private final ApprovalApproverRepository approvalApproverRepository;
     
+    @Transactional
     public Long createProposal(User creator, Long progressId, ProposalCreateRequest request) {
         ProjectProgress progress = findProgress(progressId);
         checkUserPermission(creator, progress.getProject().getId());
@@ -37,6 +38,7 @@ public class ApprovalProposalService {
         return approvalProposal.getId();
     }
     
+    @Transactional
     public void modifyProposal(User user, Long approvalId, ProposalModifyRequest request) {
         
         ApprovalProposal approvalProposal = findProposal(approvalId);
@@ -52,6 +54,7 @@ public class ApprovalProposalService {
         approvalProposalRepository.save(approvalProposal);
     }
     
+    @Transactional
     public void deleteProposal(Long approvalId) {
         
         ApprovalProposal approvalProposal = findProposal(approvalId);
