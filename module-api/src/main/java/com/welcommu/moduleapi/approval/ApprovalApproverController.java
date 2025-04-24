@@ -2,7 +2,7 @@ package com.welcommu.moduleapi.approval;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
-import com.welcommu.moduleservice.approval.approvalApprover.ApprovalApproverService;
+import com.welcommu.moduleservice.approval.approvalApprover.ApproverService;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverRequestCreate;
 import com.welcommu.moduleservice.approval.approvalApprover.dto.ApproverResponseList;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,42 +24,42 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/approval")
 @Tag(name = "승인권자 API", description = "승인권자를 생성, 수정, 삭제시킬 수 있습니다.")
 public class ApprovalApproverController {
-    
-    private final ApprovalApproverService approvalApproverService;
-    
+
+    private final ApproverService approverService;
+
     @PostMapping("/{proposalId}/approvers")
     @Operation(summary = "승인요청별 승인권자 등록")
     public ResponseEntity<ApiResponse> createApprover(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long proposalId,
         @RequestBody ApproverRequestCreate request) {
-        
-        approvalApproverService.createApprover(userDetails.getUser(), proposalId, request);
+
+        approverService.createApprover(userDetails.getUser(), proposalId, request);
         return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 등록을 성공했습니다."));
     }
-    
+
     @PutMapping("/{proposalId}/approvers")
     @Operation(summary = "승인권자 수정")
     public ResponseEntity<ApiResponse> modifyApprovers(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long proposalId,
         @RequestBody ApproverRequestCreate request) {
-        
-        approvalApproverService.modifyApprovers(userDetails.getUser(), proposalId, request);
+
+        approverService.modifyApprovers(userDetails.getUser(), proposalId, request);
         return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 수정을 성공했습니다."));
     }
-    
+
     @DeleteMapping("/{proposalId}/approvers")
     @Operation(summary = "승인권자 전체삭제")
     public ResponseEntity<ApiResponse> deleteApprovers(@PathVariable Long proposalId) {
-        approvalApproverService.deleteAllApprovers(proposalId);
+        approverService.deleteAllApprovers(proposalId);
         return ResponseEntity.ok().body(new ApiResponse(200, "승인권자 전체 삭제를 성공했습니다."));
     }
-    
+
     // 승인요청별 승인권자 목록 조회
     @GetMapping("/{proposalId}/approvers")
     @Operation(summary = "승인요청별 승인권자 전체조회")
     public ResponseEntity<ApproverResponseList> getAllApprovers(@PathVariable Long proposalId) {
-        
-        ApproverResponseList response = approvalApproverService.getAllApprovers(proposalId);
+
+        ApproverResponseList response = approverService.getAllApprovers(proposalId);
         return ResponseEntity.ok().body(response);
     }
 }
