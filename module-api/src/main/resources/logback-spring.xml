@@ -1,20 +1,30 @@
 <configuration>
+
   <springProfile name="dev">
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-      <file>/home/ubuntu/app/logs/application.log</file>
-      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-        <fileNamePattern>/home/ubuntu/app/logs/application.%d{yyyy-MM-dd}.log</fileNamePattern>
-        <maxHistory>30</maxHistory>
-      </rollingPolicy>
-      <encoder>
-        <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+        <pattern>%green(%d{yyyy-MM-dd HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%5level) %cyan(%logger) - %msg%n)</pattern>
       </encoder>
     </appender>
 
-    <logger name ="com.welcommu" level = "DEBUG"></logger>
+    <appender name="CLOUDWATCH" class="ca.pjer.logback.AwsLogsAppender">
+      <layout>
+        <pattern>[%thread] [%date] [%level] [%file:%line] - %msg%n</pattern>
+      </layout>
+      <logGroupName>vivim-dev</logGroupName>
+      <logStreamUuidPrefix>vivim-dev-log</logStreamUuidPrefix>
+      <logRegion>ap-northeast-2</logRegion>
+      <maxBatchLogEvents>50</maxBatchLogEvents>
+      <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+      <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+      <retentionTimeDays>0</retentionTimeDays>
+    </appender>
+
+    <logger name="com.welcommu" level="DEBUG" />
     <root level="INFO">
-      <appender-ref ref="CONSOLE"/>
-      <appender-ref ref="FILE"/>
+      <appender-ref ref="CLOUDWATCH" />
+      <appender-ref ref="CONSOLE" />
     </root>
   </springProfile>
 
@@ -22,13 +32,24 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
         <pattern>%green(%d{yyyy-MM-dd HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%5level) %cyan(%logger) - %msg%n)</pattern>
-<!--        <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
       </encoder>
-
     </appender>
-    <logger name ="com.welcommu" level = "DEBUG"></logger>
+
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--      <file>application.log</file>-->
+<!--      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--        <fileNamePattern>application.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+<!--        <maxHistory>30</maxHistory>-->
+<!--      </rollingPolicy>-->
+<!--      <encoder>-->
+<!--        <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>-->
+<!--      </encoder>-->
+<!--    </appender>-->
+
+    <logger name="com.welcommu" level="DEBUG" />
     <root level="INFO">
-      <appender-ref ref="CONSOLE"/>
+      <appender-ref ref="CONSOLE" />
     </root>
   </springProfile>
+
 </configuration>
