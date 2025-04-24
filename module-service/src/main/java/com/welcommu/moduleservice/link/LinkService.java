@@ -5,7 +5,7 @@ import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.moduledomain.link.Link;
-import com.welcommu.modulerepository.link.LinkRepository;
+import com.welcommu.moduleinfra.link.LinkRepository;
 import com.welcommu.moduleservice.link.dto.LinkListResponse;
 import com.welcommu.moduleservice.link.dto.LinkRequest;
 import java.util.List;

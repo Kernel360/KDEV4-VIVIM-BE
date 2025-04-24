@@ -5,7 +5,7 @@ import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduledomain.file.ReferenceType;
-import com.welcommu.modulerepository.file.FileRepository;
+import com.welcommu.moduleinfra.file.FileRepository;
 import com.welcommu.moduleservice.file.dto.FileListResponse;
 import java.util.List;
 import java.util.stream.Collectors;
