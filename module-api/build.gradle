@@ -45,7 +45,7 @@ dependencies {
 
     implementation project(':module-common')
     implementation project(':module-domain')
-    implementation project(':module-repository')
+    implementation project(':module-infra')
     implementation project(':module-service')
 
     compileOnly 'org.projectlombok:lombok'

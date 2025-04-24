@@ -3,7 +3,7 @@ package com.welcommu.moduleservice.auth;
 import com.welcommu.modulecommon.security.CustomUserDetailsService;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleinfra.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
