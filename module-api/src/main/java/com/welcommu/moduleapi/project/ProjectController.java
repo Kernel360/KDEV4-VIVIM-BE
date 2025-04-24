@@ -8,9 +8,11 @@ import com.welcommu.moduleservice.project.dto.DashboardInspectionCountResponse;
 import com.welcommu.moduleservice.project.dto.DashboardProgressCountResponse;
 import com.welcommu.moduleservice.project.dto.DashboardProjectFeeResponse;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
+import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +20,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,10 +58,9 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}")
-    @Operation(summary = "프로젝트 개별 조회")
-    public ResponseEntity<Optional<Project>> readProject(@PathVariable Long projectId
+    @Operation(summary = "프로젝트 개별 조회") public ResponseEntity<Project> readProject(@PathVariable Long projectId, @AuthenticationPrincipal AuthUserDetailsImpl userDetails
     ) {
-        Optional<Project> project = projectService.getProject(projectId);
+        Project project = projectService.getProject(userDetails.getUser(), projectId);
         return ResponseEntity.ok(project);
     }
 
@@ -98,12 +103,45 @@ public class ProjectController {
         return ResponseEntity.ok(projects);
     }
 
+    @GetMapping("/search")
+    @Operation(summary = "프로젝트 검색 (페이징)")
+    public ResponseEntity<Page<ProjectAdminSummaryResponse>> searchProjects(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String description,
+        @RequestParam(required = false) Boolean isDeleted,
+        @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<ProjectAdminSummaryResponse> results = projectService.searchProjects(
+            name, description, isDeleted, pageable
+        );
+        return ResponseEntity.ok(results);
+    }
+
     @Operation(summary = "프로젝트 소속 유저 조회")
     @GetMapping("/{projectId}/users")
     public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(
         @PathVariable Long projectId) {
         List<ProjectUserResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
+    }
+
+    // ProjectController.java
+    @GetMapping("/company")
+    @Operation(summary = "내 회사 소속 프로젝트 전체 조회")
+    public ResponseEntity<List<ProjectSummaryWithRoleDto>> readAllMyCompanyProjects(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long companyId = userDetails.getUser().getCompany().getId();
+        return ResponseEntity.ok(projectService.getCompanyProjectsWithMyRole(companyId, userDetails.getUser()
+            .getId()));
+    }
+
+    @GetMapping("/{projectId}/companies")
+    @Operation(summary = "프로젝트 소속 회사 목록 조회")
+    public ResponseEntity<List<ProjectCompanyResponse>> getProjectCompanies(
+        @PathVariable Long projectId
+    ) {
+        List<ProjectCompanyResponse> responses = projectService.getCompaniesByProjectId(projectId);
+        return ResponseEntity.ok(responses);
     }
 
 
