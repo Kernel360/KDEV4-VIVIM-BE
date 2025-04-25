@@ -106,7 +106,7 @@ https://www.vivim.co.kr
 
 ## 🛠️ 프로젝트 아키텍처
 
-![Image](https://github.com/user-attachments/assets/e5f515d9-19ed-4e90-9e26-1e1d32573866)
+![Image](https://github.com/user-attachments/assets/b1e951d8-290d-441e-9287-babe0091a5f8)
 <br />
 
 ## 🗂️ 기술 문서
@@ -118,9 +118,7 @@ https://www.vivim.co.kr
 
 👉 **ERD** :
 
-
-<img width="695" alt="Image" src="https://github.com/user-attachments/assets/c0821d5f-4fe1-41ac-93c0-349858d770ab" />
-
+![Image](https://github.com/user-attachments/assets/31a9abfc-1937-4f84-896e-f2e511319035)
 
 ## 💁‍♂️ 프로젝트 팀원
 
