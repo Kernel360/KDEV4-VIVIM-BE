@@ -1,5 +1,6 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
+import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class ProjectPostListResponse {
     private ProjectPostStatus projectPostStatus;
     private LocalDateTime createdAt;
     private String creatorName;
-    private String creatorRole;
+    private CompanyRole creatorRole;
     private LocalDateTime modifiedAt;
     private Long parentId;
     private Long projectId;
@@ -30,14 +31,14 @@ public class ProjectPostListResponse {
             post.getId(),
             post.getTitle(),
             post.getContent(),
-            post.getCreatorId(),
+            post.getCreator().getId(),
             post.getProjectPostStatus(),
             post.getCreatedAt(),
-            post.getCreatorName(),
-            post.getCreatorRole(),
+            post.getCreator().getName(),
+            post.getCreator().getCompany().getCompanyRole(),
             post.getModifiedAt(),
             post.getParentId(),
-            post.getProjectId()
+            post.getProject().getId()
         );
     }
 

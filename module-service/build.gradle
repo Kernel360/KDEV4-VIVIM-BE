@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -50,7 +51,7 @@ dependencies {
 
 	implementation project(':module-common')
 	implementation project(':module-domain')
-	implementation project(':module-repository')
+	implementation project(':module-infra')
 }
 
 tasks.named('test') {

@@ -6,22 +6,25 @@ import static com.welcommu.modulecommon.exception.CustomErrorCode.NOT_FOUND_USER
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.company.CompanyRepository;
-import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleinfra.company.CompanyRepository;
+import com.welcommu.moduleinfra.user.UserRepository;
 import com.welcommu.moduleservice.user.audit.UserAuditService;
 import com.welcommu.moduleservice.user.dto.UserSnapshot;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -63,6 +66,13 @@ public class UserService {
     private Company findCompany(Long request) {
         return companyRepository.findById(request)
             .orElseThrow(() -> new CustomException(NOT_FOUND_COMPANY));
+    }
+    @Transactional(readOnly = true)
+    public Page<UserResponse> searchUsers(String name, String email, String phone,
+        Long companyId, CompanyRole companyRole,
+        Boolean isDeleted, Pageable pageable) {
+        Page<User> users = userRepository.searchByConditions(name, email, phone, companyId, companyRole, isDeleted, pageable);
+        return users.map(UserResponse::from);
     }
 
 

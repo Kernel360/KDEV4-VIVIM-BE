@@ -32,6 +32,9 @@ public class ProjectCreateRequest {
     @NotNull
     private LocalDate endDate;
 
+    @NotNull
+    private List<Long> companyIds;
+
     private List<ProjectUserListCreate> clientManagers;
     private List<ProjectUserListCreate> clientUsers;
     private List<ProjectUserListCreate> devManagers;

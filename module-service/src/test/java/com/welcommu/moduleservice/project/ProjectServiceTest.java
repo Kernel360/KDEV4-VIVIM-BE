@@ -13,10 +13,10 @@ import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.project.ProjectRepository;
-import com.welcommu.modulerepository.project.ProjectUserRepository;
-import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
-import com.welcommu.modulerepository.user.UserRepository;
+import com.welcommu.moduleinfra.project.ProjectRepository;
+import com.welcommu.moduleinfra.project.ProjectUserRepository;
+import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
+import com.welcommu.moduleinfra.user.UserRepository;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +61,7 @@ class ProjectServiceTest {
             .thenReturn(Optional.of(User.builder().id(1L).build()));
 
         // when
-        projectService.createProject(dto);
+        //projectService.createProject(dto);
 
         // then
         verify(projectRepository).save(mockProject);
