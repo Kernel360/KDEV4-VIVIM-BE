@@ -66,7 +66,7 @@ public class LinkController {
     }
 
     @GetMapping("/decisions/{decisionId}/links")
-    @Operation(summary = "승인요청의 링크 전체 조회")
+    @Operation(summary = "승인응답의 링크 전체 조회")
     public ResponseEntity<List<LinkListResponse>> getDecisionLinks(@PathVariable Long decisionId) {
         return ResponseEntity.ok(linkService.getDecisionLinks(decisionId));
     }

@@ -129,7 +129,7 @@ public class FileController {
     }
 
     @PostMapping(path = "/decisions/{decisionId}/file/presigned", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "승인 요청에 파일 업로드용 PreSigned URL 생성")
+    @Operation(summary = "승인 응답에 파일 업로드용 PreSigned URL 생성")
     public ResponseEntity<PreSignedUrlResponse> createDecisionFilePresignedUrl(
         @PathVariable Long decisionId,
         @RequestBody FileMetadataRequest fileMetadata) {
