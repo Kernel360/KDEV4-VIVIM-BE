@@ -124,6 +124,6 @@ https://www.vivim.co.kr
 
 | 이름  | 역할           | 담당 업무                                                              |
 |-----|--------------|--------------------------------------------------------------------|
-| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축<br/> User, Company, Project API 개발 담당 <br/> SpringSecurity |
+| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축<br/> User, Company, Project API 개발 <br/> SpringSecurity |
 | 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link API 개발<br/>                      |
-| 송어진 | 백엔드 개발자      | Project Approval, Notification API 개발 <br/> SpringSecurity                             |
+| 송어진 | 백엔드 개발자      | Project Approval, Notification API 개발 <br/> SpringSecurity                          |
