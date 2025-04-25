@@ -53,10 +53,7 @@ public class FileController {
         @RequestBody FileMetadataRequest fileMetadata) {
 
         String bucketName = "vivim-s3";
-        String today = LocalDate.now().toString();
-        String uuid = UUID.randomUUID().toString();
-        String extension = getExtensionFromContentType(fileMetadata.getContentType());
-        String objectKey = "uploads/" + today + "/" + uuid + extension;
+        String objectKey = generateObjectKey(fileMetadata.getContentType());
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
             bucketName, objectKey)
@@ -90,10 +87,7 @@ public class FileController {
         @RequestBody FileMetadataRequest fileMetadata) {
 
         String bucketName = "vivim-s3";
-        String today = LocalDate.now().toString();
-        String uuid = UUID.randomUUID().toString();
-        String extension = getExtensionFromContentType(fileMetadata.getContentType());
-        String objectKey = "uploads/" + today + "/" + uuid + extension;
+        String objectKey = generateObjectKey(fileMetadata.getContentType());
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
             bucketName, objectKey)
@@ -127,10 +121,7 @@ public class FileController {
         @RequestBody FileMetadataRequest fileMetadata) {
 
         String bucketName = "vivim-s3";
-        String today = LocalDate.now().toString();
-        String uuid = UUID.randomUUID().toString();
-        String extension = getExtensionFromContentType(fileMetadata.getContentType());
-        String objectKey = "uploads/" + today + "/" + uuid + extension;
+        String objectKey = generateObjectKey(fileMetadata.getContentType());
 
         //업로드용 presignedURL관련 설정(HttpMethod, 유효기간 등 설정)
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
@@ -219,5 +210,10 @@ public class FileController {
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "파일이 삭제되었습니다."));
     }
 
-
+    private String generateObjectKey(String contentType) {
+        String today = LocalDate.now().toString();
+        String uuid = UUID.randomUUID().toString();
+        String extension = getExtensionFromContentType(contentType);
+        return "uploads/" + today + "/" + uuid + extension;
+    }
 }

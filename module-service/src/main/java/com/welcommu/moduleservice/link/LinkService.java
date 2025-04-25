@@ -28,13 +28,13 @@ public class LinkService {
 
     public void createApprovalLink(Long approvalId, LinkRequest request) {
 
-        Link newLink = request.toEntity(request, ReferenceType.POST, approvalId);
+        Link newLink = request.toEntity(request, ReferenceType.APPROVAL, approvalId);
         linkRepository.save(newLink);
     }
 
     public void createDecisionLink(Long decisionId, LinkRequest request) {
 
-        Link newLink = request.toEntity(request, ReferenceType.POST, decisionId);
+        Link newLink = request.toEntity(request, ReferenceType.DECISION, decisionId);
         linkRepository.save(newLink);
     }
 
@@ -56,7 +56,7 @@ public class LinkService {
 
     public List<LinkListResponse> getDecisionLinks(Long decisionId) {
         List<Link> links = linkRepository.findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(
-            decisionId, ReferenceType.APPROVAL);
+            decisionId, ReferenceType.DECISION);
         return links.stream()
             .map(LinkListResponse::from)
             .collect(Collectors.toList());
