@@ -26,7 +26,7 @@ public class AuditLogRepositoryImpl implements AuditLogRepositoryCustom {
         LocalDateTime endDate,
         Long userId
     ) {
-        StringBuilder sb = new StringBuilder("SELECT a FROM AuditLog a WHERE 1=1");
+        StringBuilder sb = new StringBuilder("SELECT DISTINCT a FROM AuditLog a LEFT JOIN FETCH a.details WHERE 1=1");
         Map<String, Object> params = new HashMap<>();
 
         if (actionType != null) {
