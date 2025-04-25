@@ -43,7 +43,7 @@ class ProjectServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private ProjectService projectService;
+    private ProjectServiceImpl projectService;
 
     @Test
     void 프로젝트_생성_성공() {
