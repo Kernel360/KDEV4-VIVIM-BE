@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 public class ProjectDeleteRequest {
 
-    public static void deleteProject(Project project){
+    public static void deleteProject(Project project) {
         project.setIsDeleted(true);
         project.setDeletedAt(LocalDateTime.now());
     }

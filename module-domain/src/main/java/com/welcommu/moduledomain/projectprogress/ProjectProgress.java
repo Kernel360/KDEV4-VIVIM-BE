@@ -57,12 +57,15 @@ public class ProjectProgress {
     public void setId(Long id) {
         this.id = id;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public void setPosition(float position) {
         this.position = position;
     }
+
     public void setProject(Project project) {
         this.project = project;
     }

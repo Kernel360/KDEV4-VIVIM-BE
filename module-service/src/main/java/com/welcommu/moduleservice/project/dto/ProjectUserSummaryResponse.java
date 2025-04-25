@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class ProjectUserSummaryResponse {
+
     private Long projectId;
     private String name;
     private LocalDate startDate;
@@ -22,13 +23,13 @@ public class ProjectUserSummaryResponse {
 
     public static ProjectUserSummaryResponse of(Project project, ProjectUser projectUser) {
         return new ProjectUserSummaryResponse(
-                project.getId(),
-                project.getName(),
-                project.getStartDate(),
-                project.getEndDate(),
-                project.getIsDeleted(),
-                project.getDeletedAt(),
-                projectUser.getProjectUserManageRole()
+            project.getId(),
+            project.getName(),
+            project.getStartDate(),
+            project.getEndDate(),
+            project.getIsDeleted(),
+            project.getDeletedAt(),
+            projectUser.getProjectUserManageRole()
         );
     }
 }

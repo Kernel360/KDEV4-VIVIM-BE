@@ -1,18 +1,19 @@
 package com.welcommu.moduleservice.projectpost.dto;
 
+import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.projectpost.ProjectPost;
 import com.welcommu.moduledomain.projectpost.ProjectPostStatus;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostDetailResponse {
+
     private Long postId;
     private String title;
     private String content;
@@ -21,9 +22,9 @@ public class ProjectPostDetailResponse {
     private Long creatorId;
     private LocalDateTime createdAt;
     private String creatorName;
-    private String creatorRole;
+    private CompanyRole creatorRole;
     private LocalDateTime modifiedAt;
-
+    private String responseToQuestion;
 
 
     public static ProjectPostDetailResponse from(ProjectPost post) {
@@ -33,11 +34,12 @@ public class ProjectPostDetailResponse {
             post.getContent(),
             post.getParentId(),
             post.getProjectPostStatus(),
-            post.getCreatorId(),
+            post.getCreator().getId(),
             post.getCreatedAt(),
-            post.getCreatorName(),
-            post.getCreatorRole(),
-            post.getModifiedAt()
+            post.getCreator().getName(),
+            post.getCreator().getCompany().getCompanyRole(),
+            post.getModifiedAt(),
+            post.getResponseToQuestion()
         );
     }
 }

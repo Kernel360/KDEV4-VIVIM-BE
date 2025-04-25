@@ -14,19 +14,21 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectPostCommentRequest {
+
     private String content;
     private Long parentId;
 
-    public ProjectPostComment toEntity(User user, Long projectPostId, ProjectPostCommentRequest request, String clientIp) {
+    public ProjectPostComment toEntity(User user, Long projectPostId,
+        ProjectPostCommentRequest request, String clientIp) {
         return ProjectPostComment.builder()
-                .content(request.content)
-                .createdAt(LocalDateTime.now())
-                .writerIp(clientIp)
-                .creatorId(user.getId())
-                .creatorName(user.getName())
-                .creatorRole(user.getCompany().getCompanyRole().toString())
-                .projectPostId(projectPostId)
-                .parentId(request.parentId)
-                .build();
+            .content(request.content)
+            .createdAt(LocalDateTime.now())
+            .writerIp(clientIp)
+            .creatorId(user.getId())
+            .creatorName(user.getName())
+            .creatorRole(user.getCompany().getCompanyRole().toString())
+            .projectPostId(projectPostId)
+            .parentId(request.parentId)
+            .build();
     }
 }

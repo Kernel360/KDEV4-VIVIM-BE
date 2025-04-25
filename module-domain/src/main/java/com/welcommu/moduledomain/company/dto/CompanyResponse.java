@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CompanyResponse {
+
     private Long id;
     private String name;
     private String address;
@@ -14,7 +15,8 @@ public class CompanyResponse {
     private String email;
     private String bussinessNumber;
 
-    public CompanyResponse(Long id, String name, String address, String phone, String email, String bussinessNumber) {
+    public CompanyResponse(Long id, String name, String address, String phone, String email,
+        String bussinessNumber) {
         this.id = id;
         this.name = name;
         this.address = address;

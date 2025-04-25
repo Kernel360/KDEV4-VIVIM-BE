@@ -1,0 +1,18 @@
+package com.welcommu.moduledomain.projectprogress;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum DefaultProjectProgress {
+
+    REQUIREMENTS("요구사항 정의"),
+    WIREFRAME("화면설계"),
+    DESIGN("디자인"),
+    PUBLISHING("퍼블리싱"),
+    DEVELOPMENT("개발"),
+    INSPECTION("검수");
+
+    private final String label;
+}

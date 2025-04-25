@@ -6,8 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Builder
 @AllArgsConstructor
@@ -25,14 +23,14 @@ public class CompanyResponse {
     // Company 엔티티를 DTO로 변환하는 메서드
     public static CompanyResponse from(Company company) {
         return new CompanyResponse(
-                company.getId(),
-                company.getName(),
-                company.getBusinessNumber(),
-                company.getAddress(),
-                company.getPhone(),
-                company.getEmail(),
-                company.getCompanyRole(),
-                company.getCoOwner()
+            company.getId(),
+            company.getName(),
+            company.getBusinessNumber(),
+            company.getAddress(),
+            company.getPhone(),
+            company.getEmail(),
+            company.getCompanyRole(),
+            company.getCoOwner()
         );
     }
 }

@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -41,6 +42,8 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// Spring Cloud AWS 사용
 	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.3.1'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.643'
@@ -48,7 +51,7 @@ dependencies {
 
 	implementation project(':module-common')
 	implementation project(':module-domain')
-	implementation project(':module-repository')
+	implementation project(':module-infra')
 }
 
 tasks.named('test') {

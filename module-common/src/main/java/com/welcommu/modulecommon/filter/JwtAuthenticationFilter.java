@@ -8,30 +8,31 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configurers.provisioning.UserDetailsManagerConfigurer.UserDetailsBuilder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtTokenHelper jwtTokenHelper;
     private final CustomUserDetailsService userDetailsService;
 
     private static final String[] SWAGGER_WHITELIST = {
-            "/swagger-ui", "/swagger-ui/", "/swagger-ui.html", "/swagger-ui/index.html", "/v3/api-docs"
+        "/swagger-ui", "/swagger-ui/", "/swagger-ui.html", "/swagger-ui/index.html", "/v3/api-docs"
     };
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain filterChain)
+        throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
 
@@ -43,9 +44,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 로그인 요청은 JWT 필터를 건너뛰어야 하므로 처리
-        if ("/api/auth/login".equals(request.getRequestURI()) || "/api/users/resetpassword".equals(request.getRequestURI())) {
-            filterChain.doFilter(request, response); // 토큰 검사 없이 다음 필터로 진행
+        Set<String> excludedPaths = Set.of("/api/auth/refresh-token", "/api/auth/login", "/api/users/resetpassword");
+
+        if (excludedPaths.contains(request.getRequestURI())) {
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -72,7 +74,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 인증 정보 설정
             UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
             logger.error("JWT 처리 중 오류 발생", e);

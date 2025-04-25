@@ -6,14 +6,13 @@ import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.modulerepository.project.ProjectRepository;
-import com.welcommu.modulerepository.project.ProjectUserRepository;
-import com.welcommu.modulerepository.projectprogress.ProjectProgressRepository;
+import com.welcommu.moduleinfra.project.ProjectRepository;
+import com.welcommu.moduleinfra.project.ProjectUserRepository;
+import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
 import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,14 +41,17 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
-    public void modifyProgress(User user, Long projectId, Long progressId, ProgressModifyRequest request) {
+    public void modifyProgress(User user, Long projectId, Long progressId,
+        ProgressModifyRequest request) {
 
         findProject(projectId);
         findProgress(progressId);
 
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
-        if(request.getPosition() != null){checkIsDuplicatedPosition(projectId, request.getPosition());}
+        if (request.getPosition() != null) {
+            checkIsDuplicatedPosition(projectId, request.getPosition());
+        }
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
@@ -80,18 +82,11 @@ public class ProjectProgressService {
         Project project = findProject(projectId);
         ProjectProgress projectProgress = findProgress(progressId);
 
-        if (!projectProgress.getProject().getName().equals(project.getName()) || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
+        if (!projectProgress.getProject().getName().equals(project.getName())
+            || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
             throw new CustomException(CustomErrorCode.MISMATCH_PROJECT_PROGRESS);
         }
         return projectProgress;
-    }
-
-    private void checkUserPermission(User user, Long projectId) {
-        ProjectUser projectUser = projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), projectId).orElseThrow(()-> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
-        if (user.getCompany() == null || (!Objects.equals(user.getRole().toString(), "ADMIN") && !Objects.equals(projectUser.getProjectUserManageRole().toString(), "DEVELOPER_MANAGER"))) {
-            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
-        }
     }
 
     private void checkIsDuplicatedProgressName(Long projectId, String name) {
@@ -104,6 +99,30 @@ public class ProjectProgressService {
         if (progressRepository.existsByProjectIdAndPosition(projectId, position)) {
             throw new CustomException(CustomErrorCode.DUPLICATE_PROGRESS_POSITION);
         }
+    }
+
+    // 사용자 권한 전체 흐름 조정
+    private void checkUserPermission(User user, Long projectId) {
+        ProjectUser projectUser = findProjectUser(user, projectId);
+        validateUserIsAdminOrDeveloperManager(user, projectUser);
+    }
+
+    // ADMIN 또는 DEVELOPER_MANAGER 여부 확인
+    private void validateUserIsAdminOrDeveloperManager(User user, ProjectUser projectUser) {
+        boolean isAdmin = "ADMIN".equals(user.getRole().toString());
+        boolean isDevManager = "DEVELOPER_MANAGER".equals(
+            projectUser.getProjectUserManageRole().toString());
+
+        if (user.getCompany() == null || (!isAdmin && !isDevManager)) {
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        }
+    }
+
+    // 프로젝트 참여자인지 확인
+    private ProjectUser findProjectUser(User user, Long projectId) {
+        return projectUserRepository
+            .findByUserIdAndProjectId(user.getId(), projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
 
     private Project findProject(Long projectId) {

@@ -28,29 +28,36 @@ public class ProjectModifyRequest {
     private List<ProjectUserRoleRequest> devManagers;
     private List<ProjectUserRoleRequest> devUsers;
 
+    private List<Long> companyIds;
 
-    public void modifyProject(Project project) {
+
+    public Project modifyProject(Project project) {
         project.setName(this.name);
         project.setDescription(this.description);
         project.setStartDate(this.startDate);
         project.setEndDate(this.endDate);
         project.setModifiedAt(LocalDateTime.now());
+        return project;
     }
 
     public List<ProjectUser> toProjectUsers(Project project, Function<Long, User> userResolver) {
         List<ProjectUser> result = new java.util.ArrayList<>();
 
         for (ProjectUserRoleRequest dto : clientManagers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.CLIENT_MANAGER));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()),
+                ProjectUserManageRole.CLIENT_MANAGER));
         }
         for (ProjectUserRoleRequest dto : clientUsers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.CLIENT_USER));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()),
+                ProjectUserManageRole.CLIENT_USER));
         }
         for (ProjectUserRoleRequest dto : devManagers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.DEVELOPER_MANAGER));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()),
+                ProjectUserManageRole.DEVELOPER_MANAGER));
         }
         for (ProjectUserRoleRequest dto : devUsers) {
-            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()), ProjectUserManageRole.DEVELOPER_USER));
+            result.add(dto.toEntity(project, userResolver.apply(dto.getUserId()),
+                ProjectUserManageRole.DEVELOPER_USER));
         }
         return result;
     }

@@ -32,6 +32,9 @@ public class ProjectCreateRequest {
     @NotNull
     private LocalDate endDate;
 
+    @NotNull
+    private List<Long> companyIds;
+
     private List<ProjectUserListCreate> clientManagers;
     private List<ProjectUserListCreate> clientUsers;
     private List<ProjectUserListCreate> devManagers;
@@ -39,13 +42,13 @@ public class ProjectCreateRequest {
 
     public Project toEntity() {
         return Project.builder()
-                .name(name)
-                .description(description)
-                .startDate(startDate)
-                .endDate(endDate)
-                .createdAt(LocalDateTime.now())
-                .isDeleted(false)
-                .build();
+            .name(name)
+            .description(description)
+            .startDate(startDate)
+            .endDate(endDate)
+            .createdAt(LocalDateTime.now())
+            .isDeleted(false)
+            .build();
     }
 
     // ProjectUser 목록으로 변환
@@ -54,31 +57,31 @@ public class ProjectCreateRequest {
 
         for (ProjectUserListCreate dto : clientManagers) {
             result.add(ProjectUser.builder()
-                    .project(project)
-                    .user(userResolver.apply(dto.getUserId()))
-                    .projectUserManageRole(ProjectUserManageRole.CLIENT_MANAGER)
-                    .build());
+                .project(project)
+                .user(userResolver.apply(dto.getUserId()))
+                .projectUserManageRole(ProjectUserManageRole.CLIENT_MANAGER)
+                .build());
         }
         for (ProjectUserListCreate dto : clientUsers) {
             result.add(ProjectUser.builder()
-                    .project(project)
-                    .user(userResolver.apply(dto.getUserId()))
-                    .projectUserManageRole(ProjectUserManageRole.CLIENT_USER)
-                    .build());
+                .project(project)
+                .user(userResolver.apply(dto.getUserId()))
+                .projectUserManageRole(ProjectUserManageRole.CLIENT_USER)
+                .build());
         }
         for (ProjectUserListCreate dto : devManagers) {
             result.add(ProjectUser.builder()
-                    .project(project)
-                    .user(userResolver.apply(dto.getUserId()))
-                    .projectUserManageRole(ProjectUserManageRole.DEVELOPER_MANAGER)
-                    .build());
+                .project(project)
+                .user(userResolver.apply(dto.getUserId()))
+                .projectUserManageRole(ProjectUserManageRole.DEVELOPER_MANAGER)
+                .build());
         }
         for (ProjectUserListCreate dto : devUsers) {
             result.add(ProjectUser.builder()
-                    .project(project)
-                    .user(userResolver.apply(dto.getUserId()))
-                    .projectUserManageRole(ProjectUserManageRole.DEVELOPER_USER)
-                    .build());
+                .project(project)
+                .user(userResolver.apply(dto.getUserId()))
+                .projectUserManageRole(ProjectUserManageRole.DEVELOPER_USER)
+                .build());
         }
 
         return result;

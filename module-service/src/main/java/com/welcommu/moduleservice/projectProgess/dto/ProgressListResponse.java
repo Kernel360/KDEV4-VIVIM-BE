@@ -11,10 +11,10 @@ public class ProgressListResponse {
 
     private List<ProgressResponse> progressList;
 
-    public static ProgressListResponse of(List<ProjectProgress> progressList){
+    public static ProgressListResponse of(List<ProjectProgress> progressList) {
 
         List<ProgressResponse> progressResponse = progressList.stream()
-            .map(ProgressResponse::of)
+            .map(ProgressResponse::from)
             .toList();
 
         return ProgressListResponse.builder()
