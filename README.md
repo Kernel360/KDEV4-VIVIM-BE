@@ -66,13 +66,6 @@ https://www.vivim.co.kr
 
 <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black">
 
-<img src="https://img.shields.io/badge/vite-646CFF?style=for-the-badge&logo=vite&logoColor=white">
-
-
-<img src="https://img.shields.io/badge/Tailwind CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=black">
-<img src="https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=mui&logoColor=black">
-<img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=black">
-
 
 
 
@@ -84,16 +77,21 @@ https://www.vivim.co.kr
 <div>
 <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=black">
 <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=black">
+<img src="https://img.shields.io/badge/MySql-4479A1?style=for-the-badge&logo=mysql&logoColor=black">
+<img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=black">
 
 </div>
 
 ### Infra
 <div>
 <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=Github&logoColor=white">
-<img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=black">
+<img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=black">
 <img src="https://img.shields.io/badge/Amazon EC2-FF9900?style=for-the-badge&logo=Amazonec2&logoColor=black">
 <img src="https://img.shields.io/badge/Amazon S3-569A31?style=for-the-badge&logo=Amazons3&logoColor=black">
+<img src="https://img.shields.io/badge/Amazon ECR-527FFF?style=for-the-badge&logo=Amazonrds&logoColor=white">
+<img src="https://img.shields.io/badge/Amazon CLOUDEWATCH-FF4F8B?style=for-the-badge&logo=Amazoncloudwatch&logoColor=white">
 <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+
 
 ### Tools
 <div>
