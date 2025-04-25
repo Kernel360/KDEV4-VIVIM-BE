@@ -28,7 +28,8 @@ public class RecentUserPostListRequest {
             .map(projectUser -> projectUser.getProject().getId())
             .collect(Collectors.toList());
 
-        List<ProjectPost> posts = projectPostRepository.findTop5PostsByProjectIds(projectIds);
+        List<ProjectPost> posts = projectPostRepository.findTop5ByProject_IdInOrderByCreatedAtDesc(
+            projectIds);
 
         List<ProjectPost> latestPosts = posts.stream()
             .sorted(Comparator.comparing(ProjectPost::getCreatedAt).reversed())

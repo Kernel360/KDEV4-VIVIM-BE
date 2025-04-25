@@ -10,13 +10,14 @@ import com.welcommu.moduleinfra.project.ProjectUserRepository;
 import com.welcommu.moduleinfra.projectpost.ProjectPostCommentRepository;
 import com.welcommu.moduleinfra.projectpost.ProjectPostRepository;
 import com.welcommu.moduleservice.projectpost.audit.ProjectPostCommentAuditService;
-import com.welcommu.moduleservice.projectpost.dto.*;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCommentListResponse;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCommentRequest;
+import com.welcommu.moduleservice.projectpost.dto.ProjectPostCommentSnapshot;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,22 +35,25 @@ public class ProjectPostCommentService {
         ProjectPost post = projectPostRepository.findById(postId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_POST));
 
-        checkUserPermission(user, post.getProjectId());
+        checkUserPermission(user, post.getProject().getId());
 
         Long creatorId = user.getId();
-        ProjectPostComment savedComment =  projectPostCommentRepository.save(newComment);
-        projectPostCommentAuditService.createAuditLog(ProjectPostCommentSnapshot.from(savedComment), creatorId);
+        ProjectPostComment savedComment = projectPostCommentRepository.save(newComment);
+        projectPostCommentAuditService.createAuditLog(ProjectPostCommentSnapshot.from(savedComment),
+            creatorId);
     }
 
     @Transactional
-    public void modifyComment(User user, Long postId, Long commentId, ProjectPostCommentRequest request) {
+    public void modifyComment(User user, Long postId, Long commentId,
+        ProjectPostCommentRequest request) {
 
         ProjectPostComment existingComment = projectPostCommentRepository.findById(commentId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMMENT));
 
         Long modifierId = user.getId();
 
-        ProjectPostCommentSnapshot beforeSnapshot = ProjectPostCommentSnapshot.from(existingComment);
+        ProjectPostCommentSnapshot beforeSnapshot = ProjectPostCommentSnapshot.from(
+            existingComment);
 
         existingComment.setContent(request.getContent());
         existingComment.setModifiedAt();
@@ -75,7 +79,8 @@ public class ProjectPostCommentService {
 
         Long deleterId = user.getId();
 
-        projectPostCommentAuditService.deleteAuditLog(ProjectPostCommentSnapshot.from(existingComment),deleterId);
+        projectPostCommentAuditService.deleteAuditLog(
+            ProjectPostCommentSnapshot.from(existingComment), deleterId);
     }
 
     private void checkUserPermission(User user, Long projectId) {
