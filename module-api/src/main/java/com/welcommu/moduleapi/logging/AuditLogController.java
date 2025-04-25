@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,15 +38,16 @@ public class AuditLogController {
 
     @GetMapping("/search")
     @Operation(summary = "감사 로그 검색")
-    public ResponseEntity<Map<String, List<AuditLogResponse>>> searchAuditLogs(
+    public ResponseEntity<Page<AuditLogResponse>> searchAuditLogs(
         @RequestParam(required = false) ActionType actionType,
         @RequestParam(required = false) TargetType entityType,
         @RequestParam(required = false) String startDate,
         @RequestParam(required = false) String endDate,
-        @RequestParam(required = false) Long userId
+        @RequestParam(required = false) Long userId,
+        Pageable pageable
     ) {
-        List<AuditLogResponse> logs = auditLogSearchService.searchLogs(actionType, entityType, startDate, endDate, userId);
-        return ResponseEntity.ok(Map.of("logs", logs));
+        Page<AuditLogResponse> logs = auditLogSearchService.searchLogs(actionType, entityType, startDate, endDate, userId, pageable);
+        return ResponseEntity.ok(logs);
     }
 
 }
