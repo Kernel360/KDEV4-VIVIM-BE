@@ -14,6 +14,7 @@ import com.welcommu.moduleservice.file.FileService;
 import com.welcommu.moduleservice.file.dto.FileDownloadUrlResponse;
 import com.welcommu.moduleservice.file.dto.FileListResponse;
 import com.welcommu.moduleservice.file.dto.FileMetadataRequest;
+import com.welcommu.moduleservice.file.dto.FileRequest;
 import com.welcommu.moduleservice.file.dto.PreSignedUrlResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,8 +28,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,32 +60,102 @@ public class FileController {
         @PathVariable Long postId,
         @RequestBody FileMetadataRequest fileMetadata) {
 
-        // S3 경로 설정
         String bucketName = "vivim-s3";
         String today = LocalDate.now().toString();
         String uuid = UUID.randomUUID().toString();
         String extension = getExtensionFromContentType(fileMetadata.getContentType());
         String objectKey = "uploads/" + today + "/" + uuid + extension;
 
-        // PreSigned URL 생성을 위한 메타데이터 설정
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
             bucketName, objectKey)
             .withMethod(HttpMethod.PUT)
             .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)); // 15분 유효
 
-        // Content-Type 설정
         generatePresignedUrlRequest.addRequestParameter(
             Headers.CONTENT_TYPE, fileMetadata.getContentType());
 
-        // PreSigned URL 생성
         URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
         String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
 
-        // DB에 파일 정보 저장 (실제 업로드는 클라이언트가 URL을 통해 직접 수행)
-        fileService.createPostFile(fileMetadata.getFileName(), fileUrl, fileMetadata.getFileSize(),
-            postId);
+        FileRequest fileRequest = new FileRequest(fileMetadata.getFileName(), fileUrl,
+            fileMetadata.getFileSize(), objectKey);
 
-        // 클라이언트에게 PreSigned URL 반환
+        fileService.createPostFile(fileRequest, postId);
+
+        PreSignedUrlResponse response = new PreSignedUrlResponse(
+            preSignedUrl.toString(),
+            fileUrl,
+            objectKey
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/approvals/{approvalId}/file/presigned", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "승인 요청에 파일 업로드용 PreSigned URL 생성")
+    public ResponseEntity<PreSignedUrlResponse> createApprovalFilePresignedUrl(
+        @PathVariable Long approvalId,
+        @RequestBody FileMetadataRequest fileMetadata) {
+
+        String bucketName = "vivim-s3";
+        String today = LocalDate.now().toString();
+        String uuid = UUID.randomUUID().toString();
+        String extension = getExtensionFromContentType(fileMetadata.getContentType());
+        String objectKey = "uploads/" + today + "/" + uuid + extension;
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
+            bucketName, objectKey)
+            .withMethod(HttpMethod.PUT)
+            .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)); // 15분 유효
+
+        generatePresignedUrlRequest.addRequestParameter(
+            Headers.CONTENT_TYPE, fileMetadata.getContentType());
+
+        URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
+
+        FileRequest fileRequest = new FileRequest(fileMetadata.getFileName(), fileUrl,
+            fileMetadata.getFileSize(), objectKey);
+
+        fileService.createApprovalFile(fileRequest, approvalId);
+
+        PreSignedUrlResponse response = new PreSignedUrlResponse(
+            preSignedUrl.toString(),
+            fileUrl,
+            objectKey
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(path = "/decisions/{decisionId}/file/presigned", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "승인 요청에 파일 업로드용 PreSigned URL 생성")
+    public ResponseEntity<PreSignedUrlResponse> createDecisionFilePresignedUrl(
+        @PathVariable Long decisionId,
+        @RequestBody FileMetadataRequest fileMetadata) {
+
+        String bucketName = "vivim-s3";
+        String today = LocalDate.now().toString();
+        String uuid = UUID.randomUUID().toString();
+        String extension = getExtensionFromContentType(fileMetadata.getContentType());
+        String objectKey = "uploads/" + today + "/" + uuid + extension;
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
+            bucketName, objectKey)
+            .withMethod(HttpMethod.PUT)
+            .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)); // 15분 유효
+
+        generatePresignedUrlRequest.addRequestParameter(
+            Headers.CONTENT_TYPE, fileMetadata.getContentType());
+
+        URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
+
+        FileRequest fileRequest = new FileRequest(fileMetadata.getFileName(), fileUrl,
+            fileMetadata.getFileSize(), objectKey);
+
+        fileService.createDecisionFile(fileRequest, decisionId);
+
         PreSignedUrlResponse response = new PreSignedUrlResponse(
             preSignedUrl.toString(),
             fileUrl,
@@ -104,6 +175,12 @@ public class FileController {
     @Operation(summary = "승인요청에 파일 목록 조회")
     public ResponseEntity<List<FileListResponse>> getApprovalFiles(@PathVariable Long approvalId) {
         return ResponseEntity.ok(fileService.getApprovalFiles(approvalId));
+    }
+
+    @GetMapping("/decisions/{decisionId}/files")
+    @Operation(summary = "게시글에 파일 목록 조회")
+    public ResponseEntity<List<FileListResponse>> getDecisionFiles(@PathVariable Long decisionId) {
+        return ResponseEntity.ok(fileService.getDecisionFiles(decisionId));
     }
 
     @GetMapping("/files/{fileId}/download")
@@ -142,7 +219,7 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/files/{fileId}")
+    @PatchMapping("/files/{fileId}")
     @Operation(summary = "파일 삭제(SoftDelete)")
     public ResponseEntity<ApiResponse> deleteFile(@PathVariable Long fileId) {
         fileService.deleteFile(fileId);

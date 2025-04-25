@@ -22,16 +22,19 @@ public class LinkService {
 
 
     public void createPostLink(Long postId, LinkRequest request) {
-
-        Link newLink = Link.createLink(request.getTitle(), request.getUrl(), ReferenceType.POST,
-            postId);
+        Link newLink = request.toEntity(request, ReferenceType.POST, postId);
         linkRepository.save(newLink);
     }
 
     public void createApprovalLink(Long approvalId, LinkRequest request) {
 
-        Link newLink = Link.createLink(request.getTitle(), request.getUrl(), ReferenceType.APPROVAL,
-            approvalId);
+        Link newLink = request.toEntity(request, ReferenceType.POST, approvalId);
+        linkRepository.save(newLink);
+    }
+
+    public void createDecisionLink(Long decisionId, LinkRequest request) {
+
+        Link newLink = request.toEntity(request, ReferenceType.POST, decisionId);
         linkRepository.save(newLink);
     }
 
@@ -43,9 +46,17 @@ public class LinkService {
             .collect(Collectors.toList());
     }
 
-    public List<LinkListResponse> getApprovalLinks(Long postId) {
+    public List<LinkListResponse> getApprovalLinks(Long approvalId) {
         List<Link> links = linkRepository.findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(
-            postId, ReferenceType.APPROVAL);
+            approvalId, ReferenceType.APPROVAL);
+        return links.stream()
+            .map(LinkListResponse::from)
+            .collect(Collectors.toList());
+    }
+
+    public List<LinkListResponse> getDecisionLinks(Long decisionId) {
+        List<Link> links = linkRepository.findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(
+            decisionId, ReferenceType.APPROVAL);
         return links.stream()
             .map(LinkListResponse::from)
             .collect(Collectors.toList());
