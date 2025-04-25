@@ -6,7 +6,6 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.file.File;
@@ -45,13 +44,6 @@ public class FileController {
 
     private final AmazonS3 amazonS3Client;
     private final FileService fileService;
-    private String bucketName;
-    private String today;
-    private String uuid;
-    private String extension;
-    private String objectKey;
-    private String fileName;
-    private ObjectMetadata metadata;
 
 
     @PostMapping(path = "/posts/{postId}/file/presigned", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -140,6 +132,7 @@ public class FileController {
         String extension = getExtensionFromContentType(fileMetadata.getContentType());
         String objectKey = "uploads/" + today + "/" + uuid + extension;
 
+        //업로드용 presignedURL관련 설정(HttpMethod, 유효기간 등 설정)
         GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
             bucketName, objectKey)
             .withMethod(HttpMethod.PUT)
@@ -148,7 +141,9 @@ public class FileController {
         generatePresignedUrlRequest.addRequestParameter(
             Headers.CONTENT_TYPE, fileMetadata.getContentType());
 
+        //presignedURL발급
         URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
+        //저장된 파일의 URL반납(추후 다운로드 떄 쓰임)
         String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
 
         FileRequest fileRequest = new FileRequest(fileMetadata.getFileName(), fileUrl,
@@ -187,14 +182,13 @@ public class FileController {
     @Operation(summary = "파일 다운로드용 PreSigned URL 생성")
     public ResponseEntity<FileDownloadUrlResponse> getFileDownloadUrl(
         @PathVariable Long fileId) {
-        // DB에서 파일 정보 조회
+
         File file = fileService.getFileInfo(fileId);
 
-        // S3 객체 키 추출 (URL에서 추출하거나 DB에 별도 저장된 경우 그대로 사용)
         String objectKey = file.getFileUrl().substring(file.getFileUrl().indexOf("uploads"));
         String bucketName = "vivim-s3";
 
-        // 다운로드용 PreSigned URL 생성 (유효시간 15분)
+        // 다운로드용 PreSigned URL관련 설정(유효시간, HttpMethod등)
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
             new GeneratePresignedUrlRequest(bucketName, objectKey)
                 .withMethod(HttpMethod.GET)
@@ -209,7 +203,6 @@ public class FileController {
         // PreSigned URL 생성
         URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
 
-        // 응답 생성
         FileDownloadUrlResponse response = new FileDownloadUrlResponse(
             preSignedUrl.toString(),
             file.getFileName(),
