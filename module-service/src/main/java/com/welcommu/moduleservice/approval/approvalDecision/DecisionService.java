@@ -30,11 +30,13 @@ public class DecisionService {
     private final ApprovalApproverRepository approvalApproverRepository;
 
     @Transactional
-    public void createDecision(User user, Long approverId, DecisionRequestCreation request) {
+    public Long createDecision(User user, Long approverId, DecisionRequestCreation request) {
 
         ApprovalApprover approver = findApprover(approverId);
         ApprovalProposal proposal = approver.getApprovalProposal();
-        checkUserPermission(user, proposal);
+        if (!proposal.isProposalSent()) {
+            throw new CustomException(CustomErrorCode.PROPOSAL_NOT_SENT_YET);
+        }        checkUserPermission(user, proposal);
 
         ApprovalDecision decision = request.toEntity(approver);
         approvalDecisionRepository.save(decision);
@@ -42,6 +44,8 @@ public class DecisionService {
         // 상태 변경 후 proposal 상태도 갱신
         List<ApprovalDecision> decisions = findAllDecision(approverId);
         proposal.modifyProposalStatus(decisions);
+
+        return decision.getId();
     }
 
     @Transactional
