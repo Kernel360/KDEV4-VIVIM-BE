@@ -8,6 +8,7 @@ import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalModifyRe
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponse;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponseList;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalSendResponse;
+import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -38,10 +39,9 @@ public class ApprovalProposalController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long progressId,
         @Valid @RequestBody ProposalCreateRequest request) {
 
-        Long approvalProposalId = proposalService.createProposal(userDetails.getUser(), progressId,
-            request);
-        return ResponseEntity.ok().body(
-            new ApiResponse(HttpStatus.CREATED.value(), "승인요청 생성을 성공했습니다.", approvalProposalId));
+        Long approvalProposalId = proposalService.createProposal(userDetails.getUser(), progressId, request);
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 생성을 성공했습니다.", approvalProposalId));
     }
 
     @PatchMapping("/approval/{approvalId}")
@@ -60,23 +60,8 @@ public class ApprovalProposalController {
     public ResponseEntity<ApiResponse> deleteApproval(@PathVariable Long approvalId) {
 
         proposalService.deleteProposal(approvalId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
-    }
-
-    @GetMapping("/approval/{approvalId}")
-    @Operation(summary = "승인요청 단일조회")
-    public ResponseEntity<ProposalResponse> getApproval(@PathVariable Long approvalId) {
-
-        ProposalResponse response = proposalService.getProposal(approvalId);
-        return ResponseEntity.ok().body(response);
-    }
-
-    @GetMapping("/progress/{progressId}/approval")
-    @Operation(summary = "승인요청 전체조회")
-    public ResponseEntity<ProposalResponseList> getApprovalList(@PathVariable Long progressId) {
-
-        ProposalResponseList response = proposalService.getAllProposal(progressId);
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
     }
 
     @PostMapping("/approval/{approvalId}/send")
@@ -84,8 +69,34 @@ public class ApprovalProposalController {
     public ResponseEntity<ProposalSendResponse> sendApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long approvalId) {
 
-        ProposalSendResponse response = proposalService.sendProposal(userDetails.getUser(),
-            approvalId);
-        return ResponseEntity.ok().body(response);
+        ProposalSendResponse response = proposalService.sendProposal(userDetails.getUser(), approvalId);
+        return ResponseEntity.ok()
+            .body(response);
+    }
+
+    @GetMapping("/approval/{approvalId}")
+    @Operation(summary = "승인요청 단일조회")
+    public ResponseEntity<ProposalResponse> getApproval(@PathVariable Long approvalId) {
+
+        ProposalResponse response = proposalService.getProposal(approvalId);
+        return ResponseEntity.ok()
+            .body(response);
+    }
+
+    @GetMapping("/progress/{progressId}/approval")
+    @Operation(summary = "승인요청 전체조회")
+    public ResponseEntity<ProposalResponseList> getApprovalList(@PathVariable Long progressId) {
+
+        ProposalResponseList response = proposalService.getAllProposal(progressId);
+        return ResponseEntity.ok()
+            .body(response);
+    }
+
+    @GetMapping("/approval/{approvalId}/status-summary")
+    @Operation(summary = "최종 승인상태 확인")
+    public ResponseEntity<ProposalStatusResponse> getProposalStatusSummary(
+        @PathVariable Long approvalId) {
+        ProposalStatusResponse response = proposalService.getProposalStatus(approvalId);
+        return ResponseEntity.ok(response);
     }
 }

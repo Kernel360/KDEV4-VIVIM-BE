@@ -46,7 +46,7 @@ public class ApprovalProposal {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApprovalProposalStatus proposalStatus;
+    private ApprovalProposalStatus approvalProposalStatus;
 
     @ManyToOne
     private User user;
@@ -64,11 +64,9 @@ public class ApprovalProposal {
             .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
 
         if (anyRejected) {
-            this.proposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
+            this.approvalProposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
         } else if (approvedCount == countTotalApprover) {
-            this.proposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
-        } else {
-            this.proposalStatus = ApprovalProposalStatus.IN_PROGRESS_DECISIONS;
+            this.approvalProposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
         }
 
         this.modifiedAt = LocalDateTime.now();

@@ -24,11 +24,7 @@ public class ProjectProgressService {
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
 
-    public void createProgress(
-        User user,
-        Long projectId,
-        ProgressCreateRequest request
-    ) {
+    public void createProgress(User user, Long projectId, ProgressCreateRequest request) {
         Project project = findProject(projectId);
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
@@ -49,15 +45,15 @@ public class ProjectProgressService {
 
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
-        if (request.getPosition() != null) {
-            checkIsDuplicatedPosition(projectId, request.getPosition());
-        }
+        //        if (request.getPosition() != null) {
+        //            checkIsDuplicatedPosition(projectId, request.getPosition());
+        //        }
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
-        if (request.getPosition() != null) {
-            projectProgress.setPosition(request.getPosition());
-        }
+        //        if (request.getPosition() != null) {
+        //            projectProgress.setPosition(request.getPosition());
+        //        }
         progressRepository.save(projectProgress);
     }
 
@@ -82,8 +78,11 @@ public class ProjectProgressService {
         Project project = findProject(projectId);
         ProjectProgress projectProgress = findProgress(progressId);
 
-        if (!projectProgress.getProject().getName().equals(project.getName())
-            || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
+        if (!projectProgress.getProject()
+            .getName()
+            .equals(project.getName()) || !projectProgress.getProject()
+            .getCreatedAt()
+            .equals(project.getCreatedAt())) {
             throw new CustomException(CustomErrorCode.MISMATCH_PROJECT_PROGRESS);
         }
         return projectProgress;
@@ -101,27 +100,36 @@ public class ProjectProgressService {
         }
     }
 
-    // 사용자 권한 전체 흐름 조정
     private void checkUserPermission(User user, Long projectId) {
+        if (isAdmin(user)) {
+            return;
+        }
         ProjectUser projectUser = findProjectUser(user, projectId);
-        validateUserIsAdminOrDeveloperManager(user, projectUser);
-    }
-
-    // ADMIN 또는 DEVELOPER_MANAGER 여부 확인
-    private void validateUserIsAdminOrDeveloperManager(User user, ProjectUser projectUser) {
-        boolean isAdmin = "ADMIN".equals(user.getRole().toString());
-        boolean isDevManager = "DEVELOPER_MANAGER".equals(
-            projectUser.getProjectUserManageRole().toString());
-
-        if (user.getCompany() == null || (!isAdmin && !isDevManager)) {
-            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        if (!isDeveloperManager(user, projectUser)) {
+            throw new CustomException(CustomErrorCode.YOUR_ARE_NOT_DEVELOPER);
         }
     }
 
-    // 프로젝트 참여자인지 확인
+    private boolean isAdmin(User user) {
+        return user.getRole()
+            .toString()
+            .equals("ADMIN");
+    }
+
+    private boolean isDeveloperManager(User user, ProjectUser projectUser) {
+
+        boolean isDevManager = "DEVELOPER_MANAGER".equals(projectUser.getProjectUserManageRole()
+            .toString());
+
+        if (user.getCompany() == null || !isDevManager) {
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        } else {
+            return true;
+        }
+    }
+
     private ProjectUser findProjectUser(User user, Long projectId) {
-        return projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), projectId)
+        return projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
 
@@ -136,6 +144,7 @@ public class ProjectProgressService {
     }
 
     private Float findBiggestPosition(Long projectId) {
-        return progressRepository.findMaxPositionByProjectId(projectId).orElse(0.0f);
+        return progressRepository.findMaxPositionByProjectId(projectId)
+            .orElse(0.0f);
     }
 }

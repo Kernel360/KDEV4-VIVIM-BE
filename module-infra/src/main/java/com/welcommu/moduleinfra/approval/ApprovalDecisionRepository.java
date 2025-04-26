@@ -12,4 +12,6 @@ public interface ApprovalDecisionRepository extends JpaRepository<ApprovalDecisi
     List<ApprovalDecision> findByApprovalApprover_ApprovalProposal(ApprovalProposal proposal);
 
     List<ApprovalDecision> findByApprovalApproverId(Long approverId);
+
+    List<ApprovalDecision> findAllByApprovalApproverId(Long approverId);
 }

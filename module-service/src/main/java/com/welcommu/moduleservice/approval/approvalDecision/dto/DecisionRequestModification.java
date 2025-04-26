@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DecisionRequestModification {
 
-    private String title;
     private String content;
 
     @NotNull

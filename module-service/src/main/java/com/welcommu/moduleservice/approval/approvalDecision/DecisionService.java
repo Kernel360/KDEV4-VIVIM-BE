@@ -38,19 +38,30 @@ public class DecisionService {
 
         ApprovalDecision decision = request.toEntity(approver);
         approvalDecisionRepository.save(decision);
+
+        // 상태 변경 후 proposal 상태도 갱신
+        List<ApprovalDecision> decisions = findAllDecision(approverId);
+        proposal.modifyProposalStatus(decisions, proposal.getCountTotalApprover());
     }
 
     @Transactional
     public void modifyDecision(Long decisionId, DecisionRequestModification dto) {
 
         ApprovalDecision decision = findDecision(decisionId);
-        
+
         if (dto.getContent() != null) {
             decision.setContent(dto.getContent());
         }
         if (dto.getDecisionStatus() != null) {
             decision.setDecisionStatus(dto.getDecisionStatus());
         }
+
+        ApprovalProposal proposal = decision.getApprovalApprover()
+            .getApprovalProposal();
+
+        List<ApprovalDecision> decisions = findAllDecision(decision.getApprovalApprover()
+            .getId());
+        proposal.modifyProposalStatus(decisions, proposal.getCountTotalApprover());
     }
 
     @Transactional
@@ -133,11 +144,6 @@ public class DecisionService {
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
     }
 
-    private ApprovalDecision findDecision(Long decisionId) {
-        return approvalDecisionRepository.findById(decisionId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_DECISION));
-    }
-
     private ApprovalApprover findApprover(Long approverId) {
         return approvalApproverRepository.findById(approverId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_APPROVER));
@@ -145,5 +151,14 @@ public class DecisionService {
 
     private List<ApprovalApprover> findApproverByProposal(ApprovalProposal proposal) {
         return approvalApproverRepository.findByApprovalProposal(proposal);
+    }
+
+    private ApprovalDecision findDecision(Long decisionId) {
+        return approvalDecisionRepository.findById(decisionId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_DECISION));
+    }
+
+    private List<ApprovalDecision> findAllDecision(Long approverId) {
+        return approvalDecisionRepository.findAllByApprovalApproverId(approverId);
     }
 }

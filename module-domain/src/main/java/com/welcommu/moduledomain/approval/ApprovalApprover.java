@@ -23,17 +23,18 @@ import org.hibernate.annotations.OnDeleteAction;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApprovalApprover {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectUser projectUser;
-    
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "approval_proposal_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ApprovalProposal approvalProposal;
 }
