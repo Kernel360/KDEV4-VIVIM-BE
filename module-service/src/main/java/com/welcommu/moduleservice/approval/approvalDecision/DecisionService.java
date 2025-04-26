@@ -41,7 +41,7 @@ public class DecisionService {
 
         // 상태 변경 후 proposal 상태도 갱신
         List<ApprovalDecision> decisions = findAllDecision(approverId);
-        proposal.modifyProposalStatus(decisions, proposal.getCountTotalApprover());
+        proposal.modifyProposalStatus(decisions);
     }
 
     @Transactional
@@ -61,7 +61,7 @@ public class DecisionService {
 
         List<ApprovalDecision> decisions = findAllDecision(decision.getApprovalApprover()
             .getId());
-        proposal.modifyProposalStatus(decisions, proposal.getCountTotalApprover());
+        proposal.modifyProposalStatus(decisions);
     }
 
     @Transactional
@@ -85,7 +85,7 @@ public class DecisionService {
         ApprovalProposal proposal = decision.getApprovalApprover()
             .getApprovalProposal();
         List<ApprovalDecision> allDecisions = approvalDecisionRepository.findByApprovalApprover_ApprovalProposal(proposal);
-        proposal.modifyProposalStatus(allDecisions, proposal.getCountTotalApprover());
+        proposal.modifyProposalStatus(allDecisions);
 
         return DecisionResponseSend.from(user, decision);
     }

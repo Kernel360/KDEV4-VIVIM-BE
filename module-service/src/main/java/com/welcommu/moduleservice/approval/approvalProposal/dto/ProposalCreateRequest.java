@@ -23,7 +23,7 @@ public class ProposalCreateRequest {
         return ApprovalProposal.builder()
             .title(this.title)
             .content(this.content)
-            .approvalProposalStatus(ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL)
+            .proposalStatus(ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL)
             .createdAt(LocalDateTime.now())
             .user(creator)
             .projectProgress(progress)
