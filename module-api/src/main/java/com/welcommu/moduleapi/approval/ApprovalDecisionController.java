@@ -34,12 +34,14 @@ public class ApprovalDecisionController {
     @PostMapping("/approver/{approverId}/decision")
     @Operation(summary = "승인응답 생성")
     public ResponseEntity<ApiResponse> createDecision(
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long approverId,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
+        @PathVariable Long approverId,
         @Valid @RequestBody DecisionRequestCreation request) {
 
-        decisionService.createDecision(userDetails.getUser(), approverId, request);
+        Long decisionId = decisionService.createDecision(userDetails.getUser(), approverId, request);
+
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(new ApiResponse(HttpStatus.CREATED.value(), "승인응답 생성을 성공했습니다."));
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "승인응답 생성을 성공했습니다.", decisionId));
     }
 
     @PatchMapping("/decision/{decisionId}")
