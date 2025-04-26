@@ -1,5 +1,6 @@
 package com.welcommu.moduleinfra.approval;
 
+import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalDecision;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import java.util.List;
@@ -14,4 +15,6 @@ public interface ApprovalDecisionRepository extends JpaRepository<ApprovalDecisi
     List<ApprovalDecision> findByApprovalApproverId(Long approverId);
 
     List<ApprovalDecision> findAllByApprovalApproverId(Long approverId);
+
+    List<ApprovalDecision> findByApprovalApprover(ApprovalApprover approver);
 }
