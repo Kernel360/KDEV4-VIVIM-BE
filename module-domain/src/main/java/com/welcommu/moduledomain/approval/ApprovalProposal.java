@@ -42,11 +42,12 @@ public class ApprovalProposal {
     // 승인권자 카운팅
     private int countTotalApprover;
     private int countApprovedApprover;
+    private boolean isProposalSent;
     private boolean isAllApproved;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApprovalProposalStatus approvalProposalStatus;
+    private ApprovalProposalStatus proposalStatus;
 
     @ManyToOne
     private User user;
@@ -55,18 +56,30 @@ public class ApprovalProposal {
     @JoinColumn(name = "progress_id")
     private ProjectProgress projectProgress;
 
-    public void modifyProposalStatus(List<ApprovalDecision> decisions, int countTotalApprover) {
-        long approvedCount = decisions.stream()
-            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
-            .count();
+    public void markProposalSent() {
+        this.isProposalSent = true;
+        this.proposalStatus = ApprovalProposalStatus.WAITING_FOR_DECISIONS;
+        this.modifiedAt = LocalDateTime.now();    }
+
+    public void modifyProposalStatus(List<ApprovalDecision> decisions) {
+        if (!this.isProposalSent) {
+            this.proposalStatus = ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL;
+            return;
+        }
 
         boolean anyRejected = decisions.stream()
             .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
 
+        long approvedCount = decisions.stream()
+            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
+            .count();
+
         if (anyRejected) {
-            this.approvalProposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
-        } else if (approvedCount == countTotalApprover) {
-            this.approvalProposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
+            this.proposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
+        } else if (approvedCount == this.countTotalApprover) {
+            this.proposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
+        } else {
+            this.proposalStatus = ApprovalProposalStatus.WAITING_FOR_DECISIONS;
         }
 
         this.modifiedAt = LocalDateTime.now();
