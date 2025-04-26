@@ -2,8 +2,9 @@ package com.welcommu.moduleservice.approval.approvalProposal;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduledomain.approval.ApprovalApprover;
+import com.welcommu.moduledomain.approval.ApprovalApproverStatus;
 import com.welcommu.moduledomain.approval.ApprovalDecision;
-import com.welcommu.moduledomain.approval.ApprovalDecisionStatus;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
@@ -63,6 +64,21 @@ public class ProposalService {
     }
 
     @Transactional
+    public void modifyAllApproverStatus(Long approvalProposalId) {
+
+        ApprovalProposal proposal = findProposal(approvalProposalId);
+
+        List<ApprovalApprover> approvers = findApprovers(proposal);
+
+        for (ApprovalApprover approver : approvers) {
+            List<ApprovalDecision> decisions = findApprovalDecisions(approver);
+            approver.modifyApproverStatus(decisions);
+        }
+
+        approvalApproverRepository.saveAll(approvers);
+    }
+
+    @Transactional
     public void deleteProposal(Long approvalId) {
 
         ApprovalProposal approvalProposal = findProposal(approvalId);
@@ -71,26 +87,29 @@ public class ProposalService {
 
     @Transactional
     public ProposalSendResponse sendProposal(User user, Long approvalId) {
-        ApprovalProposal proposal = findProposal(approvalId);
-        checkUserPermission(user, proposal.getProjectProgress()
-            .getProject()
-            .getId());
 
-        // 승인권자 지정 여부 확인
+        ApprovalProposal proposal = findProposal(approvalId);
+        checkUserPermission(user, proposal.getProjectProgress().getProject().getId());
+
         boolean hasApprovers = approvalApproverRepository.existsByApprovalProposal(proposal);
         if (!hasApprovers) {
             throw new CustomException(CustomErrorCode.NO_APPROVER_ASSIGNED);
         }
 
+        proposal.markProposalSent();
+        approvalProposalRepository.save(proposal);  // 변경된 상태 저장
+
         return ProposalSendResponse.from(user, proposal);
     }
 
     public ProposalResponse getProposal(Long approvalId) {
+
         ApprovalProposal approvalProposal = findProposal(approvalId);
         return ProposalResponse.of(approvalProposal);
     }
 
     public ProposalResponseList getAllProposal(Long progressId) {
+
         ProjectProgress progress = findProgress(progressId);
         List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(progress);
 
@@ -99,23 +118,53 @@ public class ProposalService {
 
     public ProposalStatusResponse getProposalStatus(Long approvalId) {
         ApprovalProposal proposal = findProposal(approvalId);
-        List<ApprovalDecision> decisions = approvalDecisionRepository.findByApprovalApprover_ApprovalProposal(proposal);
-        int totalApprover = proposal.getCountTotalApprover();
+        List<ApprovalApprover> approvers = findApprovers(proposal);
 
-        int approvedCount = (int) decisions.stream()
-            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
+        int totalApprover = approvers.size();
+
+        int approvedApproverCount = (int) approvers.stream()
+            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.COMPLETE_APPROVED)
             .count();
 
-        int rejectedCount = (int) decisions.stream()
-            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED)
+        int modificationRequestedApproverCount = (int) approvers.stream()
+            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.REQUEST_MODIFICATION)
             .count();
 
-        int pendingCount = totalApprover - approvedCount - rejectedCount;
+        int waitingApproverCount = (int) approvers.stream()
+            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.WAITING_FOR_RESPONSE)
+            .count();
 
-        return new ProposalStatusResponse(approvedCount, rejectedCount, pendingCount, proposal.getApprovalProposalStatus());
+        checkApproverCounts(totalApprover, approvedApproverCount, modificationRequestedApproverCount, waitingApproverCount);
+
+        return ProposalStatusResponse.of(
+            totalApprover,
+            approvedApproverCount,
+            modificationRequestedApproverCount,
+            waitingApproverCount,
+            proposal.getProposalStatus()
+        );
+    }
+
+    private void checkApproverCounts(
+        int totalApproverCount,
+        int approvedApproverCount,
+        int modificationRequestedApproverCount,
+        int waitingApproverCount
+    ) {
+        int sum = approvedApproverCount + modificationRequestedApproverCount + waitingApproverCount;
+        if (sum != totalApproverCount) {
+            throw new IllegalStateException(
+                String.format(
+                    "승인권자 상태 합계(%d)가 총 승인권자 수(%d)와 일치하지 않습니다.",
+                    sum,
+                    totalApproverCount
+                )
+            );
+        }
     }
 
     private void checkUserPermission(User user, Long projectId) {
+
         if (isAdmin(user)) {
             return;
         }
@@ -127,29 +176,44 @@ public class ProposalService {
     }
 
     private boolean isAdmin(User user) {
+
         return user.getRole()
             .toString()
             .equals("ADMIN");
     }
 
     private boolean isDeveloper(User user) {
+
         return user.getRole() != null && user.getRole()
             .name()
             .equals("DEVELOPER");
     }
 
     private void findProjectUser(User user, Long projectId) {
+
         projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
 
     private ProjectProgress findProgress(Long progressId) {
+
         return progressRepository.findById(progressId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
     }
 
     private ApprovalProposal findProposal(Long approvalId) {
+
         return approvalProposalRepository.findById(approvalId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+    }
+
+    private List<ApprovalDecision> findApprovalDecisions(ApprovalApprover approver) {
+
+        return approvalDecisionRepository.findByApprovalApprover(approver);
+    }
+
+    private List<ApprovalApprover> findApprovers(ApprovalProposal proposal) {
+
+        return approvalApproverRepository.findByApprovalProposal(proposal);
     }
 }
