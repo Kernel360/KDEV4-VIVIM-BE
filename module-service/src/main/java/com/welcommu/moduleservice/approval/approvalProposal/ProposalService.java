@@ -64,21 +64,6 @@ public class ProposalService {
     }
 
     @Transactional
-    public void modifyAllApproverStatus(Long approvalProposalId) {
-
-        ApprovalProposal proposal = findProposal(approvalProposalId);
-
-        List<ApprovalApprover> approvers = findApprovers(proposal);
-
-        for (ApprovalApprover approver : approvers) {
-            List<ApprovalDecision> decisions = findApprovalDecisions(approver);
-            approver.modifyApproverStatus(decisions);
-        }
-
-        approvalApproverRepository.saveAll(approvers);
-    }
-
-    @Transactional
     public void deleteProposal(Long approvalId) {
 
         ApprovalProposal approvalProposal = findProposal(approvalId);
