@@ -11,7 +11,6 @@ import lombok.Getter;
 public class DecisionResponse {
 
     private Long id;
-    private String title;
     private String content;
     private ApprovalDecisionStatus status;
     private Long approverId;
@@ -19,13 +18,17 @@ public class DecisionResponse {
     private LocalDateTime decidedAt;
 
     public static DecisionResponse from(ApprovalDecision decision) {
+
         return DecisionResponse.builder()
             .id(decision.getId())
-            .title(decision.getTitle())
-            .title(decision.getContent())
+            .content(decision.getContent())
             .status(decision.getDecisionStatus())
-            .approverId(decision.getApprovalApprover().getId())
-            .approverName(decision.getApprovalApprover().getProjectUser().getUser().getName())
+            .approverId(decision.getApprovalApprover()
+                .getId())
+            .approverName(decision.getApprovalApprover()
+                .getProjectUser()
+                .getUser()
+                .getName())
             .decidedAt(decision.getDecidedAt())
             .build();
     }

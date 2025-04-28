@@ -8,5 +8,4 @@ import lombok.Setter;
 public class ProgressModifyRequest {
 
     private String name;
-    private Float position;
 }

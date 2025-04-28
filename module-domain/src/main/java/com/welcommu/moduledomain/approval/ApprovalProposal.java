@@ -19,7 +19,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Table(name = "approval_proposal")
+@Table(name = "approval_proposals")
 @Entity
 @Getter
 @Builder
@@ -42,6 +42,7 @@ public class ApprovalProposal {
     // 승인권자 카운팅
     private int countTotalApprover;
     private int countApprovedApprover;
+    private boolean isProposalSent;
     private boolean isAllApproved;
 
     @Enumerated(EnumType.STRING)
@@ -55,22 +56,9 @@ public class ApprovalProposal {
     @JoinColumn(name = "progress_id")
     private ProjectProgress projectProgress;
 
-    public void modifyProposalStatus(List<ApprovalDecision> decisions, int countTotalApprover) {
-        long approvedCount = decisions.stream()
-            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
-            .count();
-
-        boolean anyRejected = decisions.stream()
-            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
-
-        if (anyRejected) {
-            this.proposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
-        } else if (approvedCount == countTotalApprover) {
-            this.proposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
-        } else {
-            this.proposalStatus = ApprovalProposalStatus.IN_PROGRESS_DECISIONS;
-        }
-
+    public void markProposalSent() {
+        this.isProposalSent = true;
+        this.proposalStatus = ApprovalProposalStatus.UNDER_REVIEW;
         this.modifiedAt = LocalDateTime.now();
     }
 
@@ -80,6 +68,11 @@ public class ApprovalProposal {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setProposalStatus(ApprovalProposalStatus status) {
+        this.proposalStatus = status;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void setCountTotalApprover(int size) {

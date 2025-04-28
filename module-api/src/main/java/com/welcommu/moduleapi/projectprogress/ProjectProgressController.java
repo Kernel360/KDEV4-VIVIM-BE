@@ -3,6 +3,8 @@ package com.welcommu.moduleapi.projectprogress;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
@@ -86,5 +88,29 @@ public class ProjectProgressController {
         log.info("프로젝트 단계 전체 조회 완료: projectId={}, count={}", projectId,
             progressList.getProgressList().size());
         return ResponseEntity.ok(progressList);
+    }
+
+    @GetMapping("/{projectId}/progress/status")
+    @Operation(summary = "프로젝트 단계별 승인요청 진척도 조회")
+    public ResponseEntity<ProgressApprovalStatusResponse> getProgressApprovalStatus(
+        @PathVariable Long projectId
+    ) {
+        log.info("프로젝트 단계별 승인요청 진척도 조회 요청: projectId={}", projectId);
+        ProgressApprovalStatusResponse response = progressService.getProgressApprovalStatus(projectId);
+        log.info("프로젝트 단계별 승인요청 진척도 조회 완료: projectId={}, count={}", projectId,
+            response.getProgressList().size());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{projectId}/progress/overall-progress")
+    @Operation(summary = "프로젝트 전체 진행률 조회")
+    public ResponseEntity<ProgressApprovalStatusOverallResponse> getOverallProgress(
+        @PathVariable Long projectId
+    ) {
+        log.info("프로젝트 전체 진행률 조회 요청: projectId={}", projectId);
+        ProgressApprovalStatusOverallResponse response = progressService.calculateOverallProgress(projectId);
+        log.info("프로젝트 전체 진행률 조회 완료: projectId={}, overallProgressRate={}", projectId,
+            response.getOverallProgressRate());
+        return ResponseEntity.ok(response);
     }
 }

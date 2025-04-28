@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class DecisionModifyRequest {
+public class DecisionRequestModification {
 
-    private String title;
     private String content;
 
     @NotNull
