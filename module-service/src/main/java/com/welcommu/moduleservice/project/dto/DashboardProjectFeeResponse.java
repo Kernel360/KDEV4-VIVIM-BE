@@ -1,9 +1,13 @@
 package com.welcommu.moduleservice.project.dto;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summingInt;
+
 import com.welcommu.moduledomain.project.Project;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -19,50 +23,24 @@ public class DashboardProjectFeeResponse {
 
 
     public DashboardProjectFeeResponse(List<Project> projects) {
-        // 이번 달의 첫 날과 마지막 날을 구함
         LocalDate currentDate = LocalDate.now();
-        LocalDate firstDayOfMonth = currentDate.withDayOfMonth(1);
-        LocalDate lastDayOfMonth = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
 
-        week1 = 0;
-        week2 = 0;
-        week3 = 0;
-        week4 = 0;
-        week5 = 0;
+        // 1. 이번 달에 속하는 프로젝트만 필터링
+        Map<Integer, Integer> weekFeeMap = projects.stream()
+            .filter(p -> p.getProjectFeePaidDate() != null
+                && p.getProjectFeePaidDate().getYear() == currentDate.getYear()
+                && p.getProjectFeePaidDate().getMonth() == currentDate.getMonth())
+            .collect(groupingBy(
+                p -> p.getProjectFeePaidDate().get(ChronoField.ALIGNED_WEEK_OF_MONTH),
+                summingInt(Project::getProjectFee)
+            ));
 
-        for (Project project : projects) {
-            LocalDate projectFeeDate = project.getProjectFeePaidDate();
-            Integer projectFee = project.getProjectFee();
-
-            if (projectFeeDate != null && projectFeeDate.getYear() == currentDate.getYear()
-                && projectFeeDate.getMonth() == currentDate.getMonth()) {
-                // 프로젝트의 정산일이 이번 달에 속하는 경우만 처리
-                int weekOfMonth = projectFeeDate.get(
-                    ChronoField.ALIGNED_WEEK_OF_MONTH);
-                projectFeeDate.getDayOfWeek().getValue();
-
-                switch (weekOfMonth) {
-                    case 1:
-                        week1 += projectFee;
-                        break;
-                    case 2:
-                        week2 += projectFee;
-                        break;
-                    case 3:
-                        week3 += projectFee;
-                        break;
-                    case 4:
-                        week4 += projectFee;
-                        break;
-                    case 5:
-                        week5 += projectFee;
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
+        // 2. 결과 매핑
+        this.week1 = weekFeeMap.getOrDefault(1, 0);
+        this.week2 = weekFeeMap.getOrDefault(2, 0);
+        this.week3 = weekFeeMap.getOrDefault(3, 0);
+        this.week4 = weekFeeMap.getOrDefault(4, 0);
+        this.week5 = weekFeeMap.getOrDefault(5, 0);
 
     }
 }
