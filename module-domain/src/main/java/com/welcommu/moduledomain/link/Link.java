@@ -46,16 +46,6 @@ public class Link {
     @Column(name = "reference_id", nullable = false)
     private Long referenceId;
 
-    public static Link createLink(String title, String url, ReferenceType referenceType,
-        Long referenceId) {
-        return Link.builder()
-            .title(title)
-            .url(url)
-            .createdAt(LocalDateTime.now())
-            .referenceType(referenceType)
-            .referenceId(referenceId)
-            .build();
-    }
 
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();

@@ -10,8 +10,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +44,15 @@ public class LinkController {
             .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
 
+    @PostMapping("/decisions/{decisionId}/links")
+    @Operation(summary = "승인응답에 링크 생성")
+    public ResponseEntity<ApiResponse> createDecisionLink(@PathVariable Long decisionId,
+        @RequestBody LinkRequest request) {
+        linkService.createDecisionLink(decisionId, request);
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
+    }
+
     @GetMapping("/posts/{postId}/links")
     @Operation(summary = "게시글의 링크 전체 조회")
     public ResponseEntity<List<LinkListResponse>> getPostLinks(@PathVariable Long postId) {
@@ -56,7 +65,13 @@ public class LinkController {
         return ResponseEntity.ok(linkService.getApprovalLinks(approvalId));
     }
 
-    @DeleteMapping("/links/{linkId}")
+    @GetMapping("/decisions/{decisionId}/links")
+    @Operation(summary = "승인응답의 링크 전체 조회")
+    public ResponseEntity<List<LinkListResponse>> getDecisionLinks(@PathVariable Long decisionId) {
+        return ResponseEntity.ok(linkService.getDecisionLinks(decisionId));
+    }
+
+    @PatchMapping("/links/{linkId}")
     @Operation(summary = "링크 삭제")
     public ResponseEntity<ApiResponse> deleteLink(@PathVariable Long linkId) {
         linkService.deleteLink(linkId);
