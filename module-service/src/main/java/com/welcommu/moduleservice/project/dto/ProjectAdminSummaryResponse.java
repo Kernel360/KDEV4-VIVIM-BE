@@ -1,11 +1,10 @@
 package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
@@ -13,6 +12,7 @@ public class ProjectAdminSummaryResponse {
 
     private Long projectId;
     private String name;
+    private int projectFee;
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean isDeleted;
@@ -22,6 +22,7 @@ public class ProjectAdminSummaryResponse {
         return new ProjectAdminSummaryResponse(
             p.getId(),
             p.getName(),
+            p.getProjectFee(),
             p.getStartDate(),
             p.getEndDate(),
             p.getIsDeleted(),

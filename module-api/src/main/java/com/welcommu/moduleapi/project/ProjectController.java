@@ -4,6 +4,9 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduleservice.project.ProjectService;
+import com.welcommu.moduleservice.project.dto.DashboardInspectionCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProgressCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProjectFeeResponse;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
@@ -16,7 +19,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,8 +52,9 @@ public class ProjectController {
         @RequestBody ProjectCreateRequest dto
     ) {
         Long userId = userDetails.getUser().getId();
-        projectService.createProject(dto,userId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
+        projectService.createProject(dto, userId);
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
 
     @GetMapping("/{projectId}")
@@ -75,9 +78,10 @@ public class ProjectController {
 
     @GetMapping()
     @Operation(summary = "특정 유저 소속 프로젝트 조회")
-    public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(@RequestParam Long userId) {
-       List<ProjectUserSummaryResponse> projects = projectService.getProjectsByUser(userId);
-       return ResponseEntity.ok(projects);
+    public ResponseEntity<List<ProjectUserSummaryResponse>> readProjects(
+        @RequestParam Long userId) {
+        List<ProjectUserSummaryResponse> projects = projectService.getProjectsByUser(userId);
+        return ResponseEntity.ok(projects);
     }
 
     @DeleteMapping("/{projectId}")
@@ -94,7 +98,7 @@ public class ProjectController {
 
     @GetMapping("/all")
     @Operation(summary = "프로젝트 전체 조회")
-    public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin(){
+    public ResponseEntity<List<ProjectAdminSummaryResponse>> readAllProjectsForAdmin() {
         List<ProjectAdminSummaryResponse> projects = projectService.getProjectList();
         return ResponseEntity.ok(projects);
     }
@@ -115,7 +119,8 @@ public class ProjectController {
 
     @Operation(summary = "프로젝트 소속 유저 조회")
     @GetMapping("/{projectId}/users")
-    public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(@PathVariable Long projectId){
+    public ResponseEntity<List<ProjectUserResponse>> readProjectUsers(
+        @PathVariable Long projectId) {
         List<ProjectUserResponse> projects = projectService.getUserListByProject(projectId);
         return ResponseEntity.ok(projects);
     }
@@ -138,4 +143,24 @@ public class ProjectController {
         List<ProjectCompanyResponse> responses = projectService.getCompaniesByProjectId(projectId);
         return ResponseEntity.ok(responses);
     }
+
+
+    @GetMapping("/dashboard/project_fee")
+    @Operation(summary = "이번 달 매출 현황 데이터 조회")
+    public ResponseEntity<DashboardProjectFeeResponse> getDashboardProjectFee() {
+        return ResponseEntity.ok(projectService.getDashboardProjectFee());
+    }
+
+    @GetMapping("/dashboard/inspection_count")
+    @Operation(summary = "계약, 검수 개수 조회")
+    public ResponseEntity<DashboardInspectionCountResponse> getDashboardInspectionCount() {
+        return ResponseEntity.ok(projectService.getDashboardInspectionCount());
+    }
+
+    @GetMapping("/dashboard/progress_count")
+    @Operation(summary = "프로젝트 단계별 현황 조회")
+    public ResponseEntity<DashboardProgressCountResponse> getDashboardProgressCount() {
+        return ResponseEntity.ok(projectService.getDashboardProgressCount());
+    }
+
 }
