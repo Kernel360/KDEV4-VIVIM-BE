@@ -20,7 +20,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table
+@Table(name = "approval_approvers")
 @Getter
 @Builder
 @NoArgsConstructor

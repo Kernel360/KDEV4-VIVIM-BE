@@ -129,20 +129,26 @@ public class ProposalService {
         List<ApprovalApprover> approvers,
         Map<Long, List<ApprovalDecision>> decisionsByApproverId
     ) {
+        // 하나라도 APPROVER_REJECTED면 무조건 FINAL_REJECTED
         boolean anyRejected = approvers.stream()
             .anyMatch(approver -> approver.getApproverStatus() == ApprovalApproverStatus.APPROVER_REJECTED);
 
+        if (anyRejected) {
+            return ApprovalProposalStatus.FINAL_REJECTED;
+        }
+
+        // 전부 APPROVER_APPROVED 면 FINAL_APPROVED
         boolean allApproved = approvers.stream()
             .allMatch(approver -> approver.getApproverStatus() == ApprovalApproverStatus.APPROVER_APPROVED);
 
-        if (anyRejected) {
-            return ApprovalProposalStatus.FINAL_REJECTED;
-        } else if (allApproved) {
+        if (allApproved) {
             return ApprovalProposalStatus.FINAL_APPROVED;
-        } else {
-            return ApprovalProposalStatus.UNDER_REVIEW;
         }
+
+        // 그 외에는 UNDER_REVIEW
+        return ApprovalProposalStatus.UNDER_REVIEW;
     }
+
 
     public ProposalStatusResponse getProposalStatus(Long approvalId) {
         ApprovalProposal proposal = findProposal(approvalId);

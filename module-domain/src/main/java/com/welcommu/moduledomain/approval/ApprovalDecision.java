@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-@Table(name = "approval_decision")
+@Table(name = "approval_decisions")
 @Entity
 @Getter
 @Builder

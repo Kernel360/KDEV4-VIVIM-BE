@@ -103,7 +103,7 @@ public class DecisionService {
             })
             .collect(Collectors.toList());
 
-        return DecisionResponsesByAllApprover.from(approvalProposal.getId(), approvalProposal.getTitle(), decisionResponses);
+        return DecisionResponsesByAllApprover.from(approvalProposal.getId(), decisionResponses);
     }
 
     private void checkUserPermission(User user, ApprovalProposal proposal) {

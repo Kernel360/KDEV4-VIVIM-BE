@@ -13,15 +13,12 @@ import lombok.Getter;
 public class DecisionResponsesByAllApprover {
 
     private Long proposalId;
-    private String proposalTitle;
     private List<DecisionResponsesByOneApprover> decisionResponses;
 
-    public static DecisionResponsesByAllApprover from(Long proposalId, String proposalTitle,
-        List<DecisionResponsesByOneApprover> decisionResponses) {
+    public static DecisionResponsesByAllApprover from(Long proposalId, List<DecisionResponsesByOneApprover> decisionResponses) {
 
         return DecisionResponsesByAllApprover.builder()
             .proposalId(proposalId)
-            .proposalTitle(proposalTitle)
             .decisionResponses(decisionResponses)
             .build();
     }

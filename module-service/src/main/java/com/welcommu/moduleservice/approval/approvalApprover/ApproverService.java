@@ -58,7 +58,7 @@ public class ApproverService {
 
     @Transactional
     public void modifyApprovers(User user, Long proposalId, ApproverRequestCreate request) {
-        
+
         ApprovalProposal proposal = findProposal(proposalId);
         Long projectId = proposal.getProjectProgress().getProject().getId();
         checkUserPermission(user, projectId);
@@ -99,16 +99,27 @@ public class ApproverService {
 
     @Transactional
     public void modifyApproverStatus(Long approverId) {
-
         ApprovalApprover approver = findApprover(approverId);
         List<ApprovalDecision> decisions = approvalDecisionRepository.findByApprovalApprover(approver);
 
         if (decisions.isEmpty()) {
             approver.setApproverStatus(ApprovalApproverStatus.NOT_RESPONDED);
-        } else if (decisions.stream().anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED)) {
-            approver.setApproverStatus(ApprovalApproverStatus.APPROVER_REJECTED);
-        } else if (decisions.stream().anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)) {
+            return;
+        }
+
+        boolean hasApproved = decisions.stream()
+            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED);
+
+        if (hasApproved) {
             approver.setApproverStatus(ApprovalApproverStatus.APPROVER_APPROVED);
+            return;
+        }
+
+        boolean hasRejected = decisions.stream()
+            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
+
+        if (hasRejected) {
+            approver.setApproverStatus(ApprovalApproverStatus.APPROVER_REJECTED);
         } else {
             approver.setApproverStatus(ApprovalApproverStatus.NOT_RESPONDED);
         }
