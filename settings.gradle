@@ -1,1 +1,10 @@
 rootProject.name = 'KDEV4-VIVIM-BE'
+
+include 'module-api'
+include 'module-service'
+include 'module-domain'
+include 'module-infra'
+include 'module-common'
+
+
+
