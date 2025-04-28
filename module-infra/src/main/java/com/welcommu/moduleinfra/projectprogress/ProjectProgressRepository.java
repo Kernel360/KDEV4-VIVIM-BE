@@ -18,6 +18,4 @@ public interface ProjectProgressRepository extends JpaRepository<ProjectProgress
     List<ProjectProgress> findByProject(Project project);
 
     boolean existsByProjectIdAndName(Long projectId, String name);
-
-    boolean existsByProjectIdAndPosition(Long projectId, float position);
 }
