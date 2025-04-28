@@ -1,8 +1,7 @@
 package com.welcommu.moduleservice.approval.approvalApprover.dto;
 
 import com.welcommu.moduledomain.approval.ApprovalApprover;
-import com.welcommu.moduledomain.approval.ApprovalDecision;
-import com.welcommu.moduledomain.approval.ApprovalDecisionStatus;
+import com.welcommu.moduledomain.approval.ApprovalApproverStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,22 +12,14 @@ public class ApproverResponse {
     private Long approverId;
     private Long userId;
     private String name;
-    private String decisionStatus; // PENDING, APPROVED, REJECTED
+    private String decisionStatus;
 
-    public static ApproverResponse from(ApprovalApprover approver,
-        ApprovalDecision latestDecision) {
-        String status;
-
-        if (latestDecision == null) {
-            status = "PENDING";
-        } else if (latestDecision.getDecisionStatus() == ApprovalDecisionStatus.APPROVED) {
-            status = "APPROVED";
-        } else {
-            status = "REJECTED";
-        }
-
-        return ApproverResponse.builder().approverId(approver.getId())
+    public static ApproverResponse from(ApprovalApprover approver) {
+        return ApproverResponse.builder()
+            .approverId(approver.getId())
             .userId(approver.getProjectUser().getUser().getId())
-            .name(approver.getProjectUser().getUser().getName()).decisionStatus(status).build();
+            .name(approver.getProjectUser().getUser().getName())
+            .decisionStatus(approver.getApproverStatus().toString())
+            .build();
     }
 }

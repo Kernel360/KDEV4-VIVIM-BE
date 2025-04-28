@@ -20,7 +20,7 @@ public class ApproverRequestCreate {
         return ApprovalApprover.builder()
             .approvalProposal(proposal)
             .projectUser(projectUser)
-            .approverStatus(ApprovalApproverStatus.BEFORE_REQUEST)
+            .approverStatus(ApprovalApproverStatus.NOT_RESPONDED)
             .build();
     }
 }

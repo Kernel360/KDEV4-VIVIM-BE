@@ -5,7 +5,9 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.approval.ApprovalApprover;
 import com.welcommu.moduledomain.approval.ApprovalApproverStatus;
 import com.welcommu.moduledomain.approval.ApprovalDecision;
+import com.welcommu.moduledomain.approval.ApprovalDecisionStatus;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
+import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
@@ -20,6 +22,8 @@ import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponse
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalSendResponse;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalStatusResponse;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -101,6 +105,23 @@ public class ProposalService {
         return ProposalResponseList.from(approvalProposalList);
     }
 
+    /**
+     * 승인요청 상태 관련 로직
+      */
+
+    @Transactional
+    public void modifyProposalStatus(Long proposalId) {
+        ApprovalProposal proposal = findProposal(proposalId);
+
+        List<ApprovalApprover> approvers = findApprovers(proposal);
+
+        Map<Long, List<ApprovalDecision>> decisionsByApproverId = findDecisionsGroupedByApprovers(approvers);
+
+        ApprovalProposalStatus proposalStatus = determineProposalStatus(approvers, decisionsByApproverId);
+
+        proposal.setProposalStatus(proposalStatus);
+    }
+
     public ProposalStatusResponse getProposalStatus(Long approvalId) {
         ApprovalProposal proposal = findProposal(approvalId);
         List<ApprovalApprover> approvers = findApprovers(proposal);
@@ -108,15 +129,15 @@ public class ProposalService {
         int totalApprover = approvers.size();
 
         int approvedApproverCount = (int) approvers.stream()
-            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.COMPLETE_APPROVED)
+            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.APPROVER_APPROVED)
             .count();
 
         int modificationRequestedApproverCount = (int) approvers.stream()
-            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.REQUEST_MODIFICATION)
+            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.APPROVER_REJECTED)
             .count();
 
         int waitingApproverCount = (int) approvers.stream()
-            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.WAITING_FOR_RESPONSE)
+            .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.NOT_RESPONDED)
             .count();
 
         checkApproverCounts(totalApprover, approvedApproverCount, modificationRequestedApproverCount, waitingApproverCount);
@@ -128,6 +149,75 @@ public class ProposalService {
             waitingApproverCount,
             proposal.getProposalStatus()
         );
+    }
+
+    private ApprovalProposalStatus determineProposalStatus(
+        List<ApprovalApprover> approvers,
+        Map<Long, List<ApprovalDecision>> decisionsByApproverId
+    ) {
+        boolean anyRejected = approvers.stream()
+            .anyMatch(approver -> hasRejectedDecision(decisionsByApproverId.get(approver.getId())));
+
+        boolean allApproved = approvers.stream()
+            .allMatch(approver -> hasApprovedDecision(decisionsByApproverId.get(approver.getId())));
+
+        if (anyRejected) {
+            return ApprovalProposalStatus.FINAL_REJECTED;
+        } else if (allApproved) {
+            return ApprovalProposalStatus.FINAL_APPROVED;
+        } else {
+            return ApprovalProposalStatus.UNDER_REVIEW;
+        }
+    }
+
+    private boolean hasApprovedDecision(List<ApprovalDecision> decisions) {
+        if (decisions == null || decisions.isEmpty()) {
+            return false; // 미응답이면 승인 아님
+        }
+        return decisions.stream()
+            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED);
+    }
+
+    private boolean hasRejectedDecision(List<ApprovalDecision> decisions) {
+        if (decisions == null || decisions.isEmpty()) {
+            return false; // 미응답이면 거절 아님
+        }
+        return decisions.stream()
+            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
+    }
+
+    private Map<Long, List<ApprovalDecision>> findDecisionsGroupedByApprovers(List<ApprovalApprover> approvers) {
+        List<Long> approverIds = approvers.stream()
+            .map(ApprovalApprover::getId)
+            .toList();
+
+        List<ApprovalDecision> decisions = approvalDecisionRepository.findByApprovalApproverIdIn(approverIds);
+
+        return decisions.stream()
+            .collect(Collectors.groupingBy(d -> d.getApprovalApprover().getId()));
+    }
+
+    private void findProjectUser(User user, Long projectId) {
+
+        projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
+    }
+
+    private ProjectProgress findProgress(Long progressId) {
+
+        return progressRepository.findById(progressId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
+    }
+
+    private ApprovalProposal findProposal(Long approvalId) {
+
+        return approvalProposalRepository.findById(approvalId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
+    }
+
+    private List<ApprovalApprover> findApprovers(ApprovalProposal proposal) {
+
+        return approvalApproverRepository.findByApprovalProposal(proposal);
     }
 
     private void checkApproverCounts(
@@ -172,33 +262,5 @@ public class ProposalService {
         return user.getRole() != null && user.getRole()
             .name()
             .equals("DEVELOPER");
-    }
-
-    private void findProjectUser(User user, Long projectId) {
-
-        projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
-    }
-
-    private ProjectProgress findProgress(Long progressId) {
-
-        return progressRepository.findById(progressId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
-    }
-
-    private ApprovalProposal findProposal(Long approvalId) {
-
-        return approvalProposalRepository.findById(approvalId)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_PROPOSAL));
-    }
-
-    private List<ApprovalDecision> findApprovalDecisions(ApprovalApprover approver) {
-
-        return approvalDecisionRepository.findByApprovalApprover(approver);
-    }
-
-    private List<ApprovalApprover> findApprovers(ApprovalProposal proposal) {
-
-        return approvalApproverRepository.findByApprovalProposal(proposal);
     }
 }

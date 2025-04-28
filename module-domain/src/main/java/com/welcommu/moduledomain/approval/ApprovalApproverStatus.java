@@ -1,8 +1,7 @@
 package com.welcommu.moduledomain.approval;
 
 public enum ApprovalApproverStatus {
-    BEFORE_REQUEST,               // 아직 승인 요청이 보내지지 않은 승인권자
-    WAITING_FOR_RESPONSE,          // 요청은 보냈지만 응답은 없는 상태
-    REQUEST_MODIFICATION,          // 수정 요청(반려)한 승인권자
-    COMPLETE_APPROVED              // 승인 완료한 승인권자
+    NOT_RESPONDED,               // 아직 응답 안함
+    APPROVER_APPROVED,          // 반려응답만 있고, 승인응답이 하나도 없는 경우
+    APPROVER_REJECTED              // 승인응답이 하나라도 있는 경우
 }

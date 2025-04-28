@@ -10,11 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ApprovalDecisionRepository extends JpaRepository<ApprovalDecision, Long> {
 
-    List<ApprovalDecision> findByApprovalApprover_ApprovalProposal(ApprovalProposal proposal);
-
     List<ApprovalDecision> findByApprovalApproverId(Long approverId);
-
-    List<ApprovalDecision> findAllByApprovalApproverId(Long approverId);
-
     List<ApprovalDecision> findByApprovalApprover(ApprovalApprover approver);
+    List<ApprovalDecision> findByApprovalApproverIdIn(List<Long> approverIds);
 }

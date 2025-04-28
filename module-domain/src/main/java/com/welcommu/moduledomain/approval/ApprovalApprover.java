@@ -44,24 +44,4 @@ public class ApprovalApprover {
     @JoinColumn(name = "approval_proposal_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApprovalProposal approvalProposal;
-
-    public void modifyApproverStatus(List<ApprovalDecision> decisions) {
-        if (decisions.isEmpty()) {
-            if (!approvalProposal.isProposalSent()) {
-                this.approverStatus = ApprovalApproverStatus.BEFORE_REQUEST;
-            } else {
-                this.approverStatus = ApprovalApproverStatus.WAITING_FOR_RESPONSE;
-            }
-            return;
-        }
-
-        boolean hasApproved = decisions.stream()
-            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED);
-
-        if (hasApproved) {
-            this.approverStatus = ApprovalApproverStatus.COMPLETE_APPROVED;
-        } else {
-            this.approverStatus = ApprovalApproverStatus.REQUEST_MODIFICATION;
-        }
-    }
 }

@@ -58,30 +58,7 @@ public class ApprovalProposal {
 
     public void markProposalSent() {
         this.isProposalSent = true;
-        this.proposalStatus = ApprovalProposalStatus.WAITING_FOR_DECISIONS;
-        this.modifiedAt = LocalDateTime.now();    }
-
-    public void modifyProposalStatus(List<ApprovalDecision> decisions) {
-        if (!this.isProposalSent) {
-            this.proposalStatus = ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL;
-            return;
-        }
-
-        boolean anyRejected = decisions.stream()
-            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
-
-        long approvedCount = decisions.stream()
-            .filter(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED)
-            .count();
-
-        if (anyRejected) {
-            this.proposalStatus = ApprovalProposalStatus.REJECTED_BY_ANY_DECISION;
-        } else if (approvedCount == this.countTotalApprover) {
-            this.proposalStatus = ApprovalProposalStatus.APPROVED_BY_ALL_DECISIONS;
-        } else {
-            this.proposalStatus = ApprovalProposalStatus.WAITING_FOR_DECISIONS;
-        }
-
+        this.proposalStatus = ApprovalProposalStatus.UNDER_REVIEW;
         this.modifiedAt = LocalDateTime.now();
     }
 
@@ -91,6 +68,11 @@ public class ApprovalProposal {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public void setProposalStatus(ApprovalProposalStatus status) {
+        this.proposalStatus = status;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void setCountTotalApprover(int size) {

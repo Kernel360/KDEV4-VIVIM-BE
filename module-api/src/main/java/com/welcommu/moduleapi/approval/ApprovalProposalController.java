@@ -92,7 +92,7 @@ public class ApprovalProposalController {
             .body(response);
     }
 
-    @GetMapping("/approval/{approvalId}/status-summary")
+    @GetMapping("/approval/{approvalId}/status")
     @Operation(summary = "최종 승인상태 확인")
     public ResponseEntity<ProposalStatusResponse> getProposalStatusSummary(
         @PathVariable Long approvalId) {

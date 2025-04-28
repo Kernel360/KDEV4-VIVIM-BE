@@ -14,6 +14,7 @@ import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestM
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseSend;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponsesByAllApprover;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponsesByOneApprover;
+import com.welcommu.moduleservice.approval.approvalProposal.ProposalService;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,7 @@ public class DecisionService {
     private final ApprovalProposalRepository approvalProposalRepository;
     private final ApprovalDecisionRepository approvalDecisionRepository;
     private final ApprovalApproverRepository approvalApproverRepository;
+    private final ProposalService proposalService;
 
     @Transactional
     public Long createDecision(User user, Long approverId, DecisionRequestCreation request) {
@@ -42,8 +44,7 @@ public class DecisionService {
         approvalDecisionRepository.save(decision);
 
         // 상태 변경 후 proposal 상태도 갱신
-        List<ApprovalDecision> decisions = findAllDecision(approverId);
-        proposal.modifyProposalStatus(decisions);
+        proposalService.modifyProposalStatus(decision.getId());
 
         return decision.getId();
     }
@@ -63,9 +64,7 @@ public class DecisionService {
         ApprovalProposal proposal = decision.getApprovalApprover()
             .getApprovalProposal();
 
-        List<ApprovalDecision> decisions = findAllDecision(decision.getApprovalApprover()
-            .getId());
-        proposal.modifyProposalStatus(decisions);
+        proposalService.modifyProposalStatus(decision.getId());
     }
 
     @Transactional
@@ -85,11 +84,7 @@ public class DecisionService {
         // 승인응답 전송할 때를 기준으로 응답시간 기록
         decision.setDecidedAt(LocalDateTime.now());
 
-        // 승인요청 상태 변경
-        ApprovalProposal proposal = decision.getApprovalApprover()
-            .getApprovalProposal();
-        List<ApprovalDecision> allDecisions = approvalDecisionRepository.findByApprovalApprover_ApprovalProposal(proposal);
-        proposal.modifyProposalStatus(allDecisions);
+        proposalService.modifyProposalStatus(decision.getId());
 
         return DecisionResponseSend.from(user, decision);
     }
@@ -160,9 +155,5 @@ public class DecisionService {
     private ApprovalDecision findDecision(Long decisionId) {
         return approvalDecisionRepository.findById(decisionId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_APPROVAL_DECISION));
-    }
-
-    private List<ApprovalDecision> findAllDecision(Long approverId) {
-        return approvalDecisionRepository.findAllByApprovalApproverId(approverId);
     }
 }
