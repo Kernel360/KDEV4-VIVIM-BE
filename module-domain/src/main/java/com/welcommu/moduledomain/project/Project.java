@@ -99,4 +99,7 @@ public class Project {
         isDeleted = deleted;
     }
 
+    public void setProjectFee(Integer projectFee) {
+        this.projectFee = projectFee;
+    }
 }

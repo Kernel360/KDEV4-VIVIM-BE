@@ -4,14 +4,13 @@ import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import com.welcommu.moduledomain.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 @Builder
@@ -22,6 +21,8 @@ public class ProjectModifyRequest {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
+
+    private int projectFee;
 
     private List<ProjectUserRoleRequest> clientManagers;
     private List<ProjectUserRoleRequest> clientUsers;
@@ -35,6 +36,7 @@ public class ProjectModifyRequest {
         project.setName(this.name);
         project.setDescription(this.description);
         project.setStartDate(this.startDate);
+        project.setProjectFee(this.projectFee);
         project.setEndDate(this.endDate);
         project.setModifiedAt(LocalDateTime.now());
         return project;
