@@ -12,14 +12,14 @@ public class ApproverResponse {
     private Long approverId;
     private Long userId;
     private String name;
-    private String decisionStatus;
+    private String approverStatus;
 
     public static ApproverResponse from(ApprovalApprover approver) {
         return ApproverResponse.builder()
             .approverId(approver.getId())
             .userId(approver.getProjectUser().getUser().getId())
             .name(approver.getProjectUser().getUser().getName())
-            .decisionStatus(approver.getApproverStatus().toString())
+            .approverStatus(approver.getApproverStatus().toString())
             .build();
     }
 }

@@ -15,7 +15,7 @@ public class DecisionRequestCreation {
     private String content;
     
     @NotNull
-    private ApprovalDecisionStatus decisionStatus;  // APPROVED, REJECTED, PENDING
+    private ApprovalDecisionStatus decisionStatus;
     
     public ApprovalDecision toEntity(ApprovalApprover approvalApprover) {
         return ApprovalDecision.builder().content(this.content).decidedAt(LocalDateTime.now())

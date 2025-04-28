@@ -44,4 +44,8 @@ public class ApprovalApprover {
     @JoinColumn(name = "approval_proposal_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApprovalProposal approvalProposal;
+
+    public void setApproverStatus(ApprovalApproverStatus status) {
+        this.approverStatus = status;
+    }
 }

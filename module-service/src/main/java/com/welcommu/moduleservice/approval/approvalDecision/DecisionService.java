@@ -9,6 +9,7 @@ import com.welcommu.moduledomain.user.User;
 import com.welcommu.modulerepository.approval.ApprovalApproverRepository;
 import com.welcommu.modulerepository.approval.ApprovalDecisionRepository;
 import com.welcommu.modulerepository.approval.ApprovalProposalRepository;
+import com.welcommu.moduleservice.approval.approvalApprover.ApproverService;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestCreation;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestModification;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseSend;
@@ -30,21 +31,26 @@ public class DecisionService {
     private final ApprovalDecisionRepository approvalDecisionRepository;
     private final ApprovalApproverRepository approvalApproverRepository;
     private final ProposalService proposalService;
+    private final ApproverService approverService;
 
     @Transactional
     public Long createDecision(User user, Long approverId, DecisionRequestCreation request) {
-
         ApprovalApprover approver = findApprover(approverId);
         ApprovalProposal proposal = approver.getApprovalProposal();
+
         if (!proposal.isProposalSent()) {
             throw new CustomException(CustomErrorCode.PROPOSAL_NOT_SENT_YET);
-        }        checkUserPermission(user, proposal);
+        }
+        checkUserPermission(user, proposal);
 
         ApprovalDecision decision = request.toEntity(approver);
         approvalDecisionRepository.save(decision);
 
-        // 상태 변경 후 proposal 상태도 갱신
-        proposalService.modifyProposalStatus(decision.getId());
+        // 승인권자 상태 갱신
+        approverService.modifyApproverStatus(approver.getId());
+
+        // 승인요청 상태 갱신
+        proposalService.modifyProposalStatus(proposal.getId());
 
         return decision.getId();
     }
@@ -61,17 +67,27 @@ public class DecisionService {
             decision.setDecisionStatus(dto.getDecisionStatus());
         }
 
-        ApprovalProposal proposal = decision.getApprovalApprover()
-            .getApprovalProposal();
+        ApprovalApprover approver = decision.getApprovalApprover();
+        ApprovalProposal proposal = approver.getApprovalProposal();
 
-        proposalService.modifyProposalStatus(decision.getId());
+        // 승인권자 상태 갱신
+        approverService.modifyApproverStatus(approver.getId());
+
+        // 승인요청 상태 갱신
+        proposalService.modifyProposalStatus(proposal.getId());
     }
 
     @Transactional
     public void deleteDecision(Long decisionId) {
 
         ApprovalDecision decision = findDecision(decisionId);
+        ApprovalApprover approver = decision.getApprovalApprover();
+        ApprovalProposal proposal = approver.getApprovalProposal();
+
         approvalDecisionRepository.delete(decision);
+
+        approverService.modifyApproverStatus(approver.getId());
+        proposalService.modifyProposalStatus(proposal.getId());
     }
 
     public DecisionResponsesByAllApprover getFilteredAllDecisions(Long approvalId) {

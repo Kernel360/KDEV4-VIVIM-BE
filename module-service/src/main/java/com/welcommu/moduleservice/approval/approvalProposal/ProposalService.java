@@ -109,6 +109,8 @@ public class ProposalService {
      * 승인요청 상태 관련 로직
       */
 
+    // 실제 ApprovalProposal(승인요청)의 상태를 DB에 반영하는 메서드
+    // 즉, 계산한 상태를 실제 ApprovalProposal 엔티티에 setProposalStatus() 해서 변경하는 역할
     @Transactional
     public void modifyProposalStatus(Long proposalId) {
         ApprovalProposal proposal = findProposal(proposalId);
@@ -120,6 +122,26 @@ public class ProposalService {
         ApprovalProposalStatus proposalStatus = determineProposalStatus(approvers, decisionsByApproverId);
 
         proposal.setProposalStatus(proposalStatus);
+    }
+
+    // 승인요청(Proposal)이 어떤 최종 상태를 가져야 하는지 계산하는 메서드
+    private ApprovalProposalStatus determineProposalStatus(
+        List<ApprovalApprover> approvers,
+        Map<Long, List<ApprovalDecision>> decisionsByApproverId
+    ) {
+        boolean anyRejected = approvers.stream()
+            .anyMatch(approver -> approver.getApproverStatus() == ApprovalApproverStatus.APPROVER_REJECTED);
+
+        boolean allApproved = approvers.stream()
+            .allMatch(approver -> approver.getApproverStatus() == ApprovalApproverStatus.APPROVER_APPROVED);
+
+        if (anyRejected) {
+            return ApprovalProposalStatus.FINAL_REJECTED;
+        } else if (allApproved) {
+            return ApprovalProposalStatus.FINAL_APPROVED;
+        } else {
+            return ApprovalProposalStatus.UNDER_REVIEW;
+        }
     }
 
     public ProposalStatusResponse getProposalStatus(Long approvalId) {
@@ -149,41 +171,6 @@ public class ProposalService {
             waitingApproverCount,
             proposal.getProposalStatus()
         );
-    }
-
-    private ApprovalProposalStatus determineProposalStatus(
-        List<ApprovalApprover> approvers,
-        Map<Long, List<ApprovalDecision>> decisionsByApproverId
-    ) {
-        boolean anyRejected = approvers.stream()
-            .anyMatch(approver -> hasRejectedDecision(decisionsByApproverId.get(approver.getId())));
-
-        boolean allApproved = approvers.stream()
-            .allMatch(approver -> hasApprovedDecision(decisionsByApproverId.get(approver.getId())));
-
-        if (anyRejected) {
-            return ApprovalProposalStatus.FINAL_REJECTED;
-        } else if (allApproved) {
-            return ApprovalProposalStatus.FINAL_APPROVED;
-        } else {
-            return ApprovalProposalStatus.UNDER_REVIEW;
-        }
-    }
-
-    private boolean hasApprovedDecision(List<ApprovalDecision> decisions) {
-        if (decisions == null || decisions.isEmpty()) {
-            return false; // 미응답이면 승인 아님
-        }
-        return decisions.stream()
-            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.APPROVED);
-    }
-
-    private boolean hasRejectedDecision(List<ApprovalDecision> decisions) {
-        if (decisions == null || decisions.isEmpty()) {
-            return false; // 미응답이면 거절 아님
-        }
-        return decisions.stream()
-            .anyMatch(d -> d.getDecisionStatus() == ApprovalDecisionStatus.REJECTED);
     }
 
     private Map<Long, List<ApprovalDecision>> findDecisionsGroupedByApprovers(List<ApprovalApprover> approvers) {

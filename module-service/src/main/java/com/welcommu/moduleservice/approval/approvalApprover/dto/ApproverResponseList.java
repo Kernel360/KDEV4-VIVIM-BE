@@ -14,11 +14,9 @@ public class ApproverResponseList {
     private List<ApproverResponse> approverResponses;
 
     public static ApproverResponseList from(List<ApprovalApprover> approvalApprovers) {
-        List<ApproverResponse> approverResponses = approvalApprovers.stream().map(
-            approver -> ApproverResponse.builder().approverId(approver.getId())
-                .userId(approver.getProjectUser().getUser().getId())
-                .name(approver.getProjectUser().getUser().getName()).decisionStatus("PENDING")
-                .build()).collect(Collectors.toList());
+        List<ApproverResponse> approverResponses = approvalApprovers.stream()
+            .map(ApproverResponse::from)
+            .collect(Collectors.toList());
 
         return new ApproverResponseList(approverResponses);
     }

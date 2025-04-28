@@ -47,25 +47,11 @@ public class ApprovalDecision {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ApprovalApprover approvalApprover;
 
-    public void approve() {
-        this.decisionStatus = ApprovalDecisionStatus.APPROVED;
-        this.decidedAt = LocalDateTime.now();
-    }
-
-    public void reject() {
-        this.decisionStatus = ApprovalDecisionStatus.REJECTED;
-        this.decidedAt = LocalDateTime.now();
-    }
-
     public void setContent(String content) {
         this.content = content;
     }
 
     public void setDecisionStatus(ApprovalDecisionStatus decisionStatus) {
         this.decisionStatus = decisionStatus;
-    }
-
-    public void setDecidedAt(LocalDateTime decidedAt) {
-        this.decidedAt = decidedAt;
     }
 }
