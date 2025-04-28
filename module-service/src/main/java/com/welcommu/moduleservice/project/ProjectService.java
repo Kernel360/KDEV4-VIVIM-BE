@@ -2,6 +2,9 @@ package com.welcommu.moduleservice.project;
 
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.project.dto.DashboardInspectionCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProgressCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProjectFeeResponse;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
@@ -33,4 +36,8 @@ public interface ProjectService {
     List<ProjectAdminSummaryResponse> getCompanyProjects(Long companyId);
     List<ProjectSummaryWithRoleDto> getCompanyProjectsWithMyRole(Long companyId, Long userId);
     List<ProjectCompanyResponse> getCompaniesByProjectId(Long projectId);
+
+    DashboardProjectFeeResponse getDashboardProjectFee();
+    DashboardInspectionCountResponse getDashboardInspectionCount();
+    DashboardProgressCountResponse getDashboardProgressCount();
 }

@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -26,6 +30,8 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+  execution-time:
+    enabled: false
 server:
   port: 443
   ssl:

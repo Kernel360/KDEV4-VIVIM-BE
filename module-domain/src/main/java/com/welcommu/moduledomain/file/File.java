@@ -1,12 +1,18 @@
 package com.welcommu.moduledomain.file;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Table(name = "file")
 @Getter
@@ -41,18 +47,6 @@ public class File {
 
     @Column(name = "reference_id", nullable = false)
     private Long referenceId;
-
-    public static File create(String fileName, String fileUrl, Long fileSize,
-        ReferenceType referenceType, Long referenceId) {
-        return File.builder()
-            .fileName(fileName)
-            .fileUrl(fileUrl)
-            .fileSize(fileSize)
-            .referenceType(referenceType)
-            .referenceId(referenceId)
-            .createdAt(LocalDateTime.now())
-            .build();
-    }
 
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();

@@ -7,6 +7,7 @@ import com.welcommu.moduledomain.file.File;
 import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.moduleinfra.file.FileRepository;
 import com.welcommu.moduleservice.file.dto.FileListResponse;
+import com.welcommu.moduleservice.file.dto.FileRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +21,19 @@ public class FileService {
 
     private final FileRepository fileRepository;
 
-    public void createPostFile(String fileName, String fileUrl, Long fileSize, Long postId) {
+    public void createPostFile(FileRequest request, Long postId) {
 
-        File newFile = File.create(fileName, fileUrl, fileSize, ReferenceType.POST, postId);
+        File newFile = request.toEntity(request, ReferenceType.POST, postId);
         fileRepository.save(newFile);
     }
 
-    public void createApprovalFile(String fileName, String fileUrl, Long fileSize, Long postId) {
-        File newFile = File.create(fileName, fileUrl, fileSize, ReferenceType.APPROVAL, postId);
+    public void createApprovalFile(FileRequest request, Long approvalId) {
+        File newFile = request.toEntity(request, ReferenceType.APPROVAL, approvalId);
+        fileRepository.save(newFile);
+    }
+
+    public void createDecisionFile(FileRequest request, Long decisionId) {
+        File newFile = request.toEntity(request, ReferenceType.DECISION, decisionId);
         fileRepository.save(newFile);
     }
 
@@ -42,6 +48,14 @@ public class FileService {
     public List<FileListResponse> getApprovalFiles(Long approvalId) {
         List<File> files = fileRepository.findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(
             approvalId, ReferenceType.APPROVAL);
+        return files.stream()
+            .map(FileListResponse::from)
+            .collect(Collectors.toList());
+    }
+
+    public List<FileListResponse> getDecisionFiles(Long decisionId) {
+        List<File> files = fileRepository.findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(
+            decisionId, ReferenceType.DECISION);
         return files.stream()
             .map(FileListResponse::from)
             .collect(Collectors.toList());

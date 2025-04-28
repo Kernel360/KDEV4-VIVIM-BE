@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,41 +22,56 @@ public class AuditLogRepositoryImpl implements AuditLogRepositoryCustom {
     private final EntityManager em;
 
     @Override
-    public List<AuditLog> findByConditions(
+    public Page<AuditLog> findByConditions(
         ActionType actionType,
         TargetType targetType,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Long userId
+        Long userId,
+        Pageable pageable
     ) {
-        StringBuilder sb = new StringBuilder("SELECT a FROM AuditLog a WHERE 1=1");
+        StringBuilder jpql = new StringBuilder("SELECT DISTINCT a FROM AuditLog a LEFT JOIN FETCH a.details WHERE 1=1");
+        StringBuilder countJpql = new StringBuilder("SELECT COUNT(DISTINCT a) FROM AuditLog a WHERE 1=1");
         Map<String, Object> params = new HashMap<>();
 
         if (actionType != null) {
-            sb.append(" AND a.actionType = :actionType");
+            jpql.append(" AND a.actionType = :actionType");
+            countJpql.append(" AND a.actionType = :actionType");
             params.put("actionType", actionType);
         }
         if (targetType != null) {
-            sb.append(" AND a.targetType = :targetType");
+            jpql.append(" AND a.targetType = :targetType");
+            countJpql.append(" AND a.targetType = :targetType");
             params.put("targetType", targetType);
         }
         if (startDate != null) {
-            sb.append(" AND a.loggedAt >= :startDate");
+            jpql.append(" AND a.loggedAt >= :startDate");
+            countJpql.append(" AND a.loggedAt >= :startDate");
             params.put("startDate", startDate);
         }
         if (endDate != null) {
-            sb.append(" AND a.loggedAt <= :endDate");
+            jpql.append(" AND a.loggedAt <= :endDate");
+            countJpql.append(" AND a.loggedAt <= :endDate");
             params.put("endDate", endDate);
         }
         if (userId != null) {
-            sb.append(" AND a.actorId = :userId");
+            jpql.append(" AND a.actorId = :userId");
+            countJpql.append(" AND a.actorId = :userId");
             params.put("userId", userId);
         }
 
-        TypedQuery<AuditLog> query = em.createQuery(sb.toString(), AuditLog.class);
+        TypedQuery<AuditLog> query = em.createQuery(jpql.toString(), AuditLog.class);
         params.forEach(query::setParameter);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
 
-        return query.getResultList();
+        List<AuditLog> results = query.getResultList();
+
+        TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
+        params.forEach(countQuery::setParameter);
+        Long total = countQuery.getSingleResult();
+
+        return new PageImpl<>(results, pageable, total);
     }
 }
 

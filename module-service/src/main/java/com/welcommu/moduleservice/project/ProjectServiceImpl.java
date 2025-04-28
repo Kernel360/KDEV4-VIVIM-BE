@@ -19,6 +19,9 @@ import com.welcommu.moduleinfra.project.ProjectRepository;
 import com.welcommu.moduleinfra.project.ProjectUserRepository;
 import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleinfra.user.UserRepository;
+import com.welcommu.moduleservice.project.dto.DashboardInspectionCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProgressCountResponse;
+import com.welcommu.moduleservice.project.dto.DashboardProjectFeeResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
@@ -219,4 +222,20 @@ public class ProjectServiceImpl implements ProjectService{
             .map(pc -> ProjectCompanyResponse.from(pc.getCompany()))
             .toList();
     }
+
+    public DashboardProjectFeeResponse getDashboardProjectFee() {
+        List<Project> projects = projectRepository.findAll();
+        return new DashboardProjectFeeResponse(projects);
+    }
+
+    public DashboardInspectionCountResponse getDashboardInspectionCount() {
+        List<Project> projects = projectRepository.findAll();
+        return new DashboardInspectionCountResponse(projects);
+    }
+
+    public DashboardProgressCountResponse getDashboardProgressCount() {
+        List<Project> projects = projectRepository.findAll();
+        return new DashboardProgressCountResponse(projects);
+    }
+
 }

@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,21 +25,21 @@ public class AuditLogSearchService {
             .toList();
     }
 
-    public List<AuditLogResponse> searchLogs(
+    public Page<AuditLogResponse>searchLogs(
         ActionType actionType,
         TargetType targetType,
         String startDate,
         String endDate,
-        Long userId
+        Long userId,
+        Pageable pageable
     ) {
         LocalDateTime start = (startDate != null) ? LocalDate.parse(startDate).atStartOfDay() : null;
         LocalDateTime end = (endDate != null) ? LocalDate.parse(endDate).atTime(LocalTime.MAX) : null;
 
-        List<AuditLog> logs = auditLogRepository.findByConditions(actionType, targetType, start, end, userId);
-
-        return logs.stream()
-            .map(AuditLogResponse::from)
-            .toList();
+        Page<AuditLog> logs = auditLogRepository.findByConditions(
+            actionType, targetType, start, end, userId, pageable
+        );
+        return logs.map(AuditLogResponse::from);
     }
 
 }
