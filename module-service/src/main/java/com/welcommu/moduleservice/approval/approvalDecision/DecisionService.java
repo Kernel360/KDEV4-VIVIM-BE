@@ -74,21 +74,6 @@ public class DecisionService {
         approvalDecisionRepository.delete(decision);
     }
 
-    @Transactional
-    public DecisionResponseSend sendDecision(User user, Long decisionId) {
-
-        ApprovalDecision decision = findDecision(decisionId);
-        checkUserPermission(user, decision.getApprovalApprover()
-            .getApprovalProposal());
-
-        // 승인응답 전송할 때를 기준으로 응답시간 기록
-        decision.setDecidedAt(LocalDateTime.now());
-
-        proposalService.modifyProposalStatus(decision.getId());
-
-        return DecisionResponseSend.from(user, decision);
-    }
-
     public DecisionResponsesByAllApprover getFilteredAllDecisions(Long approvalId) {
 
         ApprovalProposal approvalProposal = findProposal(approvalId);

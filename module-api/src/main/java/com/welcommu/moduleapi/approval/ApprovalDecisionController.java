@@ -72,14 +72,4 @@ public class ApprovalDecisionController {
             approvalId);
         return ResponseEntity.ok().body(response);
     }
-
-    @PostMapping("/decision/{decisionId}/send")
-    @Operation(summary = "승인응답 전송")
-    public ResponseEntity<DecisionResponseSend> sendDecision(
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long decisionId) {
-
-        DecisionResponseSend response = decisionService.sendDecision(userDetails.getUser(),
-            decisionId);
-        return ResponseEntity.ok().body(response);
-    }
 }
