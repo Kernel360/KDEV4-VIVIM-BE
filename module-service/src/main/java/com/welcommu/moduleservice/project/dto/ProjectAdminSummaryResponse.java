@@ -22,7 +22,7 @@ public class ProjectAdminSummaryResponse {
         return new ProjectAdminSummaryResponse(
             p.getId(),
             p.getName(),
-            p.getProjectFee(),
+            p.getProjectFee() != null ? p.getProjectFee() : 0,  // null → 0
             p.getStartDate(),
             p.getEndDate(),
             p.getIsDeleted(),
