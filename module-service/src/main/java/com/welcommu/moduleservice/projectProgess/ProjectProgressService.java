@@ -2,7 +2,6 @@ package com.welcommu.moduleservice.projectProgess;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
@@ -16,6 +15,7 @@ import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusRespo
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -72,6 +72,7 @@ public class ProjectProgressService {
         return ProgressListResponse.of(progressList);
     }
 
+    // 각 단계별 totalApprovalCount, approvedApprovalCount, progressRate를 조회해서 progressList로 주는 역할
     public ProgressApprovalStatusResponse getProgressApprovalStatus(Long projectId) {
         Project project = findProject(projectId);
         List<ProjectProgress> progressList = progressRepository.findByProject(project);
@@ -79,11 +80,11 @@ public class ProjectProgressService {
         List<ProgressApprovalStatusResponse.ProgressApprovalStatus> progressApprovalStatuses =
             progressList.stream()
                 .map(progress -> {
-                    Long totalCount = proposalRepository.countByProjectProgressIdAndIsProposalSentTrue(progress.getId());
+                    Long totalCount = proposalRepository.countByProjectProgressId(progress.getId());
                     Long approvedCount = proposalRepository.countByProjectProgressIdAndProposalStatus(
                         progress.getId(), ApprovalProposalStatus.FINAL_APPROVED
                     );
-                    float progressRate = (totalCount == 0) ? 0.0f : (approvedCount * 1.0f / totalCount);
+                    float progressRate = (totalCount == 0) ? 0.0f : (approvedCount * 1.0f / totalCount) * 100;
 
                     return new ProgressApprovalStatusResponse.ProgressApprovalStatus(
                         progress.getId(),
@@ -96,6 +97,33 @@ public class ProjectProgressService {
                 .toList();
 
         return new ProgressApprovalStatusResponse(progressApprovalStatuses);
+    }
+
+    public ProgressApprovalStatusOverallResponse calculateOverallProgress(Long projectId) {
+        ProgressApprovalStatusResponse progressStatus = getProgressApprovalStatus(projectId);
+        List<ProgressApprovalStatusResponse.ProgressApprovalStatus> progresses = progressStatus.getProgressList();
+
+        int totalStageCount = progresses.size();
+        int completedStageCount = 0;
+        float currentStageProgressRate = 0.0f;
+
+        for (ProgressApprovalStatusResponse.ProgressApprovalStatus progress : progresses) {
+            if (progress.getProgressRate() == 1.0f) {
+                completedStageCount++;
+            } else {
+                currentStageProgressRate = progress.getProgressRate();
+                break;
+            }
+        }
+
+        float overallProgressRate = ((completedStageCount + currentStageProgressRate) / totalStageCount) * 100.0f;
+
+        return ProgressApprovalStatusOverallResponse.builder()
+            .totalStageCount(totalStageCount)
+            .completedStageCount(completedStageCount)
+            .currentStageProgressRate(currentStageProgressRate)
+            .overallProgressRate(overallProgressRate)
+            .build();
     }
 
     private ProjectProgress checkIsMatchedProject(Long projectId, Long progressId) {

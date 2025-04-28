@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 public interface ApprovalProposalRepository extends JpaRepository<ApprovalProposal, Long> {
 
     List<ApprovalProposal> findByProjectProgress(ProjectProgress progress);
-    
+
     Long countByProjectProgressIdAndProposalStatus(Long id, ApprovalProposalStatus approvalProposalStatus);
 
-    Long countByProjectProgressIdAndIsProposalSentTrue(Long id);
+    Long countByProjectProgressId(Long id);
 }
