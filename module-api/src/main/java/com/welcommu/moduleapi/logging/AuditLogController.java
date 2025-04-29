@@ -6,8 +6,10 @@ import com.welcommu.moduledomain.logging.enums.TargetType;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduleservice.logging.AuditLogSearchService;
 import com.welcommu.moduleservice.logging.dto.AuditLogResponse;
+import com.welcommu.moduleservice.logging.dto.LogsWithCursor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,6 +50,24 @@ public class AuditLogController {
     ) {
         Page<AuditLogResponse> logs = auditLogSearchService.searchLogs(actionType, entityType, startDate, endDate, userId, pageable);
         return ResponseEntity.ok(logs);
+    }
+
+    @GetMapping("/searchCursor")
+    public ResponseEntity<LogsWithCursor<AuditLogResponse>> search(
+        @RequestParam(required = false) ActionType actionType,
+        @RequestParam(required = false) TargetType targetType,
+        @RequestParam(required = false) String startDate,
+        @RequestParam(required = false) String endDate,
+        @RequestParam(required = false) Long userId,
+        @RequestParam(required = false) LocalDateTime cursorLoggedAt,
+        @RequestParam(required = false) Long cursorId,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        LogsWithCursor<AuditLogResponse> result = auditLogSearchService.searchLogs(
+            actionType, targetType, startDate, endDate, userId,
+            cursorLoggedAt, cursorId, size
+        );
+        return ResponseEntity.ok(result);
     }
 
 }
