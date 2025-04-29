@@ -46,16 +46,4 @@ public class Company {
 
     @Enumerated(EnumType.STRING)
     private CompanyRole companyRole;
-
-    @PrePersist
-    public void prePersist() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (isDeleted == null) {
-            isDeleted = false;  // 기본값을 false로 설정
-        }
-    }
-
-
 }
