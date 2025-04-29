@@ -22,7 +22,7 @@ public class DashboardInspectionCountResponse {
             } else if (project.getProjectStatus() == ProjectStatus.INSPECTION) {
                 inspectionCount++;
             } else if (project.getProjectStatus() == ProjectStatus.COMPLETED) {
-                inspectionCount++;
+                completedCount++;
             }
         }
     }
