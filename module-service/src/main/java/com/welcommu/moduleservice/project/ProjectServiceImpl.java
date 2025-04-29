@@ -7,27 +7,28 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.ProjectCompany.ProjectCompany;
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.company.CompanyRole;
-import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
-import com.welcommu.moduleinfra.company.CompanyRepository;
-import com.welcommu.moduleinfra.project.ProjectCompanyRepository;
-import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.project.ProjectStatus;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
+import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleinfra.company.CompanyRepository;
+import com.welcommu.moduleinfra.project.ProjectCompanyRepository;
 import com.welcommu.moduleinfra.project.ProjectRepository;
 import com.welcommu.moduleinfra.project.ProjectUserRepository;
 import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleinfra.user.UserRepository;
+import com.welcommu.moduleservice.project.audit.ProjectAuditService;
 import com.welcommu.moduleservice.project.dto.DashboardInspectionCountResponse;
 import com.welcommu.moduleservice.project.dto.DashboardProgressCountResponse;
 import com.welcommu.moduleservice.project.dto.DashboardProjectFeeResponse;
-import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
-import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectAdminSummaryResponse;
+import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
@@ -44,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ProjectServiceImpl implements ProjectService{
+public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectProgressRepository progressRepository;
@@ -59,7 +60,7 @@ public class ProjectServiceImpl implements ProjectService{
 
         Project project = dto.toEntity();
         Project createProject = projectRepository.save(project);
-        projectAuditService.createAuditLog(ProjectSnapshot.from(createProject) , creatorId);
+        projectAuditService.createAuditLog(ProjectSnapshot.from(createProject), creatorId);
 
         initializeDefaultProgress(createProject);
 
@@ -83,7 +84,9 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     public Project getProject(User user, Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));;
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
+        ;
         checkUserPermission(user, projectId);
         return project;
 
@@ -156,7 +159,8 @@ public class ProjectServiceImpl implements ProjectService{
         Boolean isDeleted,
         Pageable pageable
     ) {
-        Page<Project> projects = projectRepository.searchByConditions(name, description, isDeleted, pageable);
+        Page<Project> projects = projectRepository.searchByConditions(name, description, isDeleted,
+            pageable);
         return projects.map(ProjectAdminSummaryResponse::from);
     }
 
@@ -184,7 +188,8 @@ public class ProjectServiceImpl implements ProjectService{
             .toList();
     }
 
-    public List<ProjectSummaryWithRoleDto> getCompanyProjectsWithMyRole(Long companyId, Long userId) {
+    public List<ProjectSummaryWithRoleDto> getCompanyProjectsWithMyRole(Long companyId,
+        Long userId) {
         List<Project> projects = projectRepository.findAllByCompanyId(companyId);
 
         Map<Long, ProjectUser> myRoles = projectUserRepository.findByUserId(userId).stream()
@@ -200,11 +205,11 @@ public class ProjectServiceImpl implements ProjectService{
         float position = 1.0f;
         for (DefaultProjectProgress defaultProjectProgress : DefaultProjectProgress.values()) {
             ProjectProgress progress = ProjectProgress.builder()
-                    .name(defaultProjectProgress.getLabel())
-                    .position(position)
-                    .createdAt(LocalDateTime.now())
-                    .project(project)
-                    .build();
+                .name(defaultProjectProgress.getLabel())
+                .position(position)
+                .createdAt(LocalDateTime.now())
+                .project(project)
+                .build();
             progressRepository.save(progress);
             position += 1.0f;
         }
@@ -238,4 +243,24 @@ public class ProjectServiceImpl implements ProjectService{
         return new DashboardProgressCountResponse(projects);
     }
 
+    @Transactional
+    public void increaseCurrentProgress(Long projectId) {
+
+        Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
+
+        DefaultProjectProgress currentProgress = project.getCurrentProgress();
+
+        DefaultProjectProgress nextProgress = currentProgress.nextStep();
+
+        project.setCurrentProgress(nextProgress);
+
+        if (nextProgress == DefaultProjectProgress.INSPECTION) {
+            project.setProjectStatus(ProjectStatus.INSPECTION);
+        }
+        if (nextProgress == DefaultProjectProgress.COMPLETED) {
+            project.setProjectFeePaidDate();
+            project.setProjectStatus(ProjectStatus.COMPLETED);
+        }
+    }
 }
