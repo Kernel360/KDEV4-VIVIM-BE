@@ -16,4 +16,10 @@ public enum DefaultProjectProgress {
     COMPLETED("완료");
 
     private final String label;
+
+    public DefaultProjectProgress nextStep() {
+        DefaultProjectProgress[] values = DefaultProjectProgress.values();
+        int nextOrdinal = this.ordinal() + 1;
+        return values[nextOrdinal];
+    }
 }

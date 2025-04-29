@@ -32,12 +32,21 @@ public interface ProjectService {
         Boolean isDeleted, Pageable pageable);
 
     void deleteProject(Long projectId, Long deleterId);
+
     List<ProjectUserResponse> getUserListByProject(Long projectId);
+
     List<ProjectAdminSummaryResponse> getCompanyProjects(Long companyId);
+
     List<ProjectSummaryWithRoleDto> getCompanyProjectsWithMyRole(Long companyId, Long userId);
+
     List<ProjectCompanyResponse> getCompaniesByProjectId(Long projectId);
 
     DashboardProjectFeeResponse getDashboardProjectFee();
+
     DashboardInspectionCountResponse getDashboardInspectionCount();
+
     DashboardProgressCountResponse getDashboardProgressCount();
+
+    void increaseCurrentProgress(Long projectId);
+
 }

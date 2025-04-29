@@ -13,12 +13,15 @@ public class DashboardInspectionCountResponse {
 
     private int inspectionCount;
     private int progressCount;
+    private int completedCount;
 
     public DashboardInspectionCountResponse(List<Project> projects) {
         for (Project project : projects) {
             if (project.getProjectStatus() == ProjectStatus.PROGRESS) {
                 progressCount++;
             } else if (project.getProjectStatus() == ProjectStatus.INSPECTION) {
+                inspectionCount++;
+            } else if (project.getProjectStatus() == ProjectStatus.COMPLETED) {
                 inspectionCount++;
             }
         }
