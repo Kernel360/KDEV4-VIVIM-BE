@@ -1,6 +1,7 @@
 package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.project.ProjectStatus;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ public class ProjectAdminSummaryResponse {
     private LocalDate endDate;
     private boolean isDeleted;
     private LocalDateTime deletedAt;
+    private ProjectStatus projectStatus;
 
     public static ProjectAdminSummaryResponse from(Project p) {
         return new ProjectAdminSummaryResponse(
@@ -26,7 +28,8 @@ public class ProjectAdminSummaryResponse {
             p.getStartDate(),
             p.getEndDate(),
             p.getIsDeleted(),
-            p.getDeletedAt()
+            p.getDeletedAt(),
+            p.getProjectStatus()
         );
     }
 }
