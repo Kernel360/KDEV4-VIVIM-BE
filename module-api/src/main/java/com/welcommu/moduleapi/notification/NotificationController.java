@@ -2,9 +2,9 @@ package com.welcommu.moduleapi.notification;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
-import com.welcommu.moduledomain.notification.Notification;
 import com.welcommu.moduleservice.notification.NotificationService;
 import com.welcommu.moduleservice.notification.dto.NotificationRequest;
+import com.welcommu.moduleservice.notification.dto.NotificationResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,28 +36,30 @@ public class NotificationController {
             .body(new ApiResponse(HttpStatus.CREATED.value(), "알림이 등록되었습니다."));
     }
 
-    @GetMapping("/subscribe/{userId}")
-    public ResponseEntity<SseEmitter> subscribe(@PathVariable Long userId) {
-        SseEmitter emitter = notificationService.subscribe(userId);
+    @GetMapping("/subscribe")
+    public ResponseEntity<SseEmitter> subscribe(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        SseEmitter emitter = notificationService.subscribe(userDetails.getUser().getId());
         return ResponseEntity.ok().body(emitter);
     }
 
-    @GetMapping("/{userId}")
-    public List<Notification> getNotifications(
-        @PathVariable Long userId
+    @GetMapping
+    public ResponseEntity<List<NotificationResponse>> getNotifications(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails
     ) {
-        return notificationService.getNotifications(userId);
+        return ResponseEntity.ok()
+            .body(notificationService.getNotifications(userDetails.getUser().getId()));
     }
 
-    @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
-        notificationService.markAsRead(id);
-        return ResponseEntity.notFound().build();
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<ApiResponse> markAsRead(@PathVariable Long notificationId) {
+        notificationService.markAsRead(notificationId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "알림을 읽었습니다."));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
-        notificationService.deleteNotification(id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/{notificationId}")
+    public ResponseEntity<ApiResponse> deleteNotification(@PathVariable Long notificationId) {
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "알림이 삭제되었습니다."));
     }
 }

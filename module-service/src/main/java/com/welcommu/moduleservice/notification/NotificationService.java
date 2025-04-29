@@ -3,17 +3,21 @@ package com.welcommu.moduleservice.notification;
 import com.welcommu.moduledomain.notification.Notification;
 import com.welcommu.moduleinfra.notification.NotificationRepository;
 import com.welcommu.moduleservice.notification.dto.NotificationRequest;
+import com.welcommu.moduleservice.notification.dto.NotificationResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class NotificationService {
 
@@ -45,9 +49,12 @@ public class NotificationService {
         }
     }
 
-    public List<Notification> getNotifications(Long userId) {
-        return notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(
+    public List<NotificationResponse> getNotifications(Long userId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(
             userId);
+        return notifications.stream()
+            .map(NotificationResponse::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
@@ -64,8 +71,9 @@ public class NotificationService {
 
         //SSE 구독중인 경우만 즉시 Push
         SseEmitter emitter = emitters.get(receiverId);
+        log.info("Send Notification");
         if (emitter != null) {
-            savedNotification.markAsRead();
+            log.info("SSE Event has been created");
             emitter.send(SseEmitter.event()
                 .name("notification")
                 .data(savedNotification));
