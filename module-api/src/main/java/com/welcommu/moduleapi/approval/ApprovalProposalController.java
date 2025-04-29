@@ -92,6 +92,13 @@ public class ApprovalProposalController {
             .body(response);
     }
 
+    @GetMapping("/proposals/recent")
+    @Operation(summary = "최근 작성된 승인요청 5개 조회")
+    public ResponseEntity<ProposalResponseList> getRecentProposals() {
+        ProposalResponseList response = proposalService.getRecentProposals();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/approval/{approvalId}/status")
     @Operation(summary = "최종 승인상태 확인")
     public ResponseEntity<ProposalStatusResponse> getProposalStatusSummary(
