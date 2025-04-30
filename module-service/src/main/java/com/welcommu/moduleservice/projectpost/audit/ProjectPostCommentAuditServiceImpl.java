@@ -6,6 +6,7 @@ import com.welcommu.moduledomain.logging.enums.TargetType;
 import com.welcommu.moduleinfra.logging.AuditLogRepository;
 import com.welcommu.moduleservice.logging.AuditLogFactory;
 import com.welcommu.moduleservice.logging.AuditLogFieldComparator;
+import com.welcommu.moduleservice.logging.AuditLogFieldComparatorImpl;
 import com.welcommu.moduleservice.logging.AuditableService;
 import com.welcommu.moduleservice.projectpost.dto.ProjectPostCommentSnapshot;
 import java.util.Map;

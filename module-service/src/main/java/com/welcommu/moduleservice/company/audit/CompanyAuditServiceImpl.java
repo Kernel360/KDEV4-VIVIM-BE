@@ -7,6 +7,7 @@ import com.welcommu.moduleinfra.logging.AuditLogRepository;
 import com.welcommu.moduleservice.company.dto.CompanySnapshot;
 import com.welcommu.moduleservice.logging.AuditLogFactory;
 import com.welcommu.moduleservice.logging.AuditLogFieldComparator;
+import com.welcommu.moduleservice.logging.AuditLogFieldComparatorImpl;
 import com.welcommu.moduleservice.logging.AuditableService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class CompanyAuditServiceImpl implements AuditableService<CompanySnapshot>, CompanyAuditService {
 
-    private static final Logger log = LoggerFactory.getLogger(CompanyAuditServiceImpl.class);
     private final AuditLogRepository auditLogRepository;
     private final AuditLogFieldComparator auditLogFieldComparator;
     private final AuditLogFactory auditLogFactory;
