@@ -12,6 +12,7 @@ import com.welcommu.moduleinfra.company.CompanyRepository;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
 import com.welcommu.moduleservice.company.dto.CompanySnapshot;
 import com.welcommu.moduleservice.user.dto.UserResponse;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -85,5 +86,14 @@ public class CompanyServiceImpl implements CompanyService {
     public Page<CompanyResponse> searchCompanies(String name, String businessNumber, String email, Boolean isDeleted, Pageable pageable) {
         return companyRepository.searchByConditions(name, businessNumber, email, isDeleted, pageable)
             .map(CompanyResponse::from);
+    }
+
+    @Override
+    public void softDeleteCompany(Long id, Long deleterId) {
+        Company existingCompany = companyRepository.findById(id)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+        existingCompany.setIsDeleted(true);
+        existingCompany.setDeletedAt(LocalDateTime.now());
+        companyAuditLog.deleteAuditLog(CompanySnapshot.from(existingCompany) , deleterId);
     }
 }

@@ -120,4 +120,12 @@ public class CompanyController {
         companyService.deleteCompany(id, actorId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "id를 바탕으로 회사를 삭제합니다.(Soft Delete)")
+    @DeleteMapping("/soft/{id}")
+    public ResponseEntity<ApiResponse> softDeleteCompany(@PathVariable Long id,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        companyService.softDeleteCompany(id, actorId);
+        return ResponseEntity.noContent().build();
+    }
 }
