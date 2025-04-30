@@ -60,6 +60,8 @@ public class AuditLogRepositoryImpl implements AuditLogRepositoryCustom {
             params.put("userId", userId);
         }
 
+        jpql.append(" ORDER BY a.loggedAt DESC, a.id DESC");
+
         TypedQuery<AuditLog> query = em.createQuery(jpql.toString(), AuditLog.class);
         params.forEach(query::setParameter);
         query.setFirstResult((int) pageable.getOffset());
@@ -72,6 +74,65 @@ public class AuditLogRepositoryImpl implements AuditLogRepositoryCustom {
         Long total = countQuery.getSingleResult();
 
         return new PageImpl<>(results, pageable, total);
+    }
+    @Override
+    public List<Long> findIdsWithCursor(
+        ActionType actionType,
+        TargetType targetType,
+        LocalDateTime start,
+        LocalDateTime end,
+        Long userId,
+        LocalDateTime cursorLoggedAt,
+        Long cursorId,
+        int size
+    ) {
+        // 1) JPQL 빌드
+        StringBuilder jpql = new StringBuilder("SELECT a.id FROM AuditLog a WHERE 1=1 ");
+        if (actionType != null)   jpql.append("AND a.actionType = :actionType ");
+        if (targetType != null)   jpql.append("AND a.targetType = :targetType ");
+        if (start != null)        jpql.append("AND a.loggedAt >= :start ");
+        if (end != null)          jpql.append("AND a.loggedAt <= :end ");
+        if (userId != null)       jpql.append("AND a.actorId = :userId ");
+        if (cursorLoggedAt != null && cursorId != null) {
+            jpql.append(
+                "AND (a.loggedAt < :cursorLoggedAt " +
+                    "OR (a.loggedAt = :cursorLoggedAt AND a.id < :cursorId)) "
+            );
+        }
+        jpql.append("ORDER BY a.loggedAt DESC, a.id DESC");
+
+        // 2) TypedQuery 생성 및 파라미터 세팅
+        TypedQuery<Long> q = em.createQuery(jpql.toString(), Long.class);
+        if (actionType != null)   q.setParameter("actionType", actionType);
+        if (targetType != null)   q.setParameter("targetType", targetType);
+        if (start != null)        q.setParameter("start", start);
+        if (end != null)          q.setParameter("end", end);
+        if (userId != null)       q.setParameter("userId", userId);
+        if (cursorLoggedAt != null && cursorId != null) {
+            q.setParameter("cursorLoggedAt", cursorLoggedAt);
+            q.setParameter("cursorId", cursorId);
+        }
+
+        // 3) 페이징 크기만큼 결과 제한
+        q.setMaxResults(size);
+
+        return q.getResultList();
+    }
+    @Override
+    public List<AuditLog> findWithDetailsByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        // DISTINCT 꼭 추가
+        String jpql =
+            "SELECT DISTINCT a FROM AuditLog a " +
+                "LEFT JOIN FETCH a.details d " +
+                "WHERE a.id IN :ids " +
+                "ORDER BY a.loggedAt DESC, a.id DESC";
+
+        return em.createQuery(jpql, AuditLog.class)
+            .setParameter("ids", ids)
+            .getResultList();
     }
 }
 
