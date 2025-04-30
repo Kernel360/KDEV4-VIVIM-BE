@@ -20,5 +20,5 @@ public interface CompanyService {
     Company modifyCompany(Long id, CompanyModifyRequest request, Long modifierId);
     void deleteCompany(Long id, Long deleterId);
     Page<CompanyResponse> searchCompanies(String name, String businessNumber, String email, Boolean isDeleted, Pageable pageable);
-
+    void softDeleteCompany(Long id, Long actorId);
 }
