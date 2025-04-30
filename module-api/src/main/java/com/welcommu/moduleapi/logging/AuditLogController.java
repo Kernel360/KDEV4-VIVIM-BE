@@ -61,7 +61,7 @@ public class AuditLogController {
         @RequestParam(required = false) Long userId,
         @RequestParam(required = false) LocalDateTime cursorLoggedAt,
         @RequestParam(required = false) Long cursorId,
-        @RequestParam(defaultValue = "20") int size
+        @RequestParam(defaultValue = "10") int size
     ) {
         LogsWithCursor<AuditLogResponse> result = auditLogSearchService.searchLogs(
             actionType, targetType, startDate, endDate, userId,

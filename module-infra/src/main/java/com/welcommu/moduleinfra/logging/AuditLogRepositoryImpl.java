@@ -60,7 +60,7 @@ public class AuditLogRepositoryImpl implements AuditLogRepositoryCustom {
             params.put("userId", userId);
         }
 
-        jpql.append(" ORDER BY a.loggedAt DESC");
+        jpql.append(" ORDER BY a.loggedAt DESC, a.id DESC");
 
         TypedQuery<AuditLog> query = em.createQuery(jpql.toString(), AuditLog.class);
         params.forEach(query::setParameter);
