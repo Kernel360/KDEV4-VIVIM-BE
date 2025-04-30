@@ -10,10 +10,10 @@ public class LogsWithCursor<T> {
     private final List<T> logs;
     private final Cursor nextCursor;
 
-    @Getter
-    @AllArgsConstructor
-    public static class Cursor {
-        private final String loggedAt;
-        private final Long id;
-    }
+//    @Getter
+//    @AllArgsConstructor
+//    public static class Cursor {
+//        private final String loggedAt;
+//        private final Long id;
+//    }
 }

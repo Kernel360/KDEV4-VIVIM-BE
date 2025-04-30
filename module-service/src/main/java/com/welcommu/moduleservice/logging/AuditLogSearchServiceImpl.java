@@ -5,6 +5,7 @@ import com.welcommu.moduledomain.logging.enums.ActionType;
 import com.welcommu.moduledomain.logging.enums.TargetType;
 import com.welcommu.moduleinfra.logging.AuditLogRepository;
 import com.welcommu.moduleservice.logging.dto.AuditLogResponse;
+import com.welcommu.moduleservice.logging.dto.Cursor;
 import com.welcommu.moduleservice.logging.dto.LogsWithCursor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -80,7 +81,7 @@ public class AuditLogSearchServiceImpl implements AuditLogSearchService{
             .toList();
 
         AuditLogResponse last = dtos.get(dtos.size() - 1);
-        LogsWithCursor.Cursor next = new LogsWithCursor.Cursor(
+        Cursor next = new Cursor(
             last.getLoggedAt().toString(), last.getId()
         );
         return new LogsWithCursor<>(dtos, next);
