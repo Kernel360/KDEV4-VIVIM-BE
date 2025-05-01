@@ -53,7 +53,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
+    @Operation(summary = "로그아웃", description = "Refresh Token 을 만료 처리하여 로그아웃을 수행합니다.")
     public ResponseEntity<Map<String, String>> logout(@RequestBody RefreshTokenRequest refreshToken) {
         try {
             authService.deleteToken(refreshToken.getRefreshToken());
