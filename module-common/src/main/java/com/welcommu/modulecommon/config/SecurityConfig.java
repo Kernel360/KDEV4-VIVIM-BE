@@ -37,6 +37,7 @@ public class SecurityConfig {
 
     private final JwtTokenHelper jwtTokenHelper;
     private final UserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper; 
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
@@ -47,7 +48,7 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
             jwtTokenHelper,
             userDetailsService,
-            new ObjectMapper()
+            objectMapper
         );
 
         httpSecurity
