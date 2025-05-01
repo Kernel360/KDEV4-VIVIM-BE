@@ -29,12 +29,10 @@ logging:
     enabled: false
 
 server:
-  port: 443
-  ssl:
-    enabled: true
-    key-store: classpath:keystore.p12
-    key-store-password: ${SSLPASSWORD}
+  port: 8080
 
-    key-store-type: PKCS12
-    key-alias: mycert
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
