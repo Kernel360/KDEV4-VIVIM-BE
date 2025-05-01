@@ -1,6 +1,5 @@
 package com.welcommu.moduleapi.auth;
 
-
 import com.welcommu.moduleservice.auth.AuthService;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
@@ -12,7 +11,6 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,17 +28,9 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token을 발급받습니다.")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = authService.createToken(request);
-            return ResponseEntity.ok(response);
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401)
-                .body(Map.of("message", "Invalid credentials"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(Map.of("message", "Internal server error", "error", e.getMessage()));
-        }
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+        LoginResponse response = authService.createToken(request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user")
@@ -54,15 +44,9 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody RefreshTokenRequest refreshToken) {
-        try {
-            LoginResponse response = authService.reIssueToken(refreshToken.getRefreshToken());
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(Map.of("message", "Internal server error", "error", e.getMessage()));
-        }
+    public ResponseEntity<LoginResponse> refreshAccessToken(@RequestBody RefreshTokenRequest refreshToken) {
+        LoginResponse response = authService.reIssueToken(refreshToken.getRefreshToken());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
