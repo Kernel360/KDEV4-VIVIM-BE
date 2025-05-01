@@ -43,7 +43,7 @@ public class LinkController {
     public ResponseEntity<ApiResponse> createApprovalLink(@PathVariable Long approvalId,
         @RequestBody LinkRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         Long actorId = userDetails.getUser().getId();
-        linkService.createApprovalLink(approvalId, request,actorId);
+        linkService.createApprovalLink(approvalId, request, actorId);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
