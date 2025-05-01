@@ -60,11 +60,11 @@ public class AuthServiceImpl implements AuthService {
         TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
         // Redis에 Refresh Token 저장
-        long expireSeconds = Duration.between(
-            LocalDateTime.now(),
-            refreshToken.getExpiredAt()
-        ).getSeconds();
-        refreshTokenService.save(user.getId(), refreshToken.getToken(), expireSeconds);
+        refreshTokenService.save(
+            user.getId(),
+            refreshToken.getToken(),
+            calcExpireSeconds(refreshToken.getExpiredAt())
+        );
 
         // "Bearer " 접두사 일원화
         String bearerAccessToken  = JwtTokenHelper.withBearer(accessToken.getToken());
@@ -85,31 +85,27 @@ public class AuthServiceImpl implements AuthService {
 
         // Refresh Token 검증
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
+        long userId = parseUserId(claims.get("userId"));
 
-        Long userId = ((Integer) claims.get("userId")).longValue();
-
-        // Redis에서 저장된 토큰 확인
+        // Redis에서 저장된 토큰 확인 및 회전
         if (!refreshTokenService.isValid(userId, refreshToken)) {
             refreshTokenService.delete(userId);
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
-
-        // 기존 토큰 삭제 (Token Rotation)
         refreshTokenService.delete(userId);
 
         // 새로운 토큰 ID 발급 및 claims 갱신
         String newTokenId = UUID.randomUUID().toString();
         claims.put("jti", newTokenId);
 
-        // 새 Access, Refresh 토큰 발급
         TokenDto newAccessToken  = jwtTokenHelper.issueAccessToken(claims);
         TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
-        long expireSeconds = Duration.between(
-            LocalDateTime.now(),
-            newRefreshToken.getExpiredAt()
-        ).getSeconds();
-        refreshTokenService.save(userId, newRefreshToken.getToken(), expireSeconds);
+        refreshTokenService.save(
+            userId,
+            newRefreshToken.getToken(),
+            calcExpireSeconds(newRefreshToken.getExpiredAt())
+        );
 
         String bearerAccessToken  = JwtTokenHelper.withBearer(newAccessToken.getToken());
         String bearerRefreshToken = JwtTokenHelper.withBearer(newRefreshToken.getToken());
@@ -127,26 +123,31 @@ public class AuthServiceImpl implements AuthService {
 
         // 토큰 검증 및 클레임 추출
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-        Object rawUserId = claims.get("userId");
-
-        long userId;
-        try {
-            if (rawUserId instanceof Integer i) {
-                userId = i.longValue();
-            } else if (rawUserId instanceof Long l) {
-                userId = l;
-            } else if (rawUserId instanceof String s) {
-                userId = Long.parseLong(s);
-            } else {
-                log.error("지원하지 않는 userId 타입: {}", rawUserId);
-                throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
-            }
-        } catch (Exception e) {
-            log.error("JWT userId 파싱 실패: {}", rawUserId, e);
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
-        }
+        long userId = parseUserId(claims.get("userId"));
 
         // Redis에서 해당 사용자 토큰 삭제
         refreshTokenService.delete(userId);
+    }
+
+    /**
+     * 여러 타입의 raw userId(Object)를 long으로 변환
+     */
+    private long parseUserId(Object raw) {
+        if (raw instanceof Integer) {
+            return ((Integer) raw).longValue();
+        } else if (raw instanceof Long) {
+            return (Long) raw;
+        } else if (raw instanceof String) {
+            return Long.parseLong((String) raw);
+        }
+        log.error("지원하지 않는 userId 타입: {}", raw);
+        throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
+    }
+
+    /**
+     * 토큰 DTO 만료 시간을 초 단위 만료 기간으로 계산
+     */
+    private long calcExpireSeconds(LocalDateTime expiresAt) {
+        return Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
     }
 }
