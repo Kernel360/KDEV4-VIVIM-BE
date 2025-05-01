@@ -7,7 +7,6 @@ import com.welcommu.moduleinfra.logging.AuditLogRepository;
 import com.welcommu.moduleservice.link.dto.LinkListResponse;
 import com.welcommu.moduleservice.logging.AuditLogFactory;
 import com.welcommu.moduleservice.logging.AuditLogFieldComparator;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class LinkAuditServiceImpl implements LinkAuditService{
     private final AuditLogRepository auditLogRepository;
-    private final AuditLogFieldComparator auditLogFieldComparator;
     private final AuditLogFactory auditLogFactory;
 
     @Override

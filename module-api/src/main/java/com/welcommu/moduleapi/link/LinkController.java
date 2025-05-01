@@ -79,7 +79,7 @@ public class LinkController {
     @PatchMapping("/links/{linkId}")
     @Operation(summary = "링크 삭제")
     public ResponseEntity<ApiResponse> deleteLink(@PathVariable Long linkId,  @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
-        Long actorId = userDetails.getUser().getId();;
+        Long actorId = userDetails.getUser().getId();
         linkService.deleteLink(linkId,actorId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "링크가 삭제되었습니다."));
     }
