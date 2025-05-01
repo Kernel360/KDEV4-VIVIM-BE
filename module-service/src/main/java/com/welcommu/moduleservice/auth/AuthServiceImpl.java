@@ -2,8 +2,8 @@ package com.welcommu.moduleservice.auth;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.token.dto.TokenDto;
-import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import com.welcommu.modulecommon.token.TokenDto;
+import com.welcommu.modulecommon.token.JwtTokenHelper;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;

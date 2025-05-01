@@ -1,7 +1,7 @@
 package com.welcommu.modulecommon.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtTokenHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

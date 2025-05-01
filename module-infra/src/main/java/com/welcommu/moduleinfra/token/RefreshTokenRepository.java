@@ -1,7 +1,7 @@
 // Repository 인터페이스
 package com.welcommu.moduleinfra.token;
 
-import com.welcommu.moduledomain.token.RefreshToken;
+import com.welcommu.moduledomain.auth.token.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
