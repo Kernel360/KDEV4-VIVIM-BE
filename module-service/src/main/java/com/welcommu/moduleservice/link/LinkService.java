@@ -6,36 +6,43 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.moduledomain.link.Link;
 import com.welcommu.moduleinfra.link.LinkRepository;
+import com.welcommu.moduleservice.link.audit.LinkAuditService;
 import com.welcommu.moduleservice.link.dto.LinkListResponse;
 import com.welcommu.moduleservice.link.dto.LinkRequest;
+import com.welcommu.moduleservice.user.dto.UserSnapshot;
 import java.util.List;
+import java.util.function.LongConsumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LinkService {
 
     private final LinkRepository linkRepository;
+    private final LinkAuditService linkAuditService;
 
-
-    public void createPostLink(Long postId, LinkRequest request) {
+    public void createPostLink(Long postId, LinkRequest request, Long creatorId) {
         Link newLink = request.toEntity(request, ReferenceType.POST, postId);
-        linkRepository.save(newLink);
+        Link savedLink =  linkRepository.save(newLink);
+        linkAuditService.createAuditLog(LinkListResponse.from(savedLink), creatorId);
     }
 
-    public void createApprovalLink(Long approvalId, LinkRequest request) {
+    public void createApprovalLink(Long approvalId, LinkRequest request, Long creatorId) {
 
         Link newLink = request.toEntity(request, ReferenceType.APPROVAL, approvalId);
-        linkRepository.save(newLink);
+        Link savedLink =  linkRepository.save(newLink);
+        linkAuditService.createAuditLog(LinkListResponse.from(savedLink), creatorId);
     }
 
-    public void createDecisionLink(Long decisionId, LinkRequest request) {
-
+    public void createDecisionLink(Long decisionId, LinkRequest request, Long creatorId) {
         Link newLink = request.toEntity(request, ReferenceType.DECISION, decisionId);
-        linkRepository.save(newLink);
+        Link savedLink =  linkRepository.save(newLink);
+        linkAuditService.createAuditLog(LinkListResponse.from(savedLink), creatorId);
     }
 
     public List<LinkListResponse> getPostLinks(Long postId) {
@@ -63,9 +70,10 @@ public class LinkService {
     }
 
     @Transactional
-    public void deleteLink(Long linkId) {
+    public void deleteLink(Long linkId, Long deleterId) {
         Link existingLink = linkRepository.findById(linkId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_LINK));
         existingLink.setDeletedAt();
+        linkAuditService.deleteAuditLog(LinkListResponse.from(existingLink), deleterId);
     }
 }
