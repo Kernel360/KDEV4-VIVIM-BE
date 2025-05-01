@@ -31,96 +31,63 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
-    @Override
-    public LoginResponse createToken(LoginRequest request) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        User user = userService.getUserByEmail(email)
-            .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_CREDENTIALS));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new CustomException(CustomErrorCode.INVALID_CREDENTIALS);
-        }
-
-        UserResponse userDto = UserResponse.from(user);
-
+    private Map<String, Object> createClaims(UserResponse userDto) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", userDto.getEmail());
         claims.put("userId", userDto.getId());
         claims.put("role", userDto.getCompanyRole());
+        claims.put("jti", UUID.randomUUID().toString());
+        return claims;
+    }
 
-        // JWT ID 생성
-        String tokenId = UUID.randomUUID().toString();
-        claims.put("jti", tokenId);
+    @Override
+    public LoginResponse createToken(LoginRequest request) {
 
-        // 액세스, 리프레시 토큰 발급
-        TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
+        User user = authenticateUser(request.getEmail(), request.getPassword());
+        UserResponse userDto = UserResponse.from(user);
+
+        // JWT 토큰에 담을 사용자 정보(Claims)를 UserResponse 객체를 기반으로 생성
+        Map<String, Object> claims = createClaims(userDto);
+
+        TokenDto accessToken  = jwtTokenHelper.issueAccessToken(claims);
         TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
-        // Redis 에 Refresh Token 저장
-        refreshTokenService.save(
-            user.getId(),
-            refreshToken.getToken(),
-            calcExpireSeconds(refreshToken.getExpiredAt())
-        );
-
-        // "Bearer " 접두사 일원화
-        String bearerAccessToken  = JwtTokenHelper.withBearer(accessToken.getToken());
-        String bearerRefreshToken = JwtTokenHelper.withBearer(refreshToken.getToken());
+        saveRefreshToken(user.getId(), refreshToken);
 
         return LoginResponse.builder()
-            .accessToken(bearerAccessToken)
-            .refreshToken(bearerRefreshToken)
+            .accessToken(JwtTokenHelper.withBearer(accessToken.getToken()))
+            .refreshToken(JwtTokenHelper.withBearer(refreshToken.getToken()))
             .build();
     }
 
     @Override
     public LoginResponse reIssueToken(String refreshTokenHeader) {
-        log.info("리프레시 토큰으로 액세스 재발급 시도");
-
-        // Bearer 접두사 제거
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
-
-        // Refresh Token 검증
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
+
+        validateRefreshToken(claims);
+
         long userId = parseUserId(claims.get("userId"));
+        rotateRefreshToken(userId, refreshToken);
 
-        // Redis 에서 저장된 토큰 확인 및 회전
-        if (!refreshTokenService.isValid(userId, refreshToken)) {
-            refreshTokenService.delete(userId);
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
-        }
-        refreshTokenService.delete(userId);
-
-        // 새로운 토큰 ID 발급 및 claims 갱신
-        String newTokenId = UUID.randomUUID().toString();
-        claims.put("jti", newTokenId);
+        claims.put("jti", UUID.randomUUID().toString());
 
         TokenDto newAccessToken  = jwtTokenHelper.issueAccessToken(claims);
         TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
-        refreshTokenService.save(
-            userId,
-            newRefreshToken.getToken(),
-            calcExpireSeconds(newRefreshToken.getExpiredAt())
-        );
-
-        String bearerAccessToken  = JwtTokenHelper.withBearer(newAccessToken.getToken());
-        String bearerRefreshToken = JwtTokenHelper.withBearer(newRefreshToken.getToken());
+        saveRefreshToken(userId, newRefreshToken);
 
         return LoginResponse.builder()
-            .accessToken(bearerAccessToken)
-            .refreshToken(bearerRefreshToken)
+            .accessToken(JwtTokenHelper.withBearer(newAccessToken.getToken()))
+            .refreshToken(JwtTokenHelper.withBearer(newRefreshToken.getToken()))
             .build();
     }
 
     @Override
     public void deleteToken(String refreshTokenHeader) {
-        // Bearer 접두사 제거
+
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
 
-        // 토큰 검증 및 클레임 추출
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
@@ -128,8 +95,43 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.delete(userId);
     }
 
+    private void saveRefreshToken(Long userId, TokenDto refreshToken) {
+        refreshTokenService.save(
+            userId,
+            refreshToken.getToken(),
+            calcExpireSeconds(refreshToken.getExpiredAt())
+        );
+    }
+
+    private void rotateRefreshToken(long userId, String oldRefreshToken) {
+        if (!refreshTokenService.isValid(userId, oldRefreshToken)) {
+            refreshTokenService.delete(userId);
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
+        }
+        refreshTokenService.delete(userId);
+    }
+
+    private void validateRefreshToken(Map<String, Object> claims) {
+        String tokenType = (String) claims.get("tokenType");
+        if (!"refresh".equals(tokenType)) {
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN_TYPE);
+        }
+    }
+
+    // 이메일 또는 비밀번호 검증
+    private User authenticateUser(String email, String password) {
+        User user = userService.getUserByEmail(email)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_CREDENTIALS));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new CustomException(CustomErrorCode.INVALID_CREDENTIALS);
+        }
+        return user;
+    }
+
     // 여러 타입의 raw userId(Object)를 long 으로 변환
     private long parseUserId(Object raw) {
+
         if (raw instanceof Integer) {
             return ((Integer) raw).longValue();
         } else if (raw instanceof Long) {

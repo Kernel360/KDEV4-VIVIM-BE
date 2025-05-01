@@ -27,19 +27,18 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // 1-1. 요청 바디로 받은 이메일·비밀번호 검증
-    // 1-2. AuthServiceImpl.createToken() 호출
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token 을 발급받습니다.")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+
         LoginResponse response = authService.createToken(request);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user")
     @Operation(summary = "로그인한 사용자 확인")
-    public ResponseEntity<Map<String, String>> getUserInfo(
-        @AuthenticationPrincipal String username) {
+    public ResponseEntity<Map<String, String>> getUserInfo(@AuthenticationPrincipal String username) {
+
         Map<String, String> response = new HashMap<>();
         response.put("authenticatedUser", username);
         return ResponseEntity.ok(response);

@@ -30,6 +30,7 @@ public class JwtTokenHelper {
 
     @Autowired
     public JwtTokenHelper(Environment env) {
+
         String key = env.getProperty("token.secret.key");
         if (key == null || key.isEmpty()) {
             throw new CustomException(CustomErrorCode.SERVER_ERROR);
@@ -45,12 +46,17 @@ public class JwtTokenHelper {
         log.info("Refresh Token 만료 시간: {}시간", this.refreshTokenPlusHour);
     }
 
-    public TokenDto issueAccessToken(Map<String, Object> data) {
+    // 입력받은 claims(사용자 정보 등)를 바탕으로 JWT Access Token 생성
+    // 토큰 문자열과 만료 시간을 포함한 TokenDto 로 반환
+    public TokenDto issueAccessToken(Map<String, Object> claims) {
+
         LocalDateTime expiredLocalDateTime = LocalDateTime.now().plusHours(accessTokenPlusHour);
         Date expiredAt = Date.from(expiredLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
+        claims.put("tokenType", "access");
+
         String jwtToken = Jwts.builder()
-            .setClaims(data)
+            .setClaims(claims)
             .setExpiration(expiredAt)
             .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
             .compact();
@@ -61,12 +67,15 @@ public class JwtTokenHelper {
         return new TokenDto(jwtToken, expiredLocalDateTime);
     }
 
-    public TokenDto issueRefreshToken(Map<String, Object> data) {
+    public TokenDto issueRefreshToken(Map<String, Object> claims) {
+
         LocalDateTime expiredLocalDateTime = LocalDateTime.now().plusHours(refreshTokenPlusHour);
         Date expiredAt = Date.from(expiredLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
+        claims.put("tokenType", "refresh");
+
         String jwtToken = Jwts.builder()
-            .setClaims(data)
+            .setClaims(claims)
             .setExpiration(expiredAt)
             .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
             .compact();
@@ -76,6 +85,7 @@ public class JwtTokenHelper {
     }
 
     public Map<String, Object> validationTokenWithThrow(String token) {
+
         if (token == null || !token.contains(".")) {
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
