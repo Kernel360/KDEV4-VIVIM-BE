@@ -37,15 +37,14 @@ public class AuthServiceImpl implements AuthService {
         String password = request.getPassword();
 
         User user = userService.getUserByEmail(email)
-            .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+            .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Invalid email or password");
+            throw new CustomException(CustomErrorCode.INVALID_CREDENTIALS);
         }
 
         UserResponse userDto = UserResponse.from(user);
 
-        // JWT Claims 구성
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", userDto.getEmail());
         claims.put("userId", userDto.getId());
@@ -55,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         String tokenId = UUID.randomUUID().toString();
         claims.put("jti", tokenId);
 
-        // 액세스 / 리프레시 토큰 발급
+        // 액세스, 리프레시 토큰 발급
         TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
         TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
@@ -129,9 +128,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.delete(userId);
     }
 
-    /**
-     * 여러 타입의 raw userId(Object)를 long 으로 변환
-     */
+    // 여러 타입의 raw userId(Object)를 long 으로 변환
     private long parseUserId(Object raw) {
         if (raw instanceof Integer) {
             return ((Integer) raw).longValue();
@@ -144,10 +141,10 @@ public class AuthServiceImpl implements AuthService {
         throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
     }
 
-    /**
-     * 토큰 DTO 만료 시간을 초 단위 만료 기간으로 계산
-     */
+    // 토큰 DTO 만료 시간을 초 단위 만료 기간으로 계산
     private long calcExpireSeconds(LocalDateTime expiresAt) {
-        return Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
+        if (expiresAt == null) throw new CustomException(CustomErrorCode.SERVER_ERROR);
+        long seconds = Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
+        return Math.max(seconds, 1); // 최소 1초 보장
     }
 }
