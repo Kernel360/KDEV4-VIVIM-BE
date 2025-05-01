@@ -1,17 +1,17 @@
 package com.welcommu.moduleservice.auth;
 
-import com.welcommu.modulecommon.security.CustomUserDetailsService;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleinfra.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthUserDetailsServiceImpl implements CustomUserDetailsService {
+public class AuthUserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 

@@ -1,7 +1,6 @@
 package com.welcommu.modulecommon.config;
 
 import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
-import com.welcommu.modulecommon.security.CustomUserDetailsService;
 import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,7 +35,7 @@ public class SecurityConfig {
     };
 
     private final JwtTokenHelper jwtTokenHelper;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
