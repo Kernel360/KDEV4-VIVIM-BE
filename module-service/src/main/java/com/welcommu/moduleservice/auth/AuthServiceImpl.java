@@ -59,7 +59,7 @@ public class AuthServiceImpl implements AuthService {
         TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
         TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
-        // Redis에 Refresh Token 저장
+        // Redis 에 Refresh Token 저장
         refreshTokenService.save(
             user.getId(),
             refreshToken.getToken(),
@@ -87,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
-        // Redis에서 저장된 토큰 확인 및 회전
+        // Redis 에서 저장된 토큰 확인 및 회전
         if (!refreshTokenService.isValid(userId, refreshToken)) {
             refreshTokenService.delete(userId);
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
@@ -125,12 +125,12 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
-        // Redis에서 해당 사용자 토큰 삭제
+        // Redis 에서 해당 사용자 토큰 삭제
         refreshTokenService.delete(userId);
     }
 
     /**
-     * 여러 타입의 raw userId(Object)를 long으로 변환
+     * 여러 타입의 raw userId(Object)를 long 으로 변환
      */
     private long parseUserId(Object raw) {
         if (raw instanceof Integer) {
