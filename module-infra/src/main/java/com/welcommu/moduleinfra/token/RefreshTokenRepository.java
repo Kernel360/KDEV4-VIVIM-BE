@@ -1,15 +1,15 @@
 // Repository 인터페이스
 package com.welcommu.moduleinfra.token;
 
-import com.welcommu.moduledomain.token.RefreshTokenEntity;
+import com.welcommu.moduledomain.token.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity, Long> {
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 
-    Optional<RefreshTokenEntity> findByUserIdAndTokenId(Long userId, String tokenId);
+    Optional<RefreshToken> findByUserIdAndTokenId(Long userId, String tokenId);
 
     void deleteByTokenId(String tokenId);
 
