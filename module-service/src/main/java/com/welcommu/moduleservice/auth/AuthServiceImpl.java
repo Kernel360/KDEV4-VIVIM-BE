@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @AllArgsConstructor
@@ -31,63 +32,47 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
-    private Map<String, Object> createClaims(UserResponse userDto) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("email", userDto.getEmail());
-        claims.put("userId", userDto.getId());
-        claims.put("role", userDto.getCompanyRole());
-        claims.put("jti", UUID.randomUUID().toString());
-        return claims;
-    }
-
     @Override
     public LoginResponse createToken(LoginRequest request) {
-
         User user = authenticateUser(request.getEmail(), request.getPassword());
         UserResponse userDto = UserResponse.from(user);
 
         // JWT 토큰에 담을 사용자 정보(Claims)를 UserResponse 객체를 기반으로 생성
         Map<String, Object> claims = createClaims(userDto);
 
-        TokenDto accessToken  = jwtTokenHelper.issueAccessToken(claims);
+        TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
         TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
         saveRefreshToken(user.getId(), refreshToken);
 
-        return LoginResponse.builder()
-            .accessToken(JwtTokenHelper.withBearer(accessToken.getToken()))
-            .refreshToken(JwtTokenHelper.withBearer(refreshToken.getToken()))
-            .build();
+        return buildLoginResponse(accessToken, refreshToken);
     }
 
     @Override
+    @Transactional
     public LoginResponse reIssueToken(String refreshTokenHeader) {
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
 
-        validateRefreshToken(claims);
+        validateRefreshTokenType(claims);
 
         long userId = parseUserId(claims.get("userId"));
-        rotateRefreshToken(userId, refreshToken);
+
+        verifyAndRotateRefreshToken(userId, refreshToken);
 
         claims.put("jti", UUID.randomUUID().toString());
 
-        TokenDto newAccessToken  = jwtTokenHelper.issueAccessToken(claims);
+        TokenDto newAccessToken = jwtTokenHelper.issueAccessToken(claims);
         TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
         saveRefreshToken(userId, newRefreshToken);
 
-        return LoginResponse.builder()
-            .accessToken(JwtTokenHelper.withBearer(newAccessToken.getToken()))
-            .refreshToken(JwtTokenHelper.withBearer(newRefreshToken.getToken()))
-            .build();
+        return buildLoginResponse(newAccessToken, newRefreshToken);
     }
 
     @Override
     public void deleteToken(String refreshTokenHeader) {
-
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
-
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
@@ -95,30 +80,8 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenService.delete(userId);
     }
 
-    private void saveRefreshToken(Long userId, TokenDto refreshToken) {
-        refreshTokenService.save(
-            userId,
-            refreshToken.getToken(),
-            calcExpireSeconds(refreshToken.getExpiredAt())
-        );
-    }
+    // ===================== ↓ Internal Methods ↓ =====================
 
-    private void rotateRefreshToken(long userId, String oldRefreshToken) {
-        if (!refreshTokenService.isValid(userId, oldRefreshToken)) {
-            refreshTokenService.delete(userId);
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
-        }
-        refreshTokenService.delete(userId);
-    }
-
-    private void validateRefreshToken(Map<String, Object> claims) {
-        String tokenType = (String) claims.get("tokenType");
-        if (!"refresh".equals(tokenType)) {
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN_TYPE);
-        }
-    }
-
-    // 이메일 또는 비밀번호 검증
     private User authenticateUser(String email, String password) {
         User user = userService.getUserByEmail(email)
             .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_CREDENTIALS));
@@ -129,9 +92,39 @@ public class AuthServiceImpl implements AuthService {
         return user;
     }
 
-    // 여러 타입의 raw userId(Object)를 long 으로 변환
-    private long parseUserId(Object raw) {
+    private Map<String, Object> createClaims(UserResponse userDto) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", userDto.getEmail());
+        claims.put("userId", userDto.getId());
+        claims.put("role", userDto.getCompanyRole());
+        claims.put("jti", UUID.randomUUID().toString());
+        return claims;
+    }
 
+    private void saveRefreshToken(Long userId, TokenDto refreshToken) {
+        refreshTokenService.save(
+            userId,
+            refreshToken.getToken(),
+            calcExpireSeconds(refreshToken.getExpiredAt())
+        );
+    }
+
+    private void verifyAndRotateRefreshToken(long userId, String oldToken) {
+        if (!refreshTokenService.isValid(userId, oldToken)) {
+            refreshTokenService.delete(userId);
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
+        }
+        refreshTokenService.delete(userId); // 회전 처리
+    }
+
+    private void validateRefreshTokenType(Map<String, Object> claims) {
+        String tokenType = (String) claims.get("tokenType");
+        if (!"refresh".equals(tokenType)) {
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN_TYPE);
+        }
+    }
+
+    private long parseUserId(Object raw) {
         if (raw instanceof Integer) {
             return ((Integer) raw).longValue();
         } else if (raw instanceof Long) {
@@ -143,10 +136,16 @@ public class AuthServiceImpl implements AuthService {
         throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
     }
 
-    // 토큰 DTO 만료 시간을 초 단위 만료 기간으로 계산
     private long calcExpireSeconds(LocalDateTime expiresAt) {
         if (expiresAt == null) throw new CustomException(CustomErrorCode.SERVER_ERROR);
         long seconds = Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
-        return Math.max(seconds, 1); // 최소 1초 보장
+        return Math.max(seconds, 1);
+    }
+
+    private LoginResponse buildLoginResponse(TokenDto accessToken, TokenDto refreshToken) {
+        return LoginResponse.builder()
+            .accessToken(JwtTokenHelper.withBearer(accessToken.getToken()))
+            .refreshToken(JwtTokenHelper.withBearer(refreshToken.getToken()))
+            .build();
     }
 }
