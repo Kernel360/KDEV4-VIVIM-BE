@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.token;
+package com.welcommu.moduledomain.auth.token;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

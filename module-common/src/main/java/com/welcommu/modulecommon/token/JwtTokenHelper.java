@@ -1,8 +1,7 @@
-package com.welcommu.modulecommon.token.helper;
+package com.welcommu.modulecommon.token;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.token.dto.TokenDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

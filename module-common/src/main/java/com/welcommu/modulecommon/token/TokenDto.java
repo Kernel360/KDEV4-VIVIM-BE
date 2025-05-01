@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.token.dto;
+package com.welcommu.modulecommon.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
