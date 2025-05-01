@@ -31,8 +31,8 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
+    @Override
     public LoginResponse createToken(LoginRequest request) {
-
         String email = request.getEmail();
         String password = request.getPassword();
 
@@ -60,36 +60,37 @@ public class AuthServiceImpl implements AuthService {
         TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
         // Redis에 Refresh Token 저장
-        // refreshToken.getExpiredAt()이 LocalDateTime이면 Duration 계산 필요
-        long expireSeconds = java.time.Duration.between(
-            java.time.LocalDateTime.now(),
+        long expireSeconds = Duration.between(
+            LocalDateTime.now(),
             refreshToken.getExpiredAt()
         ).getSeconds();
-
         refreshTokenService.save(user.getId(), refreshToken.getToken(), expireSeconds);
 
-        // 응답 반환
+        // "Bearer " 접두사 일원화
+        String bearerAccessToken  = JwtTokenHelper.withBearer(accessToken.getToken());
+        String bearerRefreshToken = JwtTokenHelper.withBearer(refreshToken.getToken());
+
         return LoginResponse.builder()
-            .accessToken("Bearer " + accessToken.getToken())
-            .refreshToken("Bearer " + refreshToken.getToken())
+            .accessToken(bearerAccessToken)
+            .refreshToken(bearerRefreshToken)
             .build();
     }
 
-    public LoginResponse reIssueToken(String refreshToken) {
+    @Override
+    public LoginResponse reIssueToken(String refreshTokenHeader) {
         log.info("리프레시 토큰으로 액세스 재발급 시도");
 
         // Bearer 접두사 제거
-        refreshToken = getRefreshTokenWithoutBearer(refreshToken);
+        String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
 
         // Refresh Token 검증
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
 
-        // 클레임에서 사용자 정보 추출
-        Long userId = ((Integer) claims.get("userId")).longValue(); // int -> long
+        Long userId = ((Integer) claims.get("userId")).longValue();
 
         // Redis에서 저장된 토큰 확인
         if (!refreshTokenService.isValid(userId, refreshToken)) {
-            refreshTokenService.delete(userId); // 혹시라도 남아있으면 삭제
+            refreshTokenService.delete(userId);
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
 
@@ -101,31 +102,34 @@ public class AuthServiceImpl implements AuthService {
         claims.put("jti", newTokenId);
 
         // 새 Access, Refresh 토큰 발급
-        TokenDto newAccessToken = jwtTokenHelper.issueAccessToken(claims);
+        TokenDto newAccessToken  = jwtTokenHelper.issueAccessToken(claims);
         TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
-        // Redis에 새 리프레시 토큰 저장
         long expireSeconds = Duration.between(
             LocalDateTime.now(),
             newRefreshToken.getExpiredAt()
         ).getSeconds();
         refreshTokenService.save(userId, newRefreshToken.getToken(), expireSeconds);
 
+        String bearerAccessToken  = JwtTokenHelper.withBearer(newAccessToken.getToken());
+        String bearerRefreshToken = JwtTokenHelper.withBearer(newRefreshToken.getToken());
+
         return LoginResponse.builder()
-            .accessToken("Bearer " + newAccessToken.getToken())
-            .refreshToken("Bearer " + newRefreshToken.getToken())
+            .accessToken(bearerAccessToken)
+            .refreshToken(bearerRefreshToken)
             .build();
     }
 
-    public void deleteToken(String refreshToken){
-        refreshToken = getRefreshTokenWithoutBearer(refreshToken);
+    @Override
+    public void deleteToken(String refreshTokenHeader) {
+        // Bearer 접두사 제거
+        String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
 
         // 토큰 검증 및 클레임 추출
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         Object rawUserId = claims.get("userId");
 
         long userId;
-
         try {
             if (rawUserId instanceof Integer i) {
                 userId = i.longValue();
@@ -135,23 +139,14 @@ public class AuthServiceImpl implements AuthService {
                 userId = Long.parseLong(s);
             } else {
                 log.error("지원하지 않는 userId 타입: {}", rawUserId);
-                throw  new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
+                throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
             }
         } catch (Exception e) {
             log.error("JWT userId 파싱 실패: {}", rawUserId, e);
-            throw  new CustomException(CustomErrorCode.INVALID_TOKEN);
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
+
         // Redis에서 해당 사용자 토큰 삭제
         refreshTokenService.delete(userId);
-
-
     }
-
-    private String getRefreshTokenWithoutBearer(String refreshToken) {
-        if (refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
-        }
-        return refreshToken;
-    }
-
 }

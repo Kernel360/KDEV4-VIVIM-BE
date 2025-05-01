@@ -110,4 +110,16 @@ public class JwtTokenHelper {
         }
     }
 
+    /** token 문자열에 "Bearer " 접두사를 붙입니다. */
+    public static String withBearer(String token) {
+        return "Bearer " + token;
+    }
+
+    /** "Bearer " 접두사가 붙은 헤더에서 토큰만 분리합니다. */
+    public static String withoutBearer(String header) {
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return header;
+    }
 }

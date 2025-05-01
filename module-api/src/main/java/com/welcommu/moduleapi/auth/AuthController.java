@@ -24,10 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @Tag(name = "인증 인가 API", description = "로그인, 로그아웃, 토큰 재발급 등 인증 및 권한과 관련된 기능을 제공합니다.")
 public class AuthController {
+
     private final AuthService authService;
 
+    // 1-1. 요청 바디로 받은 이메일·비밀번호 검증
+    // 1-2. AuthServiceImpl.createToken() 호출
     @PostMapping("/login")
-    @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token을 발급받습니다.")
+    @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token 을 발급받습니다.")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         LoginResponse response = authService.createToken(request);
         return ResponseEntity.ok(response);
