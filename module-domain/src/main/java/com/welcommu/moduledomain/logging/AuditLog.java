@@ -25,6 +25,7 @@ public class AuditLog {
 
     // 해당 작업이 일어난 대상 타입(ex. project, post, comment..)
     @Enumerated(EnumType.STRING)
+    @Column(name = "target_type", length = 50, nullable = false)
     private TargetType targetType;
 
     // 해당 작업이 일어난 대상의 id

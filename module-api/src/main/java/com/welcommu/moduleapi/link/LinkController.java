@@ -1,6 +1,7 @@
 package com.welcommu.moduleapi.link;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.link.LinkService;
 import com.welcommu.moduleservice.link.dto.LinkListResponse;
 import com.welcommu.moduleservice.link.dto.LinkRequest;
@@ -10,6 +11,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,8 +31,9 @@ public class LinkController {
     @PostMapping("/posts/{postId}/link")
     @Operation(summary = "게시글에 링크 생성")
     public ResponseEntity<ApiResponse> createPostLink(@PathVariable Long postId,
-        @RequestBody LinkRequest request) {
-        linkService.createPostLink(postId, request);
+        @RequestBody LinkRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        linkService.createPostLink(postId, request, actorId);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
@@ -38,8 +41,9 @@ public class LinkController {
     @PostMapping("/approvals/{approvalId}/links")
     @Operation(summary = "승인요청에 링크 생성")
     public ResponseEntity<ApiResponse> createApprovalLink(@PathVariable Long approvalId,
-        @RequestBody LinkRequest request) {
-        linkService.createApprovalLink(approvalId, request);
+        @RequestBody LinkRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        linkService.createApprovalLink(approvalId, request,actorId);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
@@ -47,8 +51,9 @@ public class LinkController {
     @PostMapping("/decisions/{decisionId}/links")
     @Operation(summary = "승인응답에 링크 생성")
     public ResponseEntity<ApiResponse> createDecisionLink(@PathVariable Long decisionId,
-        @RequestBody LinkRequest request) {
-        linkService.createDecisionLink(decisionId, request);
+        @RequestBody LinkRequest request, @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        linkService.createDecisionLink(decisionId, request,actorId);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "링크가 등록되었습니다."));
     }
@@ -73,8 +78,9 @@ public class LinkController {
 
     @PatchMapping("/links/{linkId}")
     @Operation(summary = "링크 삭제")
-    public ResponseEntity<ApiResponse> deleteLink(@PathVariable Long linkId) {
-        linkService.deleteLink(linkId);
+    public ResponseEntity<ApiResponse> deleteLink(@PathVariable Long linkId,  @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();;
+        linkService.deleteLink(linkId,actorId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "링크가 삭제되었습니다."));
     }
 }
