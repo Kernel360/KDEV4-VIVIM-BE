@@ -9,18 +9,16 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtTokenHelper jwtTokenHelper;
     private final UserDetailsService userDetailsService;
@@ -36,7 +34,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
 
-        // Swagger UI 및 API 문서 관련 요청은 JWT 필터를 적용하지 않음
         for (String swaggerPath : SWAGGER_WHITELIST) {
             if (requestURI.startsWith(swaggerPath)) {
                 filterChain.doFilter(request, response);
@@ -46,53 +43,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         Set<String> excludedPaths = Set.of("/api/auth/refresh-token", "/api/auth/login", "/api/users/resetpassword");
 
-        if (excludedPaths.contains(request.getRequestURI())) {
+        if (excludedPaths.contains(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Authorization 헤더에서 JWT 토큰을 추출
         String token = getTokenFromRequest(request);
 
-        // Authorization 헤더가 없을 경우 처리
         if (token == null) {
-            logger.warn("Authorization 헤더가 없습니다.");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+            log.warn("Authorization 헤더가 없습니다.");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Authorization header is missing");
             return;
         }
 
-        // 토큰이 유효한지 확인하고 인증 정보 설정
         try {
             Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
 
-            // 유효한 토큰이 있을 때 로그
             String username = (String) claims.get("email");
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
+            log.info("유효한 JWT 토큰으로 인증된 사용자: {}", username);
 
-            // 인증 정보 설정
             UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
         } catch (Exception e) {
-            logger.error("JWT 처리 중 오류 발생", e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+            log.error("JWT 처리 중 오류 발생", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid JWT token");
-            return;  // 더 이상 필터 체인 진행하지 않음
+            return;
         }
 
-        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 
-    // Authorization 헤더에서 JWT 토큰을 추출
     private String getTokenFromRequest(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7); // "Bearer " 부분을 제거하고 토큰만 추출
+            return header.substring(7);
         }
         return null;
     }
