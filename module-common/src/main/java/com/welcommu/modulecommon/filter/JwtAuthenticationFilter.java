@@ -28,8 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     };
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
@@ -53,12 +52,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token == null) {
             log.warn("Authorization 헤더가 없습니다.");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Authorization header is missing");
+            response.getWriter().write("Authorization 헤더가 없습니다.");
             return;
         }
 
         try {
             Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
+
+            // Access Token 타입만 허용
+            String tokenType = (String) claims.get("tokenType");
+            if (!"access".equals(tokenType)) {
+                log.warn("Invalid token type: {}", tokenType);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid token type");
+                return;
+            }
 
             String username = (String) claims.get("email");
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -71,12 +79,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception e) {
-            log.error("JWT 처리 중 오류 발생", e);
+            log.error("JWT 처리 중 오류가 발생했습니다.", e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid JWT token");
+            response.getWriter().write("유효하지 않은 JWT 토큰입니다.");
             return;
         }
 
+        // 다음 필터 실행
         filterChain.doFilter(request, response);
     }
 

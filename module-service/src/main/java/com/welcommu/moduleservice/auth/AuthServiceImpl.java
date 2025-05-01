@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.hibernate.Internal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +34,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse createToken(LoginRequest request) {
+
         User user = authenticateUser(request.getEmail(), request.getPassword());
         UserResponse userDto = UserResponse.from(user);
 
@@ -48,16 +49,20 @@ public class AuthServiceImpl implements AuthService {
         return buildLoginResponse(accessToken, refreshToken);
     }
 
+    // 만료된(혹은 곧 만료될) Access Token 갱신
     @Override
     @Transactional
     public LoginResponse reIssueToken(String refreshTokenHeader) {
+
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
+
+        // 서명·만료 검증
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
 
         validateRefreshTokenType(claims);
 
+        // userId 파싱, Redis 검증·회전
         long userId = parseUserId(claims.get("userId"));
-
         verifyAndRotateRefreshToken(userId, refreshToken);
 
         claims.put("jti", UUID.randomUUID().toString());
@@ -70,17 +75,20 @@ public class AuthServiceImpl implements AuthService {
         return buildLoginResponse(newAccessToken, newRefreshToken);
     }
 
+    // Redis 에 저장된 해당 사용자의 리프레시 토큰을 삭제
     @Override
     public void deleteToken(String refreshTokenHeader) {
+        
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
-        // Redis 에서 해당 사용자 토큰 삭제
         refreshTokenService.delete(userId);
     }
 
-    // ===================== ↓ Internal Methods ↓ =====================
+    /**
+     * Internal Methods
+     */
 
     private User authenticateUser(String email, String password) {
         User user = userService.getUserByEmail(email)

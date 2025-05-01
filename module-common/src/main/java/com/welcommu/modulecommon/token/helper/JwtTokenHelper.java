@@ -5,7 +5,6 @@ import com.welcommu.modulecommon.exception.CustomException;
 import com.welcommu.modulecommon.token.dto.TokenDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
