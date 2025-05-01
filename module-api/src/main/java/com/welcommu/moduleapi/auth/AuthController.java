@@ -51,13 +51,13 @@ public class AuthController {
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
-    public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest refreshToken) {
+    public ResponseEntity<Map<String, String>> logout(@RequestBody RefreshTokenRequest refreshToken) {
         try {
             authService.deleteToken(refreshToken.getRefreshToken());
-            return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
         } catch (Exception e) {
-            // 실패해도 로그아웃은 성공했다고 간주
-            return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
+            // 로깅은 해두되, 사용자에겐 성공 응답을 준다.
+            log.warn("Refresh Token 삭제 실패", e);
         }
+        return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
     }
 }
