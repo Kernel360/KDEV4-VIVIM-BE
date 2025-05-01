@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Swagger UI</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css" />
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+      margin: 0;
+      background: #fafafa;
+    }
+  </style>
+</head>
+
+<body>
+<div id="swagger-ui"></div>
+
+<script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+<script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-standalone-preset.js"></script>
+
+<script>
+  window.onload = function () {
+    let accessToken = null;
+
+    const ui = SwaggerUIBundle({
+      url: "/v3/api-docs",
+      dom_id: "#swagger-ui",
+      deepLinking: true,
+      presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIStandalonePreset
+      ],
+      layout: "StandaloneLayout",
+
+      // ✅ 쿠키 포함 (refreshToken 인증 등)
+      requestInterceptor: function (req) {
+        if (accessToken && !req.loadSpec) {
+          req.headers["Authorization"] = "Bearer " + accessToken;
+        }
+        req.credentials = "include";
+        return req;
+      },
+
+      // ✅ 로그인 API 응답에서 accessToken 자동 추출
+      responseInterceptor: function (res) {
+        try {
+          if (res.url.endsWith("/api/auth/login") && res.status === 200) {
+            const json = JSON.parse(res.data);
+            const token = json.data?.accessToken || json.accessToken;
+            if (token) {
+              accessToken = token.replace(/^Bearer /, "");
+              alert("✅ 로그인 성공: accessToken 자동 설정 완료");
+            }
+          }
+        } catch (e) {
+          console.warn("자동 토큰 주입 실패", e);
+        }
+        return res;
+      }
+    });
+
+    window.ui = ui;
+  };
+</script>
+</body>
+</html>
