@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (!"access".equals(tokenType)) {
                 log.warn("Invalid token type: {}", tokenType);
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid token type");
+                response.getWriter().write("허용되지 않은 토큰 타입입니다. 액세스 토큰만 사용할 수 있습니다.");
                 return;
             }
 

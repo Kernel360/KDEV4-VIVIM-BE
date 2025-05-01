@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Internal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,15 +33,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse createToken(LoginRequest request) {
-
         User user = authenticateUser(request.getEmail(), request.getPassword());
         UserResponse userDto = UserResponse.from(user);
 
-        // JWT 토큰에 담을 사용자 정보(Claims)를 UserResponse 객체를 기반으로 생성
-        Map<String, Object> claims = createClaims(userDto);
+        Map<String, Object> accessClaims = createAccessClaims(userDto);
+        Map<String, Object> refreshClaims = createRefreshClaims(userDto);
 
-        TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
-        TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
+        TokenDto accessToken = jwtTokenHelper.issueAccessToken(accessClaims);
+        TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(refreshClaims);
 
         saveRefreshToken(user.getId(), refreshToken);
 
@@ -60,7 +58,6 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
 
         validateRefreshTokenType(claims);
-
         // userId 파싱, Redis 검증·회전
         long userId = parseUserId(claims.get("userId"));
         verifyAndRotateRefreshToken(userId, refreshToken);
@@ -93,19 +90,24 @@ public class AuthServiceImpl implements AuthService {
     private User authenticateUser(String email, String password) {
         User user = userService.getUserByEmail(email)
             .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_CREDENTIALS));
-
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(CustomErrorCode.INVALID_CREDENTIALS);
         }
         return user;
     }
 
-    private Map<String, Object> createClaims(UserResponse userDto) {
+    private Map<String, Object> createAccessClaims(UserResponse userDto) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", userDto.getEmail());
         claims.put("userId", userDto.getId());
         claims.put("role", userDto.getCompanyRole());
-        claims.put("jti", UUID.randomUUID().toString());
+        return claims;
+    }
+
+    private Map<String, Object> createRefreshClaims(UserResponse userDto) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", userDto.getEmail());
+        claims.put("userId", userDto.getId());
         return claims;
     }
 
@@ -128,18 +130,14 @@ public class AuthServiceImpl implements AuthService {
     private void validateRefreshTokenType(Map<String, Object> claims) {
         String tokenType = (String) claims.get("tokenType");
         if (!"refresh".equals(tokenType)) {
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN_TYPE);
+            throw new CustomException(CustomErrorCode.INVALID_REFRESH_TOKEN_TYPE);
         }
     }
 
     private long parseUserId(Object raw) {
-        if (raw instanceof Integer) {
-            return ((Integer) raw).longValue();
-        } else if (raw instanceof Long) {
-            return (Long) raw;
-        } else if (raw instanceof String) {
-            return Long.parseLong((String) raw);
-        }
+        if (raw instanceof Integer) return ((Integer) raw).longValue();
+        if (raw instanceof Long) return (Long) raw;
+        if (raw instanceof String) return Long.parseLong((String) raw);
         log.error("지원하지 않는 userId 타입: {}", raw);
         throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
     }

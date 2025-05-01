@@ -22,7 +22,7 @@ public enum CustomErrorCode {
     EXPIRED_TOKEN("T002", "토큰이 만료되었습니다."),
     INVALID_USERID_TYPE("T003", "유효하지 않은 userId 타입입니다."),
     INVALID_CREDENTIALS("T004", "이메일 또는 비밀번호가 일치하지 않습니다."),
-    INVALID_TOKEN_TYPE("T005", "유효하지 않은 토큰 타입입니다."),
+    INVALID_REFRESH_TOKEN_TYPE("T005", "리프레시 토큰만 사용할 수 있습니다."),
 
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
