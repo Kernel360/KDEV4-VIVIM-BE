@@ -18,12 +18,12 @@ public class ProposalCreateRequest {
 
     @NotBlank
     private String content;
-    
+
     public ApprovalProposal toEntity(User creator, ProjectProgress progress) {
         return ApprovalProposal.builder()
             .title(this.title)
             .content(this.content)
-            .proposalStatus(ApprovalProposalStatus.BEFORE_REQUEST_PROPOSAL)
+            .proposalStatus(ApprovalProposalStatus.DRAFT)
             .createdAt(LocalDateTime.now())
             .user(creator)
             .projectProgress(progress)

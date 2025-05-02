@@ -2,16 +2,20 @@ package com.welcommu.moduleservice.projectProgess;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleinfra.approval.ApprovalProposalRepository;
 import com.welcommu.moduleinfra.project.ProjectRepository;
 import com.welcommu.moduleinfra.project.ProjectUserRepository;
 import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,12 +27,9 @@ public class ProjectProgressService {
     private final ProjectRepository projectRepository;
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
+    private final ApprovalProposalRepository proposalRepository;
 
-    public void createProgress(
-        User user,
-        Long projectId,
-        ProgressCreateRequest request
-    ) {
+    public void createProgress(User user, Long projectId, ProgressCreateRequest request) {
         Project project = findProject(projectId);
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
@@ -49,15 +50,9 @@ public class ProjectProgressService {
 
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
-        if (request.getPosition() != null) {
-            checkIsDuplicatedPosition(projectId, request.getPosition());
-        }
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
-        if (request.getPosition() != null) {
-            projectProgress.setPosition(request.getPosition());
-        }
         progressRepository.save(projectProgress);
     }
 
@@ -77,13 +72,70 @@ public class ProjectProgressService {
         return ProgressListResponse.of(progressList);
     }
 
+    // 각 단계별 totalApprovalCount, approvedApprovalCount, progressRate를 조회해서 progressList로 주는 역할
+    public ProgressApprovalStatusResponse getProgressApprovalStatus(Long projectId) {
+        Project project = findProject(projectId);
+        List<ProjectProgress> progressList = progressRepository.findByProject(project);
+
+        List<ProgressApprovalStatusResponse.ProgressApprovalStatus> progressApprovalStatuses =
+            progressList.stream()
+                .map(progress -> {
+                    Long totalCount = proposalRepository.countByProjectProgressId(progress.getId());
+                    Long approvedCount = proposalRepository.countByProjectProgressIdAndProposalStatus(
+                        progress.getId(), ApprovalProposalStatus.FINAL_APPROVED
+                    );
+                    float progressRate = (totalCount == 0) ? 0.0f : (approvedCount * 1.0f / totalCount) * 100;
+
+                    return new ProgressApprovalStatusResponse.ProgressApprovalStatus(
+                        progress.getId(),
+                        progress.getName(),
+                        totalCount,
+                        approvedCount,
+                        progressRate
+                    );
+                })
+                .toList();
+
+        return new ProgressApprovalStatusResponse(progressApprovalStatuses);
+    }
+
+    public ProgressApprovalStatusOverallResponse calculateOverallProgress(Long projectId) {
+        ProgressApprovalStatusResponse progressStatus = getProgressApprovalStatus(projectId);
+        List<ProgressApprovalStatusResponse.ProgressApprovalStatus> progresses = progressStatus.getProgressList();
+
+        int totalStageCount = progresses.size();
+        int completedStageCount = 0;
+        float currentStageProgressRate = 0.0f;
+
+        for (ProgressApprovalStatusResponse.ProgressApprovalStatus progress : progresses) {
+            if (progress.getProgressRate() == 1.0f) {
+                completedStageCount++;
+            } else {
+                currentStageProgressRate = progress.getProgressRate();
+                break;
+            }
+        }
+
+        float overallProgressRate = ((completedStageCount + currentStageProgressRate) / totalStageCount) * 100.0f;
+
+        return ProgressApprovalStatusOverallResponse.builder()
+            .totalStageCount(totalStageCount)
+            .completedStageCount(completedStageCount)
+            .currentStageProgressRate(currentStageProgressRate)
+            .overallProgressRate(overallProgressRate)
+            .build();
+    }
+
     private ProjectProgress checkIsMatchedProject(Long projectId, Long progressId) {
 
         Project project = findProject(projectId);
         ProjectProgress projectProgress = findProgress(progressId);
 
-        if (!projectProgress.getProject().getName().equals(project.getName())
-            || !projectProgress.getProject().getCreatedAt().equals(project.getCreatedAt())) {
+        if (!projectProgress.getProject()
+            .getName()
+            .equals(project.getName()) || !projectProgress.getProject()
+            .getCreatedAt()
+            .equals(project.getCreatedAt())) {
             throw new CustomException(CustomErrorCode.MISMATCH_PROJECT_PROGRESS);
         }
         return projectProgress;
@@ -95,33 +147,36 @@ public class ProjectProgressService {
         }
     }
 
-    private void checkIsDuplicatedPosition(Long projectId, Float position) {
-        if (progressRepository.existsByProjectIdAndPosition(projectId, position)) {
-            throw new CustomException(CustomErrorCode.DUPLICATE_PROGRESS_POSITION);
-        }
-    }
-
-    // 사용자 권한 전체 흐름 조정
     private void checkUserPermission(User user, Long projectId) {
+        if (isAdmin(user)) {
+            return;
+        }
         ProjectUser projectUser = findProjectUser(user, projectId);
-        validateUserIsAdminOrDeveloperManager(user, projectUser);
-    }
-
-    // ADMIN 또는 DEVELOPER_MANAGER 여부 확인
-    private void validateUserIsAdminOrDeveloperManager(User user, ProjectUser projectUser) {
-        boolean isAdmin = "ADMIN".equals(user.getRole().toString());
-        boolean isDevManager = "DEVELOPER_MANAGER".equals(
-            projectUser.getProjectUserManageRole().toString());
-
-        if (user.getCompany() == null || (!isAdmin && !isDevManager)) {
-            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        if (!isDeveloperManager(user, projectUser)) {
+            throw new CustomException(CustomErrorCode.YOUR_ARE_NOT_DEVELOPER);
         }
     }
 
-    // 프로젝트 참여자인지 확인
+    private boolean isAdmin(User user) {
+        return user.getRole()
+            .toString()
+            .equals("ADMIN");
+    }
+
+    private boolean isDeveloperManager(User user, ProjectUser projectUser) {
+
+        boolean isDevManager = "DEVELOPER_MANAGER".equals(projectUser.getProjectUserManageRole()
+            .toString());
+
+        if (user.getCompany() == null || !isDevManager) {
+            throw new CustomException(CustomErrorCode.FORBIDDEN_ACCESS);
+        } else {
+            return true;
+        }
+    }
+
     private ProjectUser findProjectUser(User user, Long projectId) {
-        return projectUserRepository
-            .findByUserIdAndProjectId(user.getId(), projectId)
+        return projectUserRepository.findByUserIdAndProjectId(user.getId(), projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT_USER));
     }
 
@@ -136,6 +191,7 @@ public class ProjectProgressService {
     }
 
     private Float findBiggestPosition(Long projectId) {
-        return progressRepository.findMaxPositionByProjectId(projectId).orElse(0.0f);
+        return progressRepository.findMaxPositionByProjectId(projectId)
+            .orElse(0.0f);
     }
 }

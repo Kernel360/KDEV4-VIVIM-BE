@@ -102,4 +102,18 @@ public class Project {
     public void setProjectFee(Integer projectFee) {
         this.projectFee = projectFee;
     }
+
+    public void setCurrentProgress(DefaultProjectProgress currentProgress) {
+        this.currentProgress = currentProgress;
+    }
+
+    public void setProjectStatus(ProjectStatus projectStatus) {
+        this.projectStatus = projectStatus;
+    }
+
+    public void setProjectFeePaidDate() {
+        this.projectFeePaidDate = LocalDate.now();
+    }
+
+
 }

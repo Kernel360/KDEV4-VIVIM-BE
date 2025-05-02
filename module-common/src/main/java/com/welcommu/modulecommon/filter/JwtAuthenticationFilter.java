@@ -44,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        Set<String> excludedPaths = Set.of("/api/auth/refresh-token", "/api/auth/login", "/api/users/resetpassword");
+        Set<String> excludedPaths = Set.of("/api/auth/refresh-token", "/api/auth/login", "/api/users/resetpassword", "/actuator/health");
 
         if (excludedPaths.contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);

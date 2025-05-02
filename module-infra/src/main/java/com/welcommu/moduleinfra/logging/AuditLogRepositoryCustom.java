@@ -18,4 +18,17 @@ public interface AuditLogRepositoryCustom {
         Long userId,
         Pageable pageable
     );
+
+    List<Long> findIdsWithCursor(
+        ActionType actionType,
+        TargetType targetType,
+        LocalDateTime start,
+        LocalDateTime end,
+        Long userId,
+        LocalDateTime cursorLoggedAt,
+        Long cursorId,
+        int size
+    );
+
+    List<AuditLog> findWithDetailsByIds(List<Long> ids);
 }

@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id "org.sonarqube" version "4.4.1.3373"
 }
 
 group = 'com.welcommu'
@@ -23,10 +24,19 @@ repositories {
 	mavenCentral()
 }
 
+sonarqube {
+	properties {
+		property "sonar.projectKey", "vivim_be"
+		property "sonar.projectName", "VIVIM_BE"
+		property "sonar.host.url", "http://localhost:9000"
+	}
+}
+
 dependencies {
 	implementation "me.paulschwarz:spring-dotenv:4.0.0"
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

@@ -3,10 +3,11 @@ package com.welcommu.moduleapi.company;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduleservice.company.CompanyService;
 import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyRequest;
 import com.welcommu.moduleservice.company.dto.CompanyResponse;
-import com.welcommu.moduleservice.company.CompanyService;
+import com.welcommu.moduleservice.company.CompanyServiceImpl;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -117,6 +118,14 @@ public class CompanyController {
     public ResponseEntity<ApiResponse> deleteCompany(@PathVariable Long id,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
         Long actorId = userDetails.getUser().getId();
         companyService.deleteCompany(id, actorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "id를 바탕으로 회사를 삭제합니다.(Soft Delete)")
+    @DeleteMapping("/soft/{id}")
+    public ResponseEntity<ApiResponse> softDeleteCompany(@PathVariable Long id,@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        Long actorId = userDetails.getUser().getId();
+        companyService.softDeleteCompany(id, actorId);
         return ResponseEntity.noContent().build();
     }
 }
