@@ -41,9 +41,7 @@ public class ProjectProgressController {
         @RequestBody ProgressCreateRequest request
     ) {
 
-        log.info("프로젝트 단계 생성 요청: projectId={}, request={}", projectId, request);
         progressService.createProgress(userDetails.getUser(), projectId, request);
-        log.info("프로젝트 단계 생성 완료: projectId={}", projectId);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트 단계 생성을 성공했습니다."));
     }
@@ -57,10 +55,7 @@ public class ProjectProgressController {
         @RequestBody ProgressModifyRequest request
     ) {
 
-        log.info("프로젝트 단계 수정 요청: projectId={}, progressId={}, request={}", projectId, progressId,
-            request);
         progressService.modifyProgress(userDetails.getUser(), projectId, progressId, request);
-        log.info("프로젝트 단계 수정 완료: projectId={}, progressId={}", projectId, progressId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
     }
 
@@ -72,9 +67,7 @@ public class ProjectProgressController {
         @PathVariable Long progressId
     ) {
 
-        log.info("프로젝트 단계 삭제 요청: projectId={}, progressId={}", projectId, progressId);
         progressService.deleteProgress(userDetails.getUser(), projectId, progressId);
-        log.info("프로젝트 단계 삭제 완료: projectId={}, progressId={}", projectId, progressId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 삭제 성공"));
     }
 
@@ -83,10 +76,7 @@ public class ProjectProgressController {
     public ResponseEntity<ProgressListResponse> getProgressList(
         @PathVariable Long projectId) {
 
-        log.info("프로젝트 단계 전체 조회 요청: projectId={}", projectId);
         ProgressListResponse progressList = progressService.getProgressList(projectId);
-        log.info("프로젝트 단계 전체 조회 완료: projectId={}, count={}", projectId,
-            progressList.getProgressList().size());
         return ResponseEntity.ok(progressList);
     }
 
@@ -95,7 +85,6 @@ public class ProjectProgressController {
     public ResponseEntity<ProgressApprovalStatusResponse> getProgressApprovalStatus(
         @PathVariable Long projectId
     ) {
-        log.info("프로젝트 단계별 승인요청 진척도 조회 요청: projectId={}", projectId);
         ProgressApprovalStatusResponse response = progressService.getProgressApprovalStatus(projectId);
         log.info("프로젝트 단계별 승인요청 진척도 조회 완료: projectId={}, count={}", projectId,
             response.getProgressList().size());
@@ -107,7 +96,6 @@ public class ProjectProgressController {
     public ResponseEntity<ProgressApprovalStatusOverallResponse> getOverallProgress(
         @PathVariable Long projectId
     ) {
-        log.info("프로젝트 전체 진행률 조회 요청: projectId={}", projectId);
         ProgressApprovalStatusOverallResponse response = progressService.calculateOverallProgress(projectId);
         log.info("프로젝트 전체 진행률 조회 완료: projectId={}, overallProgressRate={}", projectId,
             response.getOverallProgressRate());

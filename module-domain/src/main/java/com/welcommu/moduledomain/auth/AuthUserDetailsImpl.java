@@ -1,8 +1,8 @@
 package com.welcommu.moduledomain.auth;
 
 import com.welcommu.moduledomain.user.User;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +17,11 @@ public class AuthUserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return authorities;
+
+        // User 의 companyRole 을 기반으로 권한 동적 매핑
+        return user.getRole() == null
+            ? List.of()
+            : List.of(new SimpleGrantedAuthority(user.getRole().name()));
     }
 
     @Override

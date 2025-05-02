@@ -1,8 +1,8 @@
 package com.welcommu.modulecommon.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
-import com.welcommu.modulecommon.security.CustomUserDetailsService;
-import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtTokenHelper;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -35,7 +36,8 @@ public class SecurityConfig {
     };
 
     private final JwtTokenHelper jwtTokenHelper;
-    private final CustomUserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper; 
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
@@ -44,7 +46,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
-            jwtTokenHelper, userDetailsService);
+            jwtTokenHelper,
+            userDetailsService,
+            objectMapper
+        );
 
         httpSecurity
             .cors(Customizer.withDefaults())
