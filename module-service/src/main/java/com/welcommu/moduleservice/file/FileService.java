@@ -8,6 +8,7 @@ import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.moduleinfra.file.FileRepository;
 import com.welcommu.moduleservice.file.dto.FileListResponse;
 import com.welcommu.moduleservice.file.dto.FileRequest;
+import com.welcommu.moduleservice.file.dto.MultipartFileMetadataRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class FileService {
 
     private final FileRepository fileRepository;
+
+
+    public void createMultipartPostFile(MultipartFileMetadataRequest request,
+        Long postId, String fileUrl) {
+        File newFile = request.toEntity(request, ReferenceType.POST, postId, fileUrl);
+        fileRepository.save(newFile);
+
+    }
 
     public void createPostFile(FileRequest request, Long postId) {
 
@@ -72,4 +81,5 @@ public class FileService {
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_FILE));
         existingFile.setDeletedAt();
     }
+
 }
