@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/resetpassword").permitAll()
                 .requestMatchers("/swagger-ui/*").permitAll()
                 .requestMatchers("/api/auth/refresh-token").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -75,7 +76,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-            Arrays.asList("http://localhost:3000", "https://www.vivim.co.kr"));
+            Arrays.asList("http://localhost:3000", "https://www.vivim.co.kr", "https://test.vivim.co.kr"));
         configuration.setAllowedMethods(
             Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
