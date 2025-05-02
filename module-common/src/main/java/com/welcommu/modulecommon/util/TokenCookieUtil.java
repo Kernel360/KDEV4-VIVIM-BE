@@ -12,7 +12,7 @@ public class TokenCookieUtil {
             .secure(true)
             .path("/")
             .maxAge(Duration.ofMinutes(15))
-            .sameSite("Strict")
+            .sameSite("None")
             .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -20,7 +20,7 @@ public class TokenCookieUtil {
             .secure(true)
             .path("/")
             .maxAge(Duration.ofDays(7))
-            .sameSite("Strict")
+            .sameSite("None")
             .build();
 
         response.addHeader("Set-Cookie", accessCookie.toString());
