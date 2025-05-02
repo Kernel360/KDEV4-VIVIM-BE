@@ -9,6 +9,4 @@ import org.springframework.stereotype.Repository;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     List<Notification> findByReceiverIdOrderByCreatedAtDesc(Long receiverId);
-
-    List<Notification> findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(Long receiverId);
 }

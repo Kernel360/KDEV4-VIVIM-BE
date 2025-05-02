@@ -50,7 +50,7 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getNotifications(Long userId) {
-        List<Notification> notifications = notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(
+        List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(
             userId);
         return notifications.stream()
             .map(NotificationResponse::from)
@@ -65,18 +65,28 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendNotification(Long receiverId, NotificationRequest request) throws IOException {
+    public void sendNotification(NotificationRequest request) throws IOException {
         Notification notification = request.toEntity(request);
         Notification savedNotification = notificationRepository.save(notification);
+        NotificationResponse notificationResponse = NotificationResponse.from(savedNotification);
 
         //SSE 구독중인 경우만 즉시 Push
-        SseEmitter emitter = emitters.get(receiverId);
+        SseEmitter emitter = emitters.get(request.getReceiverId());
         log.info("Send Notification");
         if (emitter != null) {
-            log.info("SSE Event has been created");
-            emitter.send(SseEmitter.event()
-                .name("notification")
-                .data(savedNotification));
+            try {
+                log.info("SSE Event has been created");
+                emitter.send(SseEmitter.event()
+                    .name("notification")
+                    .data(notificationResponse));
+            } catch (IOException | IllegalStateException e) {
+                log.warn("SSE 전송 실패로 emitter 제거됨. userId={}, message={}", request.getReceiverId(),
+                    e.getMessage());
+                emitter.completeWithError(e); // optional
+                emitters.remove(request.getReceiverId());
+            }
+        } else {
+            log.info("SSE 구독자 없음. userId={}", request.getReceiverId());
         }
     }
 

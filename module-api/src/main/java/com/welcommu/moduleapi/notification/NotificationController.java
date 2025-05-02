@@ -28,10 +28,9 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> sendNotification(@RequestBody NotificationRequest request,
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) throws IOException {
-        Long receiverId = userDetails.getUser().getId();
-        notificationService.sendNotification(receiverId, request);
+    public ResponseEntity<ApiResponse> sendNotification(@RequestBody NotificationRequest request)
+        throws IOException {
+        notificationService.sendNotification(request);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "알림이 등록되었습니다."));
     }
