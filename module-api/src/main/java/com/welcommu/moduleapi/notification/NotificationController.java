@@ -5,7 +5,6 @@ import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.notification.NotificationService;
 import com.welcommu.moduleservice.notification.dto.NotificationRequest;
 import com.welcommu.moduleservice.notification.dto.NotificationResponse;
-import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +29,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> sendNotification(@RequestBody NotificationRequest request,
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails)
-        throws IOException {
+    public ResponseEntity<ApiResponse> sendNotification(@RequestBody NotificationRequest request) {
         notificationService.sendNotification(request);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "알림이 등록되었습니다."));

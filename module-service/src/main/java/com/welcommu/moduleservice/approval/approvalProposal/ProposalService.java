@@ -7,19 +7,27 @@ import com.welcommu.moduledomain.approval.ApprovalApproverStatus;
 import com.welcommu.moduledomain.approval.ApprovalDecision;
 import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
+import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduledomain.company.CompanyRole;
+import com.welcommu.moduledomain.notification.NotificationType;
+import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleinfra.approval.ApprovalApproverRepository;
 import com.welcommu.moduleinfra.approval.ApprovalDecisionRepository;
 import com.welcommu.moduleinfra.approval.ApprovalProposalRepository;
+import com.welcommu.moduleinfra.company.CompanyRepository;
 import com.welcommu.moduleinfra.project.ProjectUserRepository;
 import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
+import com.welcommu.moduleinfra.user.UserRepository;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalCreateRequest;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalModifyRequest;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponse;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalResponseList;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalSendResponse;
 import com.welcommu.moduleservice.approval.approvalProposal.dto.ProposalStatusResponse;
+import com.welcommu.moduleservice.notification.NotificationService;
+import com.welcommu.moduleservice.notification.dto.NotificationRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +46,10 @@ public class ProposalService {
     private final ApprovalProposalRepository approvalProposalRepository;
     private final ApprovalDecisionRepository approvalDecisionRepository;
     private final ApprovalApproverRepository approvalApproverRepository;
+    private final NotificationService notificationService;
+    private final CompanyRepository companyRepository;
+    private final UserRepository userRepository;
+
 
     @Transactional
     public Long createProposal(User creator, Long progressId, ProposalCreateRequest request) {
@@ -47,6 +59,39 @@ public class ProposalService {
 
         ApprovalProposal approvalProposal = request.toEntity(creator, progress);
         approvalProposalRepository.save(approvalProposal);
+
+        //참여자들에게 알림 전송
+        List<ProjectUser> participants = projectUserRepository.findByProject(progress.getProject());
+
+        for (ProjectUser participant : participants) {
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                .receiverId(participant.getId())
+                .content(String.format("%s님이 승인 요청 '%s'를 생성했습니다.", creator.getName(),
+                    request.getTitle()))
+                .type(NotificationType.APPROVAL_CREATED)
+                .typeId(approvalProposal.getId())
+                .build();
+            notificationService.sendNotification(notificationRequest);
+        }
+
+        //관리자에게도 알림 전송
+        List<Company> adminCompanies = companyRepository.findByCompanyRole(CompanyRole.ADMIN);
+        List<Long> adminCompanyIds = adminCompanies.stream()
+            .map(Company::getId)
+            .toList();
+
+        List<User> adminUsers = userRepository.findByCompanyIdIn(adminCompanyIds);
+        for (User admin : adminUsers) {
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                .receiverId(admin.getId())
+                .content(String.format("%s님이 승인 요청 '%s'를 생성했습니다..", creator.getName(),
+                    approvalProposal.getTitle()))
+                .type(NotificationType.APPROVAL_CREATED)
+                .typeId(approvalProposal.getId())
+                .build();
+            notificationService.sendNotification(notificationRequest);
+        }
+
         return approvalProposal.getId();
     }
 
@@ -66,12 +111,77 @@ public class ProposalService {
             approvalProposal.setContent(request.getContent());
         }
         approvalProposalRepository.save(approvalProposal);
+
+        //참여자들에게 알림 전송
+        List<ProjectUser> participants = projectUserRepository.findByProject(progress.getProject());
+
+        for (ProjectUser participant : participants) {
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                .receiverId(participant.getId())
+                .content(String.format("%s님이 승인 요청 '%s'를 수정했습니다.", user.getName(),
+                    request.getTitle()))
+                .type(NotificationType.APPROVAL_MODIFIED)
+                .typeId(approvalProposal.getId())
+                .build();
+            notificationService.sendNotification(notificationRequest);
+        }
+
+        //관리자에게도 알림 전송
+        List<Company> adminCompanies = companyRepository.findByCompanyRole(CompanyRole.ADMIN);
+        List<Long> adminCompanyIds = adminCompanies.stream()
+            .map(Company::getId)
+            .toList();
+
+        List<User> adminUsers = userRepository.findByCompanyIdIn(adminCompanyIds);
+        for (User admin : adminUsers) {
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                .receiverId(admin.getId())
+                .content(String.format("%s님이 승인 요청 '%s'를 수정했습니다.", user.getName(),
+                    approvalProposal.getTitle()))
+                .type(NotificationType.APPROVAL_MODIFIED)
+                .typeId(approvalProposal.getId())
+                .build();
+            notificationService.sendNotification(notificationRequest);
+        }
     }
 
     @Transactional
-    public void deleteProposal(Long approvalId) {
+    public void deleteProposal(User user, Long approvalId) {
 
         ApprovalProposal approvalProposal = findProposal(approvalId);
+
+        //참여자들에게 알림 전송
+        List<ProjectUser> participants = projectUserRepository.findByProject(
+            approvalProposal.getProjectProgress().getProject());
+
+        for (ProjectUser participant : participants) {
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                .receiverId(participant.getId())
+                .content(String.format("%s님이 승인 요청 '%s'를 삭제했습니다.", user.getName(),
+                    approvalProposal.getTitle()))
+                .type(NotificationType.APPROVAL_DELETED)
+                .typeId(approvalProposal.getId())
+                .build();
+            notificationService.sendNotification(notificationRequest);
+        }
+
+        //관리자에게도 알림 전송
+        List<Company> adminCompanies = companyRepository.findByCompanyRole(CompanyRole.ADMIN);
+        List<Long> adminCompanyIds = adminCompanies.stream()
+            .map(Company::getId)
+            .toList();
+
+        List<User> adminUsers = userRepository.findByCompanyIdIn(adminCompanyIds);
+        for (User admin : adminUsers) {
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                .receiverId(admin.getId())
+                .content(String.format("%s님이 승인 요청 '%s'를 삭제했습니다.", user.getName(),
+                    approvalProposal.getTitle()))
+                .type(NotificationType.APPROVAL_DELETED)
+                .typeId(approvalProposal.getId())
+                .build();
+        }
+
         approvalProposalRepository.delete(approvalProposal);
     }
 
@@ -101,7 +211,8 @@ public class ProposalService {
     public ProposalResponseList getAllProposal(Long progressId) {
 
         ProjectProgress progress = findProgress(progressId);
-        List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(progress);
+        List<ApprovalProposal> approvalProposalList = approvalProposalRepository.findByProjectProgress(
+            progress);
 
         return ProposalResponseList.from(approvalProposalList);
     }
@@ -117,7 +228,7 @@ public class ProposalService {
 
     /**
      * 승인요청 상태 관련 로직
-      */
+     */
 
     // 실제 ApprovalProposal(승인요청)의 상태를 DB에 반영하는 메서드
     // 즉, 계산한 상태를 실제 ApprovalProposal 엔티티에 setProposalStatus() 해서 변경하는 역할
@@ -127,9 +238,11 @@ public class ProposalService {
 
         List<ApprovalApprover> approvers = findApprovers(proposal);
 
-        Map<Long, List<ApprovalDecision>> decisionsByApproverId = findDecisionsGroupedByApprovers(approvers);
+        Map<Long, List<ApprovalDecision>> decisionsByApproverId = findDecisionsGroupedByApprovers(
+            approvers);
 
-        ApprovalProposalStatus proposalStatus = determineProposalStatus(approvers, decisionsByApproverId);
+        ApprovalProposalStatus proposalStatus = determineProposalStatus(approvers,
+            decisionsByApproverId);
 
         proposal.setProposalStatus(proposalStatus);
     }
@@ -141,7 +254,8 @@ public class ProposalService {
     ) {
         // 하나라도 APPROVER_REJECTED면 무조건 FINAL_REJECTED
         boolean anyRejected = approvers.stream()
-            .anyMatch(approver -> approver.getApproverStatus() == ApprovalApproverStatus.APPROVER_REJECTED);
+            .anyMatch(approver -> approver.getApproverStatus()
+                == ApprovalApproverStatus.APPROVER_REJECTED);
 
         if (anyRejected) {
             return ApprovalProposalStatus.FINAL_REJECTED;
@@ -149,7 +263,8 @@ public class ProposalService {
 
         // 전부 APPROVER_APPROVED 면 FINAL_APPROVED
         boolean allApproved = approvers.stream()
-            .allMatch(approver -> approver.getApproverStatus() == ApprovalApproverStatus.APPROVER_APPROVED);
+            .allMatch(approver -> approver.getApproverStatus()
+                == ApprovalApproverStatus.APPROVER_APPROVED);
 
         if (allApproved) {
             return ApprovalProposalStatus.FINAL_APPROVED;
@@ -178,7 +293,8 @@ public class ProposalService {
             .filter(a -> a.getApproverStatus() == ApprovalApproverStatus.NOT_RESPONDED)
             .count();
 
-        checkApproverCounts(totalApprover, approvedApproverCount, modificationRequestedApproverCount, waitingApproverCount);
+        checkApproverCounts(totalApprover, approvedApproverCount,
+            modificationRequestedApproverCount, waitingApproverCount);
 
         return ProposalStatusResponse.of(
             totalApprover,
@@ -189,12 +305,14 @@ public class ProposalService {
         );
     }
 
-    private Map<Long, List<ApprovalDecision>> findDecisionsGroupedByApprovers(List<ApprovalApprover> approvers) {
+    private Map<Long, List<ApprovalDecision>> findDecisionsGroupedByApprovers(
+        List<ApprovalApprover> approvers) {
         List<Long> approverIds = approvers.stream()
             .map(ApprovalApprover::getId)
             .toList();
 
-        List<ApprovalDecision> decisions = approvalDecisionRepository.findByApprovalApproverIdIn(approverIds);
+        List<ApprovalDecision> decisions = approvalDecisionRepository.findByApprovalApproverIdIn(
+            approverIds);
 
         return decisions.stream()
             .collect(Collectors.groupingBy(d -> d.getApprovalApprover().getId()));
