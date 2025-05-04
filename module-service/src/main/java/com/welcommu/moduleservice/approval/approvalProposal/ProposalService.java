@@ -65,10 +65,10 @@ public class ProposalService {
 
         for (ProjectUser participant : participants) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
-                .receiverId(participant.getId())
-                .content(String.format("%s님이 승인 요청 '%s'를 생성했습니다.", creator.getName(),
+                .receiverId(participant.getUser().getId())
+                .content(String.format("%s님이 '%s' 승인 요청을 생성했습니다.", creator.getName(),
                     request.getTitle()))
-                .type(NotificationType.APPROVAL_CREATED)
+                .type(NotificationType.PROPOSAL_CREATED)
                 .typeId(approvalProposal.getId())
                 .build();
             notificationService.sendNotification(notificationRequest);
@@ -84,9 +84,9 @@ public class ProposalService {
         for (User admin : adminUsers) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(admin.getId())
-                .content(String.format("%s님이 승인 요청 '%s'를 생성했습니다..", creator.getName(),
+                .content(String.format("%s님이 '%s' 승인 요청을 생성했습니다..", creator.getName(),
                     approvalProposal.getTitle()))
-                .type(NotificationType.APPROVAL_CREATED)
+                .type(NotificationType.PROPOSAL_CREATED)
                 .typeId(approvalProposal.getId())
                 .build();
             notificationService.sendNotification(notificationRequest);
@@ -117,10 +117,10 @@ public class ProposalService {
 
         for (ProjectUser participant : participants) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
-                .receiverId(participant.getId())
-                .content(String.format("%s님이 승인 요청 '%s'를 수정했습니다.", user.getName(),
+                .receiverId(participant.getUser().getId())
+                .content(String.format("%s님이 '%s' 승인 요청을 수정했습니다.", user.getName(),
                     request.getTitle()))
-                .type(NotificationType.APPROVAL_MODIFIED)
+                .type(NotificationType.PROPOSAL_MODIFIED)
                 .typeId(approvalProposal.getId())
                 .build();
             notificationService.sendNotification(notificationRequest);
@@ -136,9 +136,9 @@ public class ProposalService {
         for (User admin : adminUsers) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(admin.getId())
-                .content(String.format("%s님이 승인 요청 '%s'를 수정했습니다.", user.getName(),
+                .content(String.format("%s님이 '%s' 승인 요청를 수정했습니다.", user.getName(),
                     approvalProposal.getTitle()))
-                .type(NotificationType.APPROVAL_MODIFIED)
+                .type(NotificationType.PROPOSAL_MODIFIED)
                 .typeId(approvalProposal.getId())
                 .build();
             notificationService.sendNotification(notificationRequest);
@@ -156,10 +156,10 @@ public class ProposalService {
 
         for (ProjectUser participant : participants) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
-                .receiverId(participant.getId())
-                .content(String.format("%s님이 승인 요청 '%s'를 삭제했습니다.", user.getName(),
+                .receiverId(participant.getUser().getId())
+                .content(String.format("%s님이 '%s' 승인 요청을 삭제했습니다.", user.getName(),
                     approvalProposal.getTitle()))
-                .type(NotificationType.APPROVAL_DELETED)
+                .type(NotificationType.PROPOSAL_DELETED)
                 .typeId(approvalProposal.getId())
                 .build();
             notificationService.sendNotification(notificationRequest);
@@ -175,11 +175,12 @@ public class ProposalService {
         for (User admin : adminUsers) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(admin.getId())
-                .content(String.format("%s님이 승인 요청 '%s'를 삭제했습니다.", user.getName(),
+                .content(String.format("%s님이 '%s' 승인 요청을 삭제했습니다.", user.getName(),
                     approvalProposal.getTitle()))
-                .type(NotificationType.APPROVAL_DELETED)
+                .type(NotificationType.PROPOSAL_DELETED)
                 .typeId(approvalProposal.getId())
                 .build();
+            notificationService.sendNotification(notificationRequest);
         }
 
         approvalProposalRepository.delete(approvalProposal);

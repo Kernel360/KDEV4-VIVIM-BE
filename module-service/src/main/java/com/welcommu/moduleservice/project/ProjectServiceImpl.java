@@ -91,8 +91,8 @@ public class ProjectServiceImpl implements ProjectService {
         //참여자들에게 알림 전송
         for (ProjectUser participant : participants) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
-                .receiverId(participant.getId())
-                .content(String.format("%s님이 프로젝트 '%s'를 생성했습니다.", creator.getName(), dto.getName()))
+                .receiverId(participant.getUser().getId())
+                .content(String.format("%s님이 '%s' 프로젝트를 생성했습니다.", creator.getName(), dto.getName()))
                 .type(NotificationType.PROJECT_CREATED)
                 .typeId(project.getId())
                 .build();
@@ -109,7 +109,7 @@ public class ProjectServiceImpl implements ProjectService {
         for (User admin : adminUsers) {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(admin.getId())
-                .content(String.format("%s님이 프로젝트 '%s'를 생성했습니다.", creator.getName(), dto.getName()))
+                .content(String.format("%s님이 '%s' 프로젝트를 생성했습니다.", creator.getName(), dto.getName()))
                 .type(NotificationType.PROJECT_CREATED)
                 .typeId(project.getId())
                 .build();
@@ -176,7 +176,7 @@ public class ProjectServiceImpl implements ProjectService {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(userId)
                 .content(
-                    String.format("%s님이 프로젝트 '%s'를 수정했습니다.", modifier.getName(), dto.getName()))
+                    String.format("%s님이 '%s'프로젝트를 수정했습니다.", modifier.getName(), dto.getName()))
                 .type(NotificationType.PROJECT_MODIFIED)
                 .typeId(projectId)
                 .build();
@@ -195,7 +195,7 @@ public class ProjectServiceImpl implements ProjectService {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(admin.getId())
                 .content(
-                    String.format("%s님이 프로젝트 '%s'를 생성했습니다.", modifier.getName(), dto.getName()))
+                    String.format("%s님이 '%s'프로젝트를 수정했습니다.", modifier.getName(), dto.getName()))
                 .type(NotificationType.PROJECT_MODIFIED)
                 .typeId(existingProject.getId())
                 .build();
@@ -253,7 +253,7 @@ public class ProjectServiceImpl implements ProjectService {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(participant.getUser().getId())
                 .content(
-                    String.format("%s님이 프로젝트 '%s'를 삭제했습니다.", deleter.getName(), project.getName()))
+                    String.format("%s님이 '%s'프로젝트를 삭제했습니다.", deleter.getName(), project.getName()))
                 .type(NotificationType.PROJECT_DELETED)
                 .typeId(projectId)
                 .build();
@@ -271,7 +271,7 @@ public class ProjectServiceImpl implements ProjectService {
             NotificationRequest notificationRequest = NotificationRequest.builder()
                 .receiverId(admin.getId())
                 .content(
-                    String.format("%s님이 프로젝트 '%s'를 생성했습니다.", deleter.getName(), project.getName()))
+                    String.format("%s님이 '%s' 프로젝트를 삭제했습니다.", deleter.getName(), project.getName()))
                 .type(NotificationType.PROJECT_DELETED)
                 .typeId(project.getId())
                 .build();
