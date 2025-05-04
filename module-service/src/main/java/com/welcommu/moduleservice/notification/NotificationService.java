@@ -65,7 +65,16 @@ public class NotificationService {
     }
 
     @Transactional
+    public void markAllAsRead(Long userId) {
+        notificationRepository.markAllAsReadByUserId(userId);
+    }
+
+    @Transactional
     public void sendNotification(NotificationRequest request) throws IOException {
+        log.info("현재 구독 중인 SSE 연결 수: {}", emitters.size());
+        emitters.forEach((userId, emitter) -> {
+            log.info("SSE 구독 중 - userId: {}", userId);
+        });
         Notification notification = request.toEntity(request);
         Notification savedNotification = notificationRepository.save(notification);
         NotificationResponse notificationResponse = NotificationResponse.from(savedNotification);
@@ -75,10 +84,10 @@ public class NotificationService {
         log.info("Send Notification");
         if (emitter != null) {
             try {
-                log.info("SSE Event has been created");
                 emitter.send(SseEmitter.event()
                     .name("notification")
                     .data(notificationResponse));
+                log.info("SSE Event has been created");
             } catch (IOException | IllegalStateException e) {
                 log.warn("SSE 전송 실패로 emitter 제거됨. userId={}, message={}", request.getReceiverId(),
                     e.getMessage());

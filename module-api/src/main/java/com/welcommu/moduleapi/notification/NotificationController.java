@@ -8,6 +8,7 @@ import com.welcommu.moduleservice.notification.dto.NotificationResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,12 +24,14 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationController {
 
     private final NotificationService notificationService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse> sendNotification(@RequestBody NotificationRequest request)
+    public ResponseEntity<ApiResponse> sendNotification(@RequestBody NotificationRequest request,
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails)
         throws IOException {
         notificationService.sendNotification(request);
         return ResponseEntity.ok()
@@ -38,6 +41,7 @@ public class NotificationController {
     @GetMapping("/subscribe")
     public ResponseEntity<SseEmitter> subscribe(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        log.info("SSE 구독 신청 - userId: {}", userDetails.getUser().getId());
         SseEmitter emitter = notificationService.subscribe(userDetails.getUser().getId());
         return ResponseEntity.ok().body(emitter);
     }
@@ -54,6 +58,13 @@ public class NotificationController {
     public ResponseEntity<ApiResponse> markAsRead(@PathVariable Long notificationId) {
         notificationService.markAsRead(notificationId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "알림을 읽었습니다."));
+    }
+
+    @PatchMapping("/read-all")
+    public ResponseEntity<Void> markAllNotificationsAsRead(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        notificationService.markAllAsRead(userDetails.getUser().getId());
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{notificationId}")
