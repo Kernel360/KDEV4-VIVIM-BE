@@ -1,12 +1,10 @@
 package com.welcommu.moduleapi.auth;
 
 
-import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.auth.AuthService;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
 import com.welcommu.moduleservice.auth.dto.RefreshTokenRequest;
-import com.welcommu.moduleservice.notification.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
@@ -14,7 +12,6 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final NotificationService notificationService;
+
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token을 발급받습니다.")
@@ -50,14 +47,16 @@ public class AuthController {
 
     @PostMapping("/refresh-token")
     @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
-    public ResponseEntity<LoginResponse> refreshAccessToken(@RequestBody RefreshTokenRequest refreshToken) {
+    public ResponseEntity<LoginResponse> refreshAccessToken(
+        @RequestBody RefreshTokenRequest refreshToken) {
         LoginResponse response = authService.reIssueToken(refreshToken.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
-    public ResponseEntity<Map<String, String>> logout(@RequestBody RefreshTokenRequest refreshToken) {
+    public ResponseEntity<Map<String, String>> logout(
+        @RequestBody RefreshTokenRequest refreshToken) {
         try {
             authService.deleteToken(refreshToken.getRefreshToken());
         } catch (Exception e) {
