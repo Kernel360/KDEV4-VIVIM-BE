@@ -41,14 +41,6 @@ public class NotificationService {
         return emitter;
     }
 
-    public void disconnect(Long userId) {
-        SseEmitter emitter = emitters.get(userId);
-        if (emitter != null) {
-            emitter.complete(); // 연결 정상 종료
-            emitters.remove(userId); // 맵에서도 제거
-        }
-    }
-
     public List<NotificationResponse> getNotifications(Long userId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(
             userId);
@@ -70,7 +62,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendNotification(NotificationRequest request) throws IOException {
+    public void sendNotification(NotificationRequest request) {
         log.info("현재 구독 중인 SSE 연결 수: {}", emitters.size());
         emitters.forEach((userId, emitter) -> {
             log.info("SSE 구독 중 - userId: {}", userId);

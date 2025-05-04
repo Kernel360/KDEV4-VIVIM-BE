@@ -2,7 +2,7 @@ package com.welcommu.moduleservice.notification.dto;
 
 
 import com.welcommu.moduledomain.notification.Notification;
-import com.welcommu.moduledomain.notification.NotificationStatus;
+import com.welcommu.moduledomain.notification.NotificationType;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,17 +16,17 @@ import lombok.NoArgsConstructor;
 public class NotificationRequest {
 
     private Long receiverId;
-    private String title;
     private String content;
-    private NotificationStatus status;
+    private NotificationType type;
+    private Long typeId;
 
     public Notification toEntity(NotificationRequest request) {
 
         return Notification.builder()
             .receiverId(request.getReceiverId())
-            .title(request.getTitle())
             .content(request.getContent())
-            .notificationStatus(request.getStatus())
+            .notificationType(request.getType())
+            .typeId(request.getTypeId())
             .createdAt(LocalDateTime.now())
             .isRead(false)
             .build();

@@ -27,12 +27,12 @@ public class Notification {
 
     private Long receiverId;
 
-    private String title;
-
     private String content;
 
     @Enumerated(EnumType.STRING)
-    private NotificationStatus notificationStatus;
+    private NotificationType notificationType;
+
+    private Long typeId;
 
     private LocalDateTime createdAt;
 
