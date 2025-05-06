@@ -67,9 +67,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Map<String, Object> claims = jwtProvider.validationTokenWithThrow(token);
 
-            String type = (String) claims.get("tokenType");
-            if (!"access".equals(type)) {
-                log.warn("토큰 타입 불일치: {}", type);
+                String type = (String) claims.get("tokenType");
+                if (!"access".equals(type)) {
+                    log.warn("토큰 타입 불일치: {}", type);
                 respondWithCustomError(response, CustomErrorCode.INVALID_REFRESH_TOKEN_TYPE);
                 return;
             }
