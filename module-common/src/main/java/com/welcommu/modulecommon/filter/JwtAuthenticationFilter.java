@@ -2,7 +2,7 @@ package com.welcommu.modulecommon.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
-import com.welcommu.modulecommon.token.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -28,7 +28,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenHelper jwtTokenHelper;
+    private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
 
@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         log.info("JWT token: {}", token);
 
         try {
-            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
+            Map<String, Object> claims = jwtProvider.validationTokenWithThrow(token);
 
             String type = (String) claims.get("tokenType");
             if (!"access".equals(type)) {

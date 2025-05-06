@@ -1,8 +1,6 @@
 spring:
   profiles:
     active: local
-  logging:
-    level:
-      org.springframework.security: DEBUG
-      org.springframework.security.web.FilterChainProxy: DEBUG
-      org.springframework.security.access: DEBUG
+jwt:
+  access-token-ttl: ${ACCESS_TOKEN_TTL}
+  refresh-token-ttl: ${REFRESH_TOKEN_TTL}

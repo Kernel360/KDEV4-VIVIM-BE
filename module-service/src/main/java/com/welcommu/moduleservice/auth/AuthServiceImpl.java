@@ -2,8 +2,8 @@ package com.welcommu.moduleservice.auth;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.token.TokenDto;
-import com.welcommu.modulecommon.token.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtDto;
+import com.welcommu.modulecommon.token.JwtProvider;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final JwtTokenHelper jwtTokenHelper;
+    private final JwtProvider jwtProvider;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
@@ -39,8 +39,8 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> accessClaims = createAccessClaims(userDto);
         Map<String, Object> refreshClaims = createRefreshClaims(userDto);
 
-        TokenDto accessToken = jwtTokenHelper.issueAccessToken(accessClaims);
-        TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(refreshClaims);
+        JwtDto accessToken = jwtProvider.issueAccessToken(accessClaims);
+        JwtDto refreshToken = jwtProvider.issueRefreshToken(refreshClaims);
 
         saveRefreshToken(user.getId(), refreshToken);
 
@@ -50,10 +50,10 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse reIssueToken(String refreshTokenHeader) {
-        String oldToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
+        String oldToken = JwtProvider.withoutBearer(refreshTokenHeader);
         log.info("[reIssueToken] incoming raw refreshToken = {}", oldToken);
 
-        Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(oldToken);
+        Map<String, Object> claims = jwtProvider.validationTokenWithThrow(oldToken);
         validateRefreshTokenType(claims);
 
         long userId = parseUserId(claims.get("userId"));
@@ -65,8 +65,8 @@ public class AuthServiceImpl implements AuthService {
         log.info("[reIssueToken] Redis verification passed, rotating token");
 
         claims.put("jti", UUID.randomUUID().toString());
-        TokenDto newAccessToken = jwtTokenHelper.issueAccessToken(claims);
-        TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
+        JwtDto newAccessToken = jwtProvider.issueAccessToken(claims);
+        JwtDto newRefreshToken = jwtProvider.issueRefreshToken(claims);
 
         saveRefreshToken(userId, newRefreshToken);
         log.info("[reIssueToken] new refreshToken saved to Redis = {}", newRefreshToken.getToken());
@@ -76,8 +76,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void deleteToken(String refreshTokenHeader) {
-        String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
-        Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
+        String refreshToken = JwtProvider.withoutBearer(refreshTokenHeader);
+        Map<String, Object> claims = jwtProvider.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
         refreshTokenService.delete(userId);
@@ -107,7 +107,7 @@ public class AuthServiceImpl implements AuthService {
         return claims;
     }
 
-    private void saveRefreshToken(Long userId, TokenDto refreshToken) {
+    private void saveRefreshToken(Long userId, JwtDto refreshToken) {
         refreshTokenService.save(
             userId,
             refreshToken.getToken(),
@@ -142,10 +142,10 @@ public class AuthServiceImpl implements AuthService {
         return Math.max(seconds, 1);
     }
 
-    private LoginResponse buildLoginResponse(TokenDto accessToken, TokenDto refreshToken) {
+    private LoginResponse buildLoginResponse(JwtDto accessToken, JwtDto refreshToken) {
         return LoginResponse.builder()
-            .accessToken(JwtTokenHelper.withBearer(accessToken.getToken()))
-            .refreshToken(JwtTokenHelper.withBearer(refreshToken.getToken()))
+            .accessToken(JwtProvider.withBearer(accessToken.getToken()))
+            .refreshToken(JwtProvider.withBearer(refreshToken.getToken()))
             .build();
     }
 }

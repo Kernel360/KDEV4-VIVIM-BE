@@ -2,7 +2,7 @@ package com.welcommu.modulecommon.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
-import com.welcommu.modulecommon.token.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtProvider;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class SecurityConfig {
         "/v3/api-docs/**"
     };
 
-    private final JwtTokenHelper jwtTokenHelper;
+    private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper; 
 
@@ -45,14 +45,13 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenHelper, userDetailsService, objectMapper);
+        return new JwtAuthenticationFilter(jwtProvider, userDetailsService, objectMapper);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
-            jwtTokenHelper,
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider,
             userDetailsService,
             objectMapper
         );

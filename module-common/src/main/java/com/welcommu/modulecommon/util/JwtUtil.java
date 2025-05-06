@@ -1,17 +1,27 @@
 package com.welcommu.modulecommon.util;
 
+import com.welcommu.modulecommon.token.JwtProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
-public class TokenCookieUtil {
+@Component
+@AllArgsConstructor
+public class JwtUtil {
 
-    public static void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
+    private final JwtProperties props;
+
+    public void addTokenCookies(HttpServletResponse response, String accessToken,
+        String refreshToken) {
+
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
             .httpOnly(true)
             .secure(true)
             .path("/")
-            .maxAge(Duration.ofMinutes(5))
+            .maxAge(props.getAccessTokenTtl())
             .sameSite("None")
             .build();
 
@@ -19,7 +29,7 @@ public class TokenCookieUtil {
             .httpOnly(true)
             .secure(true)
             .path("/")
-            .maxAge(Duration.ofHours(1))
+            .maxAge(props.getRefreshTokenTtl())
             .sameSite("None")
             .build();
 

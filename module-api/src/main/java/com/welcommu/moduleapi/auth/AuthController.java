@@ -3,8 +3,8 @@ package com.welcommu.moduleapi.auth;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.token.JwtTokenHelper;
-import com.welcommu.modulecommon.util.TokenCookieUtil;
+import com.welcommu.modulecommon.token.JwtProvider;
+import com.welcommu.modulecommon.util.JwtUtil;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.auth.AuthService;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +34,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     @Operation(summary = "로그인")
@@ -42,7 +44,7 @@ public class AuthController {
     ) {
         LoginResponse tokens = authService.createToken(request);
 
-        TokenCookieUtil.addTokenCookies(
+        jwtUtil.addTokenCookies(
             response,
             tokens.getAccessToken().replace("Bearer ", ""),
             tokens.getRefreshToken().replace("Bearer ", "")
@@ -89,7 +91,7 @@ public class AuthController {
 
         LoginResponse loginResponse = authService.reIssueToken(rawToken);
 
-        TokenCookieUtil.addTokenCookies(
+        jwtUtil.addTokenCookies(
             response,
             loginResponse.getAccessToken().replace("Bearer ", ""),
             loginResponse.getRefreshToken().replace("Bearer ", "")
@@ -116,7 +118,7 @@ public class AuthController {
 
         if (rawToken != null) {
             // 2) "Bearer " 제거
-            String refreshToken = JwtTokenHelper.withoutBearer(rawToken);
+            String refreshToken = JwtProvider.withoutBearer(rawToken);
             try {
                 authService.deleteToken(refreshToken);
             } catch (Exception e) {
