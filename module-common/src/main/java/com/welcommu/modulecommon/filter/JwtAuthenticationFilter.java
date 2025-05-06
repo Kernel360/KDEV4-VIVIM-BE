@@ -1,7 +1,10 @@
 package com.welcommu.modulecommon.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.token.JwtTokenHelper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -13,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -57,21 +62,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = getTokenFromRequest(request);
-        log.info(token);
-        if (token == null) {
-            log.warn("Authorization 헤더·쿠키 토큰 없음");
-            respondUnauthorized(response, "Authorization 헤더 또는 accessToken 쿠키가 필요합니다.");
-            return;
-        }
+        log.info("JWT token: {}", token);
 
         try {
             Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
 
-            // accessToken 타입만 허용
             String type = (String) claims.get("tokenType");
             if (!"access".equals(type)) {
                 log.warn("토큰 타입 불일치: {}", type);
-                respondUnauthorized(response, "허용되지 않은 토큰 타입입니다. 액세스 토큰만 사용할 수 있습니다.");
+                respondWithCustomError(response, CustomErrorCode.INVALID_REFRESH_TOKEN_TYPE);
                 return;
             }
 
@@ -82,10 +81,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
+            log.info(">>> Authentication set: {}", auth.getAuthorities());
 
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT 만료됨", e);
+            respondWithCustomError(response, CustomErrorCode.EXPIRED_TOKEN);
+            return;
+        } catch (JwtException e) {
+            log.error("JWT 파싱 오류", e);
+            respondWithCustomError(response, CustomErrorCode.INVALID_TOKEN);
+            return;
         } catch (Exception e) {
-            log.error("JWT 처리 중 오류", e);
-            respondUnauthorized(response, "유효하지 않은 JWT 토큰입니다.");
+            log.error("JWT 처리 중 예기치 않은 오류", e);
+            respondWithCustomError(response, CustomErrorCode.SERVER_ERROR);
             return;
         }
 
@@ -93,10 +101,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {
                 if ("accessToken".equals(c.getName())) {
@@ -107,13 +111,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private void respondUnauthorized(HttpServletResponse response, String message) throws IOException {
+    private void respondWithCustomError(HttpServletResponse response, CustomErrorCode errorCode) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json; charset=UTF-8");
+
         Map<String, String> body = Map.of(
             "status", "error",
-            "message", message
+            "code", errorCode.getCode(),
+            "message", errorCode.getErrorMessage()
         );
+
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

@@ -3,26 +3,27 @@ package com.welcommu.moduleapi.auth;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.modulecommon.token.JwtTokenHelper;
 import com.welcommu.modulecommon.util.TokenCookieUtil;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
-import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.auth.AuthService;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
-import com.welcommu.moduleservice.auth.dto.RefreshTokenRequest;
-import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -34,7 +35,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access/Refresh Token을 HttpOnly 쿠키로 발급합니다.")
+    @Operation(summary = "로그인")
     public ResponseEntity<ApiResponse> login(
         @RequestBody LoginRequest request,
         HttpServletResponse response
@@ -54,7 +55,7 @@ public class AuthController {
     @GetMapping("/user")
     @Operation(summary = "로그인한 사용자 확인", description = "현재 인증된 사용자의 상세 정보를 반환합니다.")
     public ResponseEntity<ApiResponse> getUserInfo(
-        @AuthenticationPrincipal AuthUserDetailsImpl principal // 실제 UserDetailsImpl 주입
+        @AuthenticationPrincipal AuthUserDetailsImpl principal
     ) {
         if (principal == null) {
             return ResponseEntity
@@ -70,33 +71,59 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    @Operation(summary = "Access Token 재발급", description = "HttpOnly 쿠키에 담긴 Refresh Token을 사용해 토큰을 재발급합니다.")
+    @Operation(summary = "Access Token 재발급", description = "쿠키에 담긴 Refresh Token을 사용해 새로운 Access·Refresh Token을 발급합니다.")
     public ResponseEntity<ApiResponse> refreshAccessToken(
-        @RequestBody RefreshTokenRequest refreshToken,
+        HttpServletRequest request,
         HttpServletResponse response
     ) {
-        LoginResponse tokens = authService.reIssueToken(refreshToken.getRefreshToken());
+        log.info("백엔드 함수 호출: refreshAccessToken");
+        String rawToken = Optional.ofNullable(request.getCookies())
+            .flatMap(cookies -> Arrays.stream(cookies)
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+            )
+            .map(Cookie::getValue)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_TOKEN));
+        log.debug("refreshToken rawCookieValue = {}", rawToken);
+
+
+        LoginResponse loginResponse = authService.reIssueToken(rawToken);
 
         TokenCookieUtil.addTokenCookies(
             response,
-            tokens.getAccessToken().replace("Bearer ", ""),
-            tokens.getRefreshToken().replace("Bearer ", "")
+            loginResponse.getAccessToken().replace("Bearer ", ""),
+            loginResponse.getRefreshToken().replace("Bearer ", "")
         );
 
-        return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.OK.value(), "토큰을 재발급했습니다."));
+        return ResponseEntity.ok(
+            new ApiResponse(HttpStatus.OK.value(), "토큰을 재발급했습니다.")
+        );
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "로그아웃", description = "서버에 저장된 Refresh Token을 만료 처리합니다.")
+    @Operation(summary = "로그아웃", description = "쿠키에 담긴 Refresh Token을 만료 처리합니다.")
     public ResponseEntity<ApiResponse> logout(
-        @RequestBody RefreshTokenRequest refreshToken
+        HttpServletRequest request
     ) {
-        try {
-            authService.deleteToken(refreshToken.getRefreshToken());
-        } catch (Exception e) {
-            log.warn("Refresh Token 삭제 실패", e);
+        // 1) 쿠키에서 refreshToken 꺼내기
+        String rawToken = Optional.ofNullable(request.getCookies())
+            .flatMap(cookies -> Arrays.stream(cookies)
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+            )
+            .map(Cookie::getValue)
+            .orElse(null);
+
+        if (rawToken != null) {
+            // 2) "Bearer " 제거
+            String refreshToken = JwtTokenHelper.withoutBearer(rawToken);
+            try {
+                authService.deleteToken(refreshToken);
+            } catch (Exception e) {
+                log.warn("Refresh Token 삭제 실패", e);
+            }
         }
+
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.OK.value(), "로그아웃을 성공했습니다."));
     }

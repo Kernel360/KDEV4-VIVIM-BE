@@ -8,7 +8,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -23,10 +22,15 @@ import java.util.Map;
 public class JwtTokenHelper {
 
     private final String secretKey;
-    private final Long accessTokenPlusHour;
-    private final Long refreshTokenPlusHour;
 
-    @Autowired
+    private final Long accessTokenPlusHour;
+    private final Long accessTokenPlusMinute;
+    private final Long accessTokenPlusSecond;
+
+    private final Long refreshTokenPlusHour;
+    private final Long refreshTokenPlusMinute;
+    private final Long refreshTokenPlusSecond;
+
     public JwtTokenHelper(Environment env) {
 
         String key = env.getProperty("token.secret.key");
@@ -35,64 +39,69 @@ public class JwtTokenHelper {
         }
         this.secretKey = key;
 
-        String accessHourStr = env.getProperty("token.access-token.plus-hour");
-        this.accessTokenPlusHour = (accessHourStr != null) ? Long.valueOf(accessHourStr) : 1L;
-        log.info("Access Token 만료 시간: {}시간", this.accessTokenPlusHour);
+        // 2) 만료 기간 설정
+        this.accessTokenPlusHour   = getLong(env, "token.access-token.plus-hour",   0L);
+        this.accessTokenPlusMinute = getLong(env, "token.access-token.plus-minute", 0L);
+        this.accessTokenPlusSecond = getLong(env, "token.access-token.plus-second",10L);
 
-        String refreshHourStr = env.getProperty("token.refresh-token.plus-hour");
-        this.refreshTokenPlusHour = (refreshHourStr != null) ? Long.valueOf(refreshHourStr) : 12L;
-        log.info("Refresh Token 만료 시간: {}시간", this.refreshTokenPlusHour);
+        this.refreshTokenPlusHour   = getLong(env, "token.refresh-token.plus-hour",   0L);
+        this.refreshTokenPlusMinute = getLong(env, "token.refresh-token.plus-minute", 1L);
+        this.refreshTokenPlusSecond = getLong(env, "token.refresh-token.plus-second", 0L);
+
+        log.info("Access Token 만료: {}시간 {}분 {}초", accessTokenPlusHour, accessTokenPlusMinute, accessTokenPlusSecond);
+        log.info("Refresh Token 만료: {}시간 {}분 {}초", refreshTokenPlusHour, refreshTokenPlusMinute, refreshTokenPlusSecond);
     }
 
-    // 입력받은 claims(사용자 정보 등)를 바탕으로 JWT Access Token 생성
-    // 토큰 문자열과 만료 시간을 포함한 TokenDto 로 반환
-    public TokenDto issueAccessToken(Map<String, Object> claims) {
+    private Long getLong(Environment env, String key, Long defaultVal) {
+        String v = env.getProperty(key);
+        return (v != null && !v.isEmpty()) ? Long.valueOf(v) : defaultVal;
+    }
 
-        LocalDateTime expiredLocalDateTime = LocalDateTime.now().plusHours(accessTokenPlusHour);
-        Date expiredAt = Date.from(expiredLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    public TokenDto issueAccessToken(Map<String, Object> claims) {
+        LocalDateTime exp = LocalDateTime.now()
+            .plusHours(accessTokenPlusHour)
+            .plusMinutes(accessTokenPlusMinute)
+            .plusSeconds(accessTokenPlusSecond);
+        Date expiry = Date.from(exp.atZone(ZoneId.systemDefault()).toInstant());
 
         claims.put("tokenType", "access");
 
-        String jwtToken = Jwts.builder()
+        String jwt = Jwts.builder()
             .setClaims(claims)
-            .setExpiration(expiredAt)
+            .setExpiration(expiry)
             .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
             .compact();
 
-        log.info("생성된 Access Token: {}", jwtToken);
-        log.info("Access Token 만료 시간: {}", expiredLocalDateTime);
-
-        return new TokenDto(jwtToken, expiredLocalDateTime);
+        return new TokenDto(jwt, exp);
     }
 
     public TokenDto issueRefreshToken(Map<String, Object> claims) {
-
-        LocalDateTime expiredLocalDateTime = LocalDateTime.now().plusHours(refreshTokenPlusHour);
-        Date expiredAt = Date.from(expiredLocalDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        LocalDateTime exp = LocalDateTime.now()
+            .plusHours(refreshTokenPlusHour)
+            .plusMinutes(refreshTokenPlusMinute)
+            .plusSeconds(refreshTokenPlusSecond);
+        Date expiry = Date.from(exp.atZone(ZoneId.systemDefault()).toInstant());
 
         claims.put("tokenType", "refresh");
 
-        String jwtToken = Jwts.builder()
+        String jwt = Jwts.builder()
             .setClaims(claims)
-            .setExpiration(expiredAt)
+            .setExpiration(expiry)
             .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
             .compact();
 
-        log.info("Refresh Token 생성 완료, 만료 시간: {}", expiredLocalDateTime);
-        return new TokenDto(jwtToken, expiredLocalDateTime);
+        return new TokenDto(jwt, exp);
     }
 
     public Map<String, Object> validationTokenWithThrow(String token) {
-
+        System.out.println("*******************************************************"+token);
         if (token == null || !token.contains(".")) {
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
-
         try {
             var key = Keys.hmacShaKeyFor(secretKey.getBytes());
             var parser = Jwts.parserBuilder().setSigningKey(key).build();
             var result = parser.parseClaimsJws(token);
-
             return new HashMap<>(result.getBody());
         } catch (SignatureException e) {
             throw new CustomException(CustomErrorCode.INVALID_TOKEN, e);

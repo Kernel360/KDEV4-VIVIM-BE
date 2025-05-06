@@ -47,45 +47,41 @@ public class AuthServiceImpl implements AuthService {
         return buildLoginResponse(accessToken, refreshToken);
     }
 
-    // 만료된(혹은 곧 만료될) Access Token 갱신
     @Override
     @Transactional
     public LoginResponse reIssueToken(String refreshTokenHeader) {
+        String oldToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
+        log.info("[reIssueToken] incoming raw refreshToken = {}", oldToken);
 
-        String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
-
-        // 서명·만료 검증
-        Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-
+        Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(oldToken);
         validateRefreshTokenType(claims);
-        // userId 파싱, Redis 검증·회전
+
         long userId = parseUserId(claims.get("userId"));
-        verifyAndRotateRefreshToken(userId, refreshToken);
+
+        String stored = refreshTokenService.get(userId);
+        log.info("[reIssueToken] stored refreshToken in Redis for user {} = {}", userId, stored);
+
+        verifyAndRotateRefreshToken(userId, oldToken);
+        log.info("[reIssueToken] Redis verification passed, rotating token");
 
         claims.put("jti", UUID.randomUUID().toString());
-
         TokenDto newAccessToken = jwtTokenHelper.issueAccessToken(claims);
         TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
 
         saveRefreshToken(userId, newRefreshToken);
+        log.info("[reIssueToken] new refreshToken saved to Redis = {}", newRefreshToken.getToken());
 
         return buildLoginResponse(newAccessToken, newRefreshToken);
     }
 
-    // Redis 에 저장된 해당 사용자의 리프레시 토큰을 삭제
     @Override
     public void deleteToken(String refreshTokenHeader) {
-        
         String refreshToken = JwtTokenHelper.withoutBearer(refreshTokenHeader);
         Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
         long userId = parseUserId(claims.get("userId"));
 
         refreshTokenService.delete(userId);
     }
-
-    /**
-     * Internal Methods
-     */
 
     private User authenticateUser(String email, String password) {
         User user = userService.getUserByEmail(email)
@@ -124,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
             refreshTokenService.delete(userId);
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
-        refreshTokenService.delete(userId); // 회전 처리
+        refreshTokenService.delete(userId);
     }
 
     private void validateRefreshTokenType(Map<String, Object> claims) {
@@ -136,14 +132,12 @@ public class AuthServiceImpl implements AuthService {
 
     private long parseUserId(Object raw) {
         if (raw instanceof Integer) return ((Integer) raw).longValue();
-        if (raw instanceof Long) return (Long) raw;
-        if (raw instanceof String) return Long.parseLong((String) raw);
-        log.error("지원하지 않는 userId 타입: {}", raw);
+        if (raw instanceof Long)    return (Long) raw;
+        if (raw instanceof String)  return Long.parseLong((String) raw);
         throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
     }
 
     private long calcExpireSeconds(LocalDateTime expiresAt) {
-        if (expiresAt == null) throw new CustomException(CustomErrorCode.SERVER_ERROR);
         long seconds = Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
         return Math.max(seconds, 1);
     }
