@@ -88,6 +88,7 @@ public class CompanyServiceImpl implements CompanyService {
             .map(CompanyResponse::from);
     }
 
+    @Transactional
     @Override
     public void softDeleteCompany(Long id, Long deleterId) {
         Company existingCompany = companyRepository.findById(id)

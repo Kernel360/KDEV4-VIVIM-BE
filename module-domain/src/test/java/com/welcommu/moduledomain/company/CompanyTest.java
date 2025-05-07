@@ -21,9 +21,9 @@ class CompanyTest {
     }
 
     @Test
-    void 생성된_시간_수정시간_null(){
+    void 수정시간_삭제시간_null(){
         Company company = Company.builder()
-            .name("com")
+            .name("준서산업")
             .build();
 
         Assertions.assertThat(company.getModifiedAt()).isNull();
