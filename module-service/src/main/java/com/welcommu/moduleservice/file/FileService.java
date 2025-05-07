@@ -30,21 +30,26 @@ public class FileService {
 
     }
 
+    public void createMultipartApprovalFile(MultipartFileMetadataRequest request,
+        Long postId, String fileUrl) {
+        File newFile = request.toEntity(request, ReferenceType.APPROVAL, postId, fileUrl);
+        fileRepository.save(newFile);
+
+    }
+
+    public void createMultipartDecisionFile(MultipartFileMetadataRequest request,
+        Long postId, String fileUrl) {
+        File newFile = request.toEntity(request, ReferenceType.DECISION, postId, fileUrl);
+        fileRepository.save(newFile);
+
+    }
+
     public void createPostFile(FileRequest request, Long postId) {
 
         File newFile = request.toEntity(request, ReferenceType.POST, postId);
         fileRepository.save(newFile);
     }
 
-    public void createApprovalFile(FileRequest request, Long approvalId) {
-        File newFile = request.toEntity(request, ReferenceType.APPROVAL, approvalId);
-        fileRepository.save(newFile);
-    }
-
-    public void createDecisionFile(FileRequest request, Long decisionId) {
-        File newFile = request.toEntity(request, ReferenceType.DECISION, decisionId);
-        fileRepository.save(newFile);
-    }
 
     public List<FileListResponse> getPostFiles(Long postId) {
         List<File> files = fileRepository.findAllByReferenceIdAndReferenceTypeAndDeletedAtIsNull(
