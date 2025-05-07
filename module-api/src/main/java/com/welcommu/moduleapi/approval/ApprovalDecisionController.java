@@ -5,7 +5,6 @@ import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.approval.approvalDecision.DecisionService;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestCreation;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionRequestModification;
-import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponseSend;
 import com.welcommu.moduleservice.approval.approvalDecision.dto.DecisionResponsesByAllApprover;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +37,8 @@ public class ApprovalDecisionController {
         @PathVariable Long approverId,
         @Valid @RequestBody DecisionRequestCreation request) {
 
-        Long decisionId = decisionService.createDecision(userDetails.getUser(), approverId, request);
+        Long decisionId = decisionService.createDecision(userDetails.getUser(), approverId,
+            request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(new ApiResponse(HttpStatus.CREATED.value(), "승인응답 생성을 성공했습니다.", decisionId));
@@ -50,7 +50,7 @@ public class ApprovalDecisionController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long decisionId,
         @Valid @RequestBody DecisionRequestModification request) {
 
-        decisionService.modifyDecision(decisionId, request);
+        decisionService.modifyDecision(userDetails.getUser(), decisionId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "승인응답 수정을 성공했습니다."));
     }
 
@@ -59,7 +59,7 @@ public class ApprovalDecisionController {
     public ResponseEntity<ApiResponse> deleteDecision(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long decisionId) {
 
-        decisionService.deleteDecision(decisionId);
+        decisionService.deleteDecision(userDetails.getUser(), decisionId);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "승인응답 삭제를 성공했습니다."));
     }
 

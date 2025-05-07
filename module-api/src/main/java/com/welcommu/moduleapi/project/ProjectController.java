@@ -18,7 +18,6 @@ import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +53,7 @@ public class ProjectController {
     ) {
         Long userId = userDetails.getUser().getId();
         projectService.createProject(dto, userId);
+
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트가 생성되었습니다."));
     }
@@ -173,8 +173,6 @@ public class ProjectController {
         projectService.increaseCurrentProgress(projectId);
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "프로젝트가 수정되었습니다."));
     }
-
-
 
 
 }
