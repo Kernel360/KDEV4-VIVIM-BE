@@ -39,3 +39,7 @@ management:
     web:
       exposure:
         include: health
+
+jwt:
+  access-token-ttl: ${ACCESS_TOKEN_TTL}
+  refresh-token-ttl: ${REFRESH_TOKEN_TTL}
