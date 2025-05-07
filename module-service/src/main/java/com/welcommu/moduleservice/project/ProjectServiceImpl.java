@@ -4,7 +4,7 @@ import static com.welcommu.modulecommon.exception.CustomErrorCode.NOT_FOUND_COMP
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduledomain.ProjectCompany.ProjectCompany;
+import com.welcommu.moduledomain.projectCompany.ProjectCompany;
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.project.Project;

@@ -1,8 +1,8 @@
 package com.welcommu.modulecommon.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
-import com.welcommu.modulecommon.security.CustomUserDetailsService;
-import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtProvider;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +14,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,21 +36,30 @@ public class SecurityConfig {
         "/v3/api-docs/**"
     };
 
-    private final JwtTokenHelper jwtTokenHelper;
-    private final CustomUserDetailsService userDetailsService;
+    private final JwtProvider jwtProvider;
+    private final UserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper; 
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
     @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtProvider, userDetailsService, objectMapper);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(
-            jwtTokenHelper, userDetailsService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtProvider,
+            userDetailsService,
+            objectMapper
+        );
 
         httpSecurity
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(it -> it
                 .requestMatchers(
                     PathRequest.toStaticResources().atCommonLocations()
@@ -71,7 +82,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-            Arrays.asList("http://localhost:3000", "https://www.vivim.co.kr", "https://test.vivim.co.kr"));
+            Arrays.asList("http://localhost:3000", "https://localhost:3000", "https://www.vivim.co.kr", "https://test.vivim.co.kr"));
         configuration.setAllowedMethods(
             Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
