@@ -62,9 +62,10 @@ public class FileController {
 
         String objectKey = generateObjectKey(request.getContentType());
         long fileSize = request.getFileSize();
-        long partSize = 25 * 1000 * 1000L; // 각 파트는 10MB로 설정
+        long partSize = 25 * 1000 * 1000L; // 각 파트는 25MB로 설정
         long partCount = (long) (Math.ceil((double) fileSize / partSize));
 
+        //initiateRequest를 통해 조각으로 업로드된 파일들이 합쳐짐
         InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(
             bucketName, objectKey)
             .withObjectMetadata(new ObjectMetadata() {{
