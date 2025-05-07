@@ -39,7 +39,9 @@ public enum CustomErrorCode {
     // project progress
     NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
-    DUPLICATE_PROGRESS_NAME("PG003", "중복되는 프로젝트명입니다."),
+    INVALID_PROGRESS_REQUEST("PG003", "프로젝트 단계 위치 값이 음수거나 값이 없습니다."),
+    DUPLICATE_PROGRESS_NAME("PG004", "중복되는 프로젝트명입니다."),
+    MISSING_TARGET_INDEX("PG005", "이동할 대상 인덱스가 누락되었습니다."),
 
     // approval
     NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),

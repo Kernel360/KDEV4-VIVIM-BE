@@ -7,7 +7,8 @@ import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOvera
 import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
-import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressNameModifyRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressPositionModifyRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -46,16 +48,29 @@ public class ProjectProgressController {
             .body(new ApiResponse(HttpStatus.CREATED.value(), "프로젝트 단계 생성을 성공했습니다."));
     }
 
-    @PatchMapping("/{projectId}/progress/{progressId}")
-    @Operation(summary = "프로젝트 단계 수정")
-    public ResponseEntity<ApiResponse> modifyProgress(
+    @PutMapping("/{projectId}/progress/{progressId}/naming")
+    @Operation(summary = "프로젝트 단계명 수정")
+    public ResponseEntity<ApiResponse> modifyProgressName(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
         @PathVariable Long projectId,
         @PathVariable Long progressId,
-        @RequestBody ProgressModifyRequest request
+        @RequestBody ProgressNameModifyRequest request
     ) {
 
-        progressService.modifyProgress(userDetails.getUser(), projectId, progressId, request);
+        progressService.modifyProgressName(userDetails.getUser(), projectId, progressId, request);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
+    }
+
+    @PutMapping("/{projectId}/progress/{progressId}/positioning")
+    @Operation(summary = "프로젝트 단계 위치 수정")
+    public ResponseEntity<ApiResponse> modifyProgressPosition(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails,
+        @PathVariable Long projectId,
+        @PathVariable Long progressId,
+        @RequestBody ProgressPositionModifyRequest request
+    ) {
+
+        progressService.modifyProgressPosition(userDetails.getUser(), projectId, progressId, request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
     }
 
