@@ -14,6 +14,6 @@ public class ApiResponse {
     public ApiResponse(int statusCode, String statusMessage) {
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
-        this.data = null; // 기본값 설정
+        this.data = null;
     }
 }
