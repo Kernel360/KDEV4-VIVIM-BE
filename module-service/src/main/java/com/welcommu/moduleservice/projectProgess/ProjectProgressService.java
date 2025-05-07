@@ -14,8 +14,9 @@ import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
-import com.welcommu.moduleservice.projectProgess.dto.ProgressModifyRequest;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressNameModifyRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressPositionModifyRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,8 +43,8 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
-    public void modifyProgress(User user, Long projectId, Long progressId,
-        ProgressModifyRequest request) {
+    public void modifyProgressName(User user, Long projectId, Long progressId,
+        ProgressNameModifyRequest request) {
 
         findProject(projectId);
         findProgress(progressId);
@@ -53,6 +54,39 @@ public class ProjectProgressService {
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
+        progressRepository.save(projectProgress);
+    }
+
+    public void modifyProgressPosition(User user, Long projectId, Long progressId,
+        ProgressPositionModifyRequest request) {
+
+        findProject(projectId);
+        findProgress(progressId);
+        checkUserPermission(user, projectId);
+
+        ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
+
+        Integer targetIndex = request.getTargetIndex();
+        if (targetIndex == null || targetIndex < 0) {
+            throw new CustomException(CustomErrorCode.MISSING_TARGET_INDEX);
+        }
+
+        List<ProjectProgress> progresses = progressRepository.findByProjectIdOrderByPosition(projectId);
+
+        float newPosition;
+        if (progresses.isEmpty()) {
+            newPosition = 0.0f;
+        } else if (targetIndex == 0) {
+            newPosition = progresses.get(0).getPosition() / 2.0f;
+        } else if (targetIndex >= progresses.size()) {
+            newPosition = progresses.get(progresses.size() - 1).getPosition() + 1.0f;
+        } else {
+            float prevPosition = progresses.get(targetIndex - 1).getPosition();
+            float nextPosition = progresses.get(targetIndex).getPosition();
+            newPosition = (prevPosition + nextPosition) / 2.0f;
+        }
+
+        projectProgress.setPosition(newPosition);
         progressRepository.save(projectProgress);
     }
 
