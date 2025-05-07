@@ -4,8 +4,8 @@ import com.welcommu.moduledomain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class UserResponse {
 
     private Long id;
@@ -22,7 +22,7 @@ public class UserResponse {
             user.getEmail(),
             user.getPhone(),
             user.getCompany() != null ? user.getCompany().getName() : null,
-            user.getCompany().getCompanyRole().toString()
+            user.getCompany() != null ? user.getCompany().getCompanyRole().toString() : null
         );
     }
 }
