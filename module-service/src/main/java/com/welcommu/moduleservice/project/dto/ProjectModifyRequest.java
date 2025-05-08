@@ -22,7 +22,7 @@ public class ProjectModifyRequest {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private int projectFee;
+    private Integer projectFee;
 
     private List<ProjectUserRoleRequest> clientManagers;
     private List<ProjectUserRoleRequest> clientUsers;
@@ -33,11 +33,11 @@ public class ProjectModifyRequest {
 
 
     public Project modifyProject(Project project) {
-        project.setName(this.name);
-        project.setDescription(this.description);
-        project.setStartDate(this.startDate);
-        project.setProjectFee(this.projectFee);
-        project.setEndDate(this.endDate);
+        if (this.name != null) project.setName(this.name);
+        if (this.description != null) project.setDescription(this.description);
+        if (this.startDate != null) project.setStartDate(this.startDate);
+        if (this.endDate != null) project.setEndDate(this.endDate);
+        if (this.projectFee != null) project.setProjectFee(this.projectFee);
         project.setModifiedAt(LocalDateTime.now());
         return project;
     }

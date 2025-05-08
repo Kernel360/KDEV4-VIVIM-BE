@@ -67,7 +67,7 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @PutMapping("/{projectId}")
+    @PatchMapping("/{projectId}")
     @Operation(summary = "프로젝트 수정")
     public ResponseEntity<ApiResponse> modifyProject(
         @PathVariable Long projectId,
