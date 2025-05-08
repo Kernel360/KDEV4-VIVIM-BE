@@ -109,8 +109,6 @@ public class FileController {
             request.getUploadId(),
             etags
         );
-        System.out.print("Region = ");
-        System.out.println(amazonS3Client.getRegion());
         amazonS3Client.completeMultipartUpload(completeReq);
     }
 
