@@ -197,7 +197,6 @@ public class FileController {
         GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, objectKey)
             .withMethod(HttpMethod.GET)
             .withExpiration(new Date(System.currentTimeMillis() + URL_EXPIRATION_MS));
-        org.springframework.web.servlet.mvc.method.annotation.SseEmitter event; // remove unused import
         com.amazonaws.services.s3.model.ResponseHeaderOverrides headers = new com.amazonaws.services.s3.model.ResponseHeaderOverrides();
         String encodedName = UriUtils.encode(file.getFileName(), StandardCharsets.UTF_8);
         headers.setContentDisposition("attachment; filename=\"" + encodedName + "\"");
