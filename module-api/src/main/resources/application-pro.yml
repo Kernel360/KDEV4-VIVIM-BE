@@ -9,6 +9,11 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -17,33 +22,25 @@ spring:
       hibernate:
         format_sql: true
 
-  data:
-    redis:
-      host: redis-dev
-      port: 6379
-
-
-  properties:
-    hibernate:
-      format_sql: true
-
 logging:
   level:
     org.springframework.security: DEBUG
-    org.springframework.security.web.FilterChainProxy: DEBUG
-    org.springframework.security.access: DEBUG
   execution-time:
     enabled: false
-server:
-  port: 443
-  ssl:
-    enabled: true
-    key-store: file:/app/keystore.p12
-    key-store-password: ${SSLPASSWORD}
 
-    key-store-type: PKCS12
-    key-alias: mycert
+server:
+  port: 8080
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health
 
 jwt:
   access-token-ttl: ${ACCESS_TOKEN_TTL}
   refresh-token-ttl: ${REFRESH_TOKEN_TTL}
+

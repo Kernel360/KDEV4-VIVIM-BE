@@ -1,24 +1,29 @@
 package com.welcommu.moduleapi.auth;
 
-
+import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.modulecommon.token.JwtProvider;
+import com.welcommu.modulecommon.util.JwtUtil;
+import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.auth.AuthService;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
-import com.welcommu.moduleservice.auth.dto.RefreshTokenRequest;
+import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.HashMap;
-import java.util.Map;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -26,54 +31,101 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @Tag(name = "인증 인가 API", description = "로그인, 로그아웃, 토큰 재발급 등 인증 및 권한과 관련된 기능을 제공합니다.")
 public class AuthController {
+
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    @Operation(summary = "로그인", description = "이메일과 비밀번호를 사용해 로그인하고 Access Token을 발급받습니다.")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = authService.createToken(request);
-            return ResponseEntity.ok(response);
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401)
-                .body(Map.of("message", "Invalid credentials"));
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(Map.of("message", "Internal server error", "error", e.getMessage()));
-        }
+    @Operation(summary = "로그인")
+    public ResponseEntity<ApiResponse> login(
+        @RequestBody LoginRequest request,
+        HttpServletResponse response
+    ) {
+        LoginResponse tokens = authService.createToken(request);
+
+        jwtUtil.addTokenCookies(
+            response,
+            tokens.getAccessToken().replace("Bearer ", ""),
+            tokens.getRefreshToken().replace("Bearer ", "")
+        );
+
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.OK.value(), "로그인을 성공했습니다."));
     }
 
     @GetMapping("/user")
-    @Operation(summary = "로그인한 사용자 확인")
-    public ResponseEntity<Map<String, String>> getUserInfo(
-        @AuthenticationPrincipal String username) {
-        Map<String, String> response = new HashMap<>();
-        response.put("authenticatedUser", username);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "로그인한 사용자 확인", description = "현재 인증된 사용자의 상세 정보를 반환합니다.")
+    public ResponseEntity<ApiResponse> getUserInfo(
+        @AuthenticationPrincipal AuthUserDetailsImpl principal
+    ) {
+        if (principal == null) {
+            return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse(HttpStatus.UNAUTHORIZED.value(), "인증되지 않은 상태입니다."));
+        }
+
+        UserResponse dto = UserResponse.from(principal.getUser());
+
+        return ResponseEntity.ok(
+            new ApiResponse(HttpStatus.OK.value(), "사용자 정보를 조회했습니다.", dto)
+        );
     }
 
     @PostMapping("/refresh-token")
-    @Operation(summary = "Access Token 재발급", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody RefreshTokenRequest refreshToken) {
-        try {
-            LoginResponse response = authService.reIssueToken(refreshToken.getRefreshToken());
-            return ResponseEntity.ok(response);
+    @Operation(summary = "Access Token 재발급", description = "쿠키에 담긴 Refresh Token을 사용해 새로운 Access·Refresh Token을 발급합니다.")
+    public ResponseEntity<ApiResponse> refreshAccessToken(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        log.info("백엔드 함수 호출: refreshAccessToken");
+        String rawToken = Optional.ofNullable(request.getCookies())
+            .flatMap(cookies -> Arrays.stream(cookies)
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+            )
+            .map(Cookie::getValue)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_TOKEN));
+        log.debug("refreshToken rawCookieValue = {}", rawToken);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(500)
-                .body(Map.of("message", "Internal server error", "error", e.getMessage()));
-        }
+
+        LoginResponse loginResponse = authService.reIssueToken(rawToken);
+
+        jwtUtil.addTokenCookies(
+            response,
+            loginResponse.getAccessToken().replace("Bearer ", ""),
+            loginResponse.getRefreshToken().replace("Bearer ", "")
+        );
+
+        return ResponseEntity.ok(
+            new ApiResponse(HttpStatus.OK.value(), "토큰을 재발급했습니다.")
+        );
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "로그아웃", description = "Refresh Token을 만료 처리하여 로그아웃을 수행합니다.")
-    public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest refreshToken) {
-        try {
-            authService.deleteToken(refreshToken.getRefreshToken());
-            return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
-        } catch (Exception e) {
-            // 실패해도 로그아웃은 성공했다고 간주
-            return ResponseEntity.ok(Map.of("message", "Successfully logged out"));
+    @Operation(summary = "로그아웃", description = "쿠키에 담긴 Refresh Token을 만료 처리합니다.")
+    public ResponseEntity<ApiResponse> logout(
+        HttpServletRequest request
+    ) {
+        // 1) 쿠키에서 refreshToken 꺼내기
+        String rawToken = Optional.ofNullable(request.getCookies())
+            .flatMap(cookies -> Arrays.stream(cookies)
+                .filter(c -> "refreshToken".equals(c.getName()))
+                .findFirst()
+            )
+            .map(Cookie::getValue)
+            .orElse(null);
+
+        if (rawToken != null) {
+            // 2) "Bearer " 제거
+            String refreshToken = JwtProvider.withoutBearer(rawToken);
+            try {
+                authService.deleteToken(refreshToken);
+            } catch (Exception e) {
+                log.warn("Refresh Token 삭제 실패", e);
+            }
         }
+
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.OK.value(), "로그아웃을 성공했습니다."));
     }
 }
