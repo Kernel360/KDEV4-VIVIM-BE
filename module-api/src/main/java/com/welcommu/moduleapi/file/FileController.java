@@ -7,7 +7,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
@@ -43,6 +42,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
 
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -52,48 +52,41 @@ public class FileController {
     private final AmazonS3 amazonS3Client;
     private final FileService fileService;
     private final String bucketName = "vivim-s3";
+    private static final long PART_SIZE = 25L * 1000 * 1000;
+    private static final long URL_EXPIRATION_MS = 1000L * 60 * 15;
 
 
     @PostMapping(path = "/posts/{postId}/file/multipart", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "대용량 파일 업로드용 Multipart PreSigned URL 생성")
-    public ResponseEntity<MultipartPresignedUrlResponse> createMultipartPresignedUrls(
+    public ResponseEntity<MultipartPresignedUrlResponse> createPostFileMultipart(
         @PathVariable Long postId,
         @RequestBody MultipartFileMetadataRequest request) {
-
-        String objectKey = generateObjectKey(request.getContentType());
-        long fileSize = request.getFileSize();
-        long partSize = 25 * 1000 * 1000L; // 각 파트는 25MB로 설정
-        long partCount = (long) (Math.ceil((double) fileSize / partSize));
-
-        //initiateRequest를 통해 조각으로 업로드된 파일들이 합쳐짐
-        InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest(
-            bucketName, objectKey)
-            .withObjectMetadata(new ObjectMetadata() {{
-                setContentType(request.getContentType());
-            }});
-        InitiateMultipartUploadResult initResponse = amazonS3Client.initiateMultipartUpload(
-            initiateRequest);
-
-        String uploadId = initResponse.getUploadId(); //uploadId를 통해 나눠서 업로드된 파일들이 합쳐질 수 있음.
-        List<PresignedPart> presignedParts = new ArrayList<>();
-        for (int i = 1; i <= partCount; i++) {
-            GeneratePresignedUrlRequest presignedUrlRequest = new GeneratePresignedUrlRequest(
-                bucketName, objectKey, HttpMethod.PUT)
-                .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15));
-            presignedUrlRequest.addRequestParameter("partNumber", String.valueOf(i));
-            presignedUrlRequest.addRequestParameter("uploadId", uploadId);
-            URL presignedUrl = amazonS3Client.generatePresignedUrl(presignedUrlRequest);
-            presignedParts.add(new PresignedPart(i, presignedUrl.toString()));
-        }
-
-        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
-
-        fileService.createMultipartPostFile(request, postId, fileUrl);
-        MultipartPresignedUrlResponse response = new MultipartPresignedUrlResponse(
-            objectKey, uploadId, fileUrl, presignedParts
+        return ResponseEntity.ok(
+            createMultipartUrls(request,
+                key -> fileService.createMultipartPostFile(request, postId, key))
         );
+    }
 
-        return ResponseEntity.ok(response);
+    @PostMapping(path = "/approvals/{approvalId}/file/multipart", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "승인 요청에 대용량 파일 업로드용 Multipart PreSigned URL 생성")
+    public ResponseEntity<MultipartPresignedUrlResponse> createApprovalFileMultipart(
+        @PathVariable Long approvalId,
+        @RequestBody MultipartFileMetadataRequest request) {
+        return ResponseEntity.ok(
+            createMultipartUrls(request,
+                key -> fileService.createMultipartApprovalFile(request, approvalId, key))
+        );
+    }
+
+    @PostMapping(path = "/decisions/{decisionId}/file/multipart", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "승인 응답에 대용량 파일 업로드용 Multipart PreSigned URL 생성")
+    public ResponseEntity<MultipartPresignedUrlResponse> createDecisionFileMultipart(
+        @PathVariable Long decisionId,
+        @RequestBody MultipartFileMetadataRequest request) {
+        return ResponseEntity.ok(
+            createMultipartUrls(request,
+                key -> fileService.createMultipartDecisionFile(request, decisionId, key))
+        );
     }
 
     @PostMapping("/upload/complete")
@@ -110,92 +103,6 @@ public class FileController {
             etags
         );
         amazonS3Client.completeMultipartUpload(completeReq);
-    }
-
-    @PostMapping(path = "/approvals/{approvalId}/file/multipart", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "승인 요청에 대용량 파일 업로드용 Multipart PreSigned URL 생성")
-    public ResponseEntity<MultipartPresignedUrlResponse> createApprovalFileMultipartUrls(
-        @PathVariable Long approvalId,
-        @RequestBody MultipartFileMetadataRequest request) {
-
-        String objectKey = generateObjectKey(request.getContentType());
-        long fileSize = request.getFileSize();
-        long partSize = 25 * 1000 * 1000L; // 각 파트 25MB
-        long partCount = (long) Math.ceil((double) fileSize / partSize);
-
-        // 1. 멀티파트 업로드 세션 시작
-        InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(bucketName,
-            objectKey)
-            .withObjectMetadata(new ObjectMetadata() {{
-                setContentType(request.getContentType());
-            }});
-        InitiateMultipartUploadResult initRes = amazonS3Client.initiateMultipartUpload(initReq);
-        String uploadId = initRes.getUploadId();
-
-        // 2. 파트별 PreSigned URL 생성
-        List<PresignedPart> parts = new ArrayList<>();
-        for (int i = 1; i <= partCount; i++) {
-            GeneratePresignedUrlRequest presignedReq = new GeneratePresignedUrlRequest(bucketName,
-                objectKey, HttpMethod.PUT)
-                .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15));
-            presignedReq.addRequestParameter("uploadId", uploadId);
-            presignedReq.addRequestParameter("partNumber", String.valueOf(i));
-            URL url = amazonS3Client.generatePresignedUrl(presignedReq);
-            parts.add(new PresignedPart(i, url.toString()));
-        }
-
-        // 3. 파일 메타 정보 저장 (DB 등)
-        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
-        fileService.createMultipartApprovalFile(request, approvalId, fileUrl);
-
-        // 4. 응답 반환
-        MultipartPresignedUrlResponse response = new MultipartPresignedUrlResponse(
-            objectKey, uploadId, fileUrl, parts
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping(path = "/decisions/{decisionId}/file/multipart", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Operation(summary = "승인 응답에 대용량 파일 업로드용 Multipart PreSigned URL 생성")
-    public ResponseEntity<MultipartPresignedUrlResponse> createDecisionFileMultipartUrls(
-        @PathVariable Long decisionId,
-        @RequestBody MultipartFileMetadataRequest request) {
-
-        String objectKey = generateObjectKey(request.getContentType());
-        long fileSize = request.getFileSize();
-        long partSize = 25 * 1000 * 1000L; // 각 파트 25MB
-        long partCount = (long) Math.ceil((double) fileSize / partSize);
-
-        // 1. 멀티파트 업로드 세션 시작
-        InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(bucketName,
-            objectKey)
-            .withObjectMetadata(new ObjectMetadata() {{
-                setContentType(request.getContentType());
-            }});
-        InitiateMultipartUploadResult initRes = amazonS3Client.initiateMultipartUpload(initReq);
-        String uploadId = initRes.getUploadId();
-
-        // 2. 파트별 PreSigned URL 생성
-        List<PresignedPart> parts = new ArrayList<>();
-        for (int i = 1; i <= partCount; i++) {
-            GeneratePresignedUrlRequest presignedReq = new GeneratePresignedUrlRequest(bucketName,
-                objectKey, HttpMethod.PUT)
-                .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15));
-            presignedReq.addRequestParameter("uploadId", uploadId);
-            presignedReq.addRequestParameter("partNumber", String.valueOf(i));
-            URL url = amazonS3Client.generatePresignedUrl(presignedReq);
-            parts.add(new PresignedPart(i, url.toString()));
-        }
-
-        // 3. 파일 메타 정보 저장 (DB 등)
-        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
-        fileService.createMultipartDecisionFile(request, decisionId, fileUrl);
-
-        // 4. 응답 반환
-        MultipartPresignedUrlResponse response = new MultipartPresignedUrlResponse(
-            objectKey, uploadId, fileUrl, parts
-        );
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/posts/{postId}/files")
@@ -256,10 +163,46 @@ public class FileController {
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "파일이 삭제되었습니다."));
     }
 
+    private MultipartPresignedUrlResponse createMultipartUrls(
+        MultipartFileMetadataRequest request,
+        java.util.function.Consumer<String> saveMeta) {
+
+        String objectKey = generateObjectKey(request.getContentType());
+        String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
+
+        long fileSize = request.getFileSize();
+        int partCount = (int) Math.ceil((double) fileSize / PART_SIZE);
+        InitiateMultipartUploadRequest initReq = new InitiateMultipartUploadRequest(bucketName,
+            objectKey)
+            .withObjectMetadata(new ObjectMetadata() {{
+                setContentType(request.getContentType());
+            }});
+        String uploadId = amazonS3Client.initiateMultipartUpload(initReq).getUploadId();
+
+        List<PresignedPart> parts = new ArrayList<>(partCount);
+        for (int i = 1; i <= partCount; i++) {
+            parts.add(new PresignedPart(i, generatePartUrl(objectKey, uploadId, i)));
+        }
+
+        saveMeta.accept(fileUrl);
+        return new MultipartPresignedUrlResponse(objectKey, uploadId, fileUrl, parts);
+    }
+
+    private String generatePartUrl(String key, String uploadId, int partNumber) {
+        GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, key,
+            HttpMethod.PUT)
+            .withExpiration(new Date(System.currentTimeMillis() + URL_EXPIRATION_MS));
+        req.addRequestParameter("uploadId", uploadId);
+        req.addRequestParameter("partNumber", Integer.toString(partNumber));
+        return amazonS3Client.generatePresignedUrl(req).toString();
+    }
+
+    // ... (completeUpload, download, list, delete methods unchanged)
+
     private String generateObjectKey(String contentType) {
-        String today = LocalDate.now().toString();
+        String date = LocalDate.now().toString();
         String uuid = UUID.randomUUID().toString();
-        String extension = getExtensionFromContentType(contentType);
-        return "uploads/" + today + "/" + uuid + extension;
+        String ext = getExtensionFromContentType(contentType);
+        return String.format("uploads/%s/%s%s", date, uuid, ext);
     }
 }
