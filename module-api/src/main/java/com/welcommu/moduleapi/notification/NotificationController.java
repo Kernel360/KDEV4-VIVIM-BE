@@ -5,6 +5,7 @@ import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.notification.NotificationService;
 import com.welcommu.moduleservice.notification.dto.NotificationRequest;
 import com.welcommu.moduleservice.notification.dto.NotificationResponse;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +38,7 @@ public class NotificationController {
 
     @GetMapping("/subscribe")
     public ResponseEntity<SseEmitter> subscribe(
-        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
-        log.info("SSE 구독 신청 - userId: {}", userDetails.getUser().getId());
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) throws IOException {
         SseEmitter emitter = notificationService.subscribe(userDetails.getUser().getId());
         return ResponseEntity.ok().body(emitter);
     }
