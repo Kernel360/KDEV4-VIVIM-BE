@@ -9,9 +9,9 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
-import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.file.File;
+import com.welcommu.moduledomain.file.ReferenceType;
 import com.welcommu.moduleservice.file.FileService;
 import com.welcommu.moduleservice.file.dto.CompleteUploadRequest;
 import com.welcommu.moduleservice.file.dto.FileDownloadUrlResponse;
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
 
-
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -54,7 +54,6 @@ public class FileController {
     private static final long PART_SIZE = 25L * 1000 * 1000;
     private static final long URL_EXPIRATION_MS = 1000L * 60 * 15;
 
-
     @PostMapping(path = "/posts/{postId}/file/multipart", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "대용량 파일 업로드용 Multipart PreSigned URL 생성")
     public ResponseEntity<MultipartPresignedUrlResponse> createPostFileMultipart(
@@ -62,7 +61,7 @@ public class FileController {
         @RequestBody MultipartFileMetadataRequest request) {
         return ResponseEntity.ok(
             createMultipartUrls(request,
-                key -> fileService.createMultipartPostFile(request, postId, key))
+                key -> fileService.createMultipartFile(request, ReferenceType.POST, postId, key))
         );
     }
 
@@ -73,7 +72,8 @@ public class FileController {
         @RequestBody MultipartFileMetadataRequest request) {
         return ResponseEntity.ok(
             createMultipartUrls(request,
-                key -> fileService.createMultipartApprovalFile(request, approvalId, key))
+                key -> fileService.createMultipartFile(request, ReferenceType.APPROVAL, approvalId,
+                    key))
         );
     }
 
@@ -84,7 +84,8 @@ public class FileController {
         @RequestBody MultipartFileMetadataRequest request) {
         return ResponseEntity.ok(
             createMultipartUrls(request,
-                key -> fileService.createMultipartDecisionFile(request, decisionId, key))
+                key -> fileService.createMultipartFile(request, ReferenceType.DECISION, decisionId,
+                    key))
         );
     }
 
@@ -107,19 +108,25 @@ public class FileController {
     @GetMapping("/posts/{postId}/files")
     @Operation(summary = "게시글에 파일 목록 조회")
     public ResponseEntity<List<FileListResponse>> getPostFiles(@PathVariable Long postId) {
-        return ResponseEntity.ok(fileService.getPostFiles(postId));
+        return ResponseEntity.ok(
+            fileService.getFilesByReference(ReferenceType.POST, postId)
+        );
     }
 
     @GetMapping("/approvals/{approvalId}/files")
     @Operation(summary = "승인요청에 파일 목록 조회")
     public ResponseEntity<List<FileListResponse>> getApprovalFiles(@PathVariable Long approvalId) {
-        return ResponseEntity.ok(fileService.getApprovalFiles(approvalId));
+        return ResponseEntity.ok(
+            fileService.getFilesByReference(ReferenceType.APPROVAL, approvalId)
+        );
     }
 
     @GetMapping("/decisions/{decisionId}/files")
-    @Operation(summary = "게시글에 파일 목록 조회")
+    @Operation(summary = "응답에 파일 목록 조회")
     public ResponseEntity<List<FileListResponse>> getDecisionFiles(@PathVariable Long decisionId) {
-        return ResponseEntity.ok(fileService.getDecisionFiles(decisionId));
+        return ResponseEntity.ok(
+            fileService.getFilesByReference(ReferenceType.DECISION, decisionId)
+        );
     }
 
     @GetMapping("/files/{fileId}/download")
@@ -139,12 +146,14 @@ public class FileController {
     @Operation(summary = "파일 삭제(SoftDelete)")
     public ResponseEntity<ApiResponse> deleteFile(@PathVariable Long fileId) {
         fileService.deleteFile(fileId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "파일이 삭제되었습니다."));
+        return ResponseEntity.ok(
+            new ApiResponse(HttpStatus.OK.value(), "파일이 삭제되었습니다.")
+        );
     }
 
     private MultipartPresignedUrlResponse createMultipartUrls(
         MultipartFileMetadataRequest request,
-        java.util.function.Consumer<String> saveMeta) {
+        Consumer<String> saveMeta) {
 
         String objectKey = generateObjectKey(request.getContentType());
         String fileUrl = amazonS3Client.getUrl(bucketName, objectKey).toString();
@@ -176,8 +185,6 @@ public class FileController {
         return amazonS3Client.generatePresignedUrl(req).toString();
     }
 
-    // ... (completeUpload, download, list, delete methods unchanged)
-
     private String generateObjectKey(String contentType) {
         String date = LocalDate.now().toString();
         String uuid = UUID.randomUUID().toString();
@@ -190,10 +197,12 @@ public class FileController {
         GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, objectKey)
             .withMethod(HttpMethod.GET)
             .withExpiration(new Date(System.currentTimeMillis() + URL_EXPIRATION_MS));
-        ResponseHeaderOverrides headers = new ResponseHeaderOverrides();
+        org.springframework.web.servlet.mvc.method.annotation.SseEmitter event; // remove unused import
+        com.amazonaws.services.s3.model.ResponseHeaderOverrides headers = new com.amazonaws.services.s3.model.ResponseHeaderOverrides();
         String encodedName = UriUtils.encode(file.getFileName(), StandardCharsets.UTF_8);
         headers.setContentDisposition("attachment; filename=\"" + encodedName + "\"");
         req.setResponseHeaders(headers);
         return amazonS3Client.generatePresignedUrl(req).toString();
     }
 }
+
