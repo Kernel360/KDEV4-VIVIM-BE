@@ -21,7 +21,6 @@ import com.welcommu.moduleservice.file.dto.MultipartPresignedUrlResponse;
 import com.welcommu.moduleservice.file.dto.PresignedPart;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -125,34 +124,14 @@ public class FileController {
 
     @GetMapping("/files/{fileId}/download")
     @Operation(summary = "파일 다운로드용 PreSigned URL 생성")
-    public ResponseEntity<FileDownloadUrlResponse> getFileDownloadUrl(
-        @PathVariable Long fileId) {
-
+    public ResponseEntity<FileDownloadUrlResponse> downloadFile(@PathVariable Long fileId) {
         File file = fileService.getFileInfo(fileId);
-
-        String objectKey = file.getFileUrl().substring(file.getFileUrl().indexOf("uploads"));
-
-        // 다운로드용 PreSigned URL관련 설정(유효시간, HttpMethod등)
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
-            new GeneratePresignedUrlRequest(bucketName, objectKey)
-                .withMethod(HttpMethod.GET)
-                .withExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15));
-
-        // 파일명 지정을 위한 응답 헤더 설정
-        ResponseHeaderOverrides headerOverrides = new ResponseHeaderOverrides();
-        String encodedFileName = UriUtils.encode(file.getFileName(), StandardCharsets.UTF_8);
-        headerOverrides.setContentDisposition("attachment; filename=\"" + encodedFileName + "\"");
-        generatePresignedUrlRequest.setResponseHeaders(headerOverrides);
-
-        // PreSigned URL 생성
-        URL preSignedUrl = amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
-
-        FileDownloadUrlResponse response = new FileDownloadUrlResponse(
-            preSignedUrl.toString(),
-            file.getFileName(),
-            file.getFileSize()
-        );
-
+        String presignedUrl = generateDownloadUrl(file);
+        FileDownloadUrlResponse response = FileDownloadUrlResponse.builder()
+            .preSignedUrl(presignedUrl)
+            .fileName(file.getFileName())
+            .fileSize(file.getFileSize())
+            .build();
         return ResponseEntity.ok(response);
     }
 
@@ -204,5 +183,17 @@ public class FileController {
         String uuid = UUID.randomUUID().toString();
         String ext = getExtensionFromContentType(contentType);
         return String.format("uploads/%s/%s%s", date, uuid, ext);
+    }
+
+    private String generateDownloadUrl(File file) {
+        String objectKey = file.getFileUrl().substring(file.getFileUrl().indexOf("uploads"));
+        GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, objectKey)
+            .withMethod(HttpMethod.GET)
+            .withExpiration(new Date(System.currentTimeMillis() + URL_EXPIRATION_MS));
+        ResponseHeaderOverrides headers = new ResponseHeaderOverrides();
+        String encodedName = UriUtils.encode(file.getFileName(), StandardCharsets.UTF_8);
+        headers.setContentDisposition("attachment; filename=\"" + encodedName + "\"");
+        req.setResponseHeaders(headers);
+        return amazonS3Client.generatePresignedUrl(req).toString();
     }
 }
