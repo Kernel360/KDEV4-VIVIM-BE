@@ -134,19 +134,11 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     public List<ProjectMonthlyStats> getMonthlyProjectStats() {
-        // startDate와 endDate 범위를 밀리초까지 정확히 설정
         LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
         LocalDateTime now = LocalDateTime.now();
 
-        // startDate: 6개월 전 00:00:00
-        LocalDateTime startDate = sixMonthsAgo.withHour(0).withMinute(0).withSecond(0).withNano(0);
-        // endDate: 지금 23:59:59.999999
-        LocalDateTime endDate = now.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
-
         // 레포지토리에서 해당 기간 내의 프로젝트를 모두 조회
         List<Project> projects = projectRepository.findByCreatedAtBetweenAndIsDeletedFalse(sixMonthsAgo, now);
-
-        log.debug(projects.toString());
 
         // 월별 통계 계산
         Map<String, Long> totalProjectsMap = new HashMap<>();
@@ -164,7 +156,6 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
 
-        // 결과를 DTO로 변환
         List<ProjectMonthlyStats> stats = new ArrayList<>();
         for (String month : totalProjectsMap.keySet()) {
             Long totalProjects = totalProjectsMap.get(month);
@@ -177,13 +168,11 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     public List<ProjectSnapshot> getNonCompletedProjectsOrderedByEndDate() {
-        // 삭제되지 않았고, 완료되지 않은 프로젝트를 조회하고 마감일 순으로 정렬
         List<Project> projects = projectRepository.findNonCompletedProjectsOrderedByEndDate();
 
-        // Project 리스트를 ProjectSnapshot 리스트로 변환
         List<ProjectSnapshot> snapshots = projects.stream()
-            .map(ProjectSnapshot::from)  // Project 객체를 ProjectSnapshot DTO로 변환
-            .collect(Collectors.toList()); // 리스트로 수집
+            .map(ProjectSnapshot::from)
+            .collect(Collectors.toList());
 
         return snapshots;
     }
