@@ -39,9 +39,11 @@ public class ApprovalProposalController {
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long progressId,
         @Valid @RequestBody ProposalCreateRequest request) {
 
-        Long approvalProposalId = proposalService.createProposal(userDetails.getUser(), progressId, request);
+        Long approvalProposalId = proposalService.createProposal(userDetails.getUser(), progressId,
+            request);
         return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 생성을 성공했습니다.", approvalProposalId));
+            .body(new ApiResponse(HttpStatus.CREATED.value(), "승인요청 생성을 성공했습니다.",
+                approvalProposalId));
     }
 
     @PatchMapping("/approval/{approvalId}")
@@ -57,9 +59,10 @@ public class ApprovalProposalController {
 
     @DeleteMapping("/approval/{approvalId}")
     @Operation(summary = "승인요청 삭제")
-    public ResponseEntity<ApiResponse> deleteApproval(@PathVariable Long approvalId) {
+    public ResponseEntity<ApiResponse> deleteApproval(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long approvalId) {
 
-        proposalService.deleteProposal(approvalId);
+        proposalService.deleteProposal(userDetails.getUser(), approvalId);
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.OK.value(), "승인요청 삭제를 성공했습니다."));
     }
@@ -69,7 +72,8 @@ public class ApprovalProposalController {
     public ResponseEntity<ProposalSendResponse> sendApproval(
         @AuthenticationPrincipal AuthUserDetailsImpl userDetails, @PathVariable Long approvalId) {
 
-        ProposalSendResponse response = proposalService.sendProposal(userDetails.getUser(), approvalId);
+        ProposalSendResponse response = proposalService.sendProposal(userDetails.getUser(),
+            approvalId);
         return ResponseEntity.ok()
             .body(response);
     }

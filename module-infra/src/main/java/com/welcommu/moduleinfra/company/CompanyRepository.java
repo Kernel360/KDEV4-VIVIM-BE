@@ -1,10 +1,11 @@
 package com.welcommu.moduleinfra.company;
 
 import com.welcommu.moduledomain.company.Company;
+import com.welcommu.moduledomain.company.CompanyRole;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long>, CompanyRepositoryCustom {
@@ -17,4 +18,5 @@ public interface CompanyRepository extends JpaRepository<Company, Long>, Company
 
     Optional<Company> findByPhone(String phone);
 
+    List<Company> findByCompanyRole(CompanyRole companyRole);
 }

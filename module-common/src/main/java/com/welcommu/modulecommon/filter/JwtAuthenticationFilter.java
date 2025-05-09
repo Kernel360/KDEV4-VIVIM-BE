@@ -1,99 +1,126 @@
 package com.welcommu.modulecommon.filter;
 
-import com.welcommu.modulecommon.security.CustomUserDetailsService;
-import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.welcommu.modulecommon.exception.CustomErrorCode;
+import com.welcommu.modulecommon.token.JwtProvider;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+
+@Slf4j
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
-    private final JwtTokenHelper jwtTokenHelper;
-    private final CustomUserDetailsService userDetailsService;
+    private final JwtProvider jwtProvider;
+    private final UserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
 
     private static final String[] SWAGGER_WHITELIST = {
         "/swagger-ui", "/swagger-ui/", "/swagger-ui.html", "/swagger-ui/index.html", "/v3/api-docs"
     };
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-        FilterChain filterChain)
-        throws ServletException, IOException {
+    protected void doFilterInternal(
+        HttpServletRequest request,
+        HttpServletResponse response,
+        FilterChain filterChain
+    ) throws ServletException, IOException {
 
-        String requestURI = request.getRequestURI();
-
-        // Swagger UI 및 API 문서 관련 요청은 JWT 필터를 적용하지 않음
-        for (String swaggerPath : SWAGGER_WHITELIST) {
-            if (requestURI.startsWith(swaggerPath)) {
+        String uri = request.getRequestURI();
+        for (String path : SWAGGER_WHITELIST) {
+            if (uri.startsWith(path)) {
                 filterChain.doFilter(request, response);
                 return;
             }
         }
 
-        Set<String> excludedPaths = Set.of("/api/auth/refresh-token", "/api/auth/login", "/api/users/resetpassword", "/actuator/health");
-
-        if (excludedPaths.contains(request.getRequestURI())) {
+        Set<String> excluded = Set.of(
+            "/api/auth/login",
+            "/api/auth/refresh-token",
+            "/api/users/resetpassword"
+        );
+        if (excluded.contains(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Authorization 헤더에서 JWT 토큰을 추출
         String token = getTokenFromRequest(request);
+        log.info("JWT token: {}", token);
 
-        // Authorization 헤더가 없을 경우 처리
-        if (token == null) {
-            logger.warn("Authorization 헤더가 없습니다.");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-            response.getWriter().write("Authorization header is missing");
+        try {
+            Map<String, Object> claims = jwtProvider.validationTokenWithThrow(token);
+
+                String type = (String) claims.get("tokenType");
+                if (!"access".equals(type)) {
+                    log.warn("토큰 타입 불일치: {}", type);
+                respondWithCustomError(response, CustomErrorCode.INVALID_REFRESH_TOKEN_TYPE);
+                return;
+            }
+
+            String email = (String) claims.get("email");
+            UserDetails user = userDetailsService.loadUserByUsername(email);
+
+            log.info("인증 성공: {}", email);
+            UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            log.info(">>> Authentication set: {}", auth.getAuthorities());
+
+        } catch (ExpiredJwtException e) {
+            log.warn("JWT 만료됨", e);
+            respondWithCustomError(response, CustomErrorCode.EXPIRED_TOKEN);
+            return;
+        } catch (JwtException e) {
+            log.error("JWT 파싱 오류", e);
+            respondWithCustomError(response, CustomErrorCode.INVALID_TOKEN);
+            return;
+        } catch (Exception e) {
+            log.error("JWT 처리 중 예기치 않은 오류", e);
+            respondWithCustomError(response, CustomErrorCode.SERVER_ERROR);
             return;
         }
 
-        // 토큰이 유효한지 확인하고 인증 정보 설정
-        try {
-            Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(token);
-
-            // 유효한 토큰이 있을 때 로그
-            String username = (String) claims.get("email");
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            logger.info("유효한 JWT 토큰으로 인증된 사용자: " + username);
-
-            // 인증 정보 설정
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null,
-                    userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception e) {
-            logger.error("JWT 처리 중 오류 발생", e);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-            response.getWriter().write("Invalid JWT token");
-            return;  // 더 이상 필터 체인 진행하지 않음
-        }
-
-        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 
-    // Authorization 헤더에서 JWT 토큰을 추출
     private String getTokenFromRequest(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7); // "Bearer " 부분을 제거하고 토큰만 추출
+        if (request.getCookies() != null) {
+            for (Cookie c : request.getCookies()) {
+                if ("accessToken".equals(c.getName())) {
+                    return c.getValue();
+                }
+            }
         }
         return null;
+    }
+
+    private void respondWithCustomError(HttpServletResponse response, CustomErrorCode errorCode) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json; charset=UTF-8");
+
+        Map<String, String> body = Map.of(
+            "status", "error",
+            "code", errorCode.getCode(),
+            "message", errorCode.getErrorMessage()
+        );
+
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

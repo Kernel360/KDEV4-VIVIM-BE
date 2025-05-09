@@ -2,8 +2,8 @@ package com.welcommu.moduleservice.auth;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.modulecommon.token.dto.TokenDto;
-import com.welcommu.modulecommon.token.helper.JwtTokenHelper;
+import com.welcommu.modulecommon.token.JwtDto;
+import com.welcommu.modulecommon.token.JwtProvider;
 import com.welcommu.moduledomain.user.User;
 import com.welcommu.moduleservice.auth.dto.LoginRequest;
 import com.welcommu.moduleservice.auth.dto.LoginResponse;
@@ -17,141 +17,135 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @AllArgsConstructor
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final JwtTokenHelper jwtTokenHelper;
+    private final JwtProvider jwtProvider;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
+    @Override
     public LoginResponse createToken(LoginRequest request) {
-
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        User user = userService.getUserByEmail(email)
-            .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
-
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new BadCredentialsException("Invalid email or password");
-        }
-
+        User user = authenticateUser(request.getEmail(), request.getPassword());
         UserResponse userDto = UserResponse.from(user);
 
-        // JWT Claims 구성
+        Map<String, Object> accessClaims = createAccessClaims(userDto);
+        Map<String, Object> refreshClaims = createRefreshClaims(userDto);
+
+        JwtDto accessToken = jwtProvider.issueAccessToken(accessClaims);
+        JwtDto refreshToken = jwtProvider.issueRefreshToken(refreshClaims);
+
+        saveRefreshToken(user.getId(), refreshToken);
+
+        return buildLoginResponse(accessToken, refreshToken);
+    }
+
+    @Override
+    @Transactional
+    public LoginResponse reIssueToken(String refreshTokenHeader) {
+        String oldToken = JwtProvider.withoutBearer(refreshTokenHeader);
+        log.info("[reIssueToken] incoming raw refreshToken = {}", oldToken);
+
+        Map<String, Object> claims = jwtProvider.validationTokenWithThrow(oldToken);
+        validateRefreshTokenType(claims);
+
+        long userId = parseUserId(claims.get("userId"));
+
+        String stored = refreshTokenService.get(userId);
+        log.info("[reIssueToken] stored refreshToken in Redis for user {} = {}", userId, stored);
+
+        verifyAndRotateRefreshToken(userId, oldToken);
+        log.info("[reIssueToken] Redis verification passed, rotating token");
+
+        claims.put("jti", UUID.randomUUID().toString());
+        JwtDto newAccessToken = jwtProvider.issueAccessToken(claims);
+        JwtDto newRefreshToken = jwtProvider.issueRefreshToken(claims);
+
+        saveRefreshToken(userId, newRefreshToken);
+        log.info("[reIssueToken] new refreshToken saved to Redis = {}", newRefreshToken.getToken());
+
+        return buildLoginResponse(newAccessToken, newRefreshToken);
+    }
+
+    @Override
+    public void deleteToken(String refreshTokenHeader) {
+        String refreshToken = JwtProvider.withoutBearer(refreshTokenHeader);
+        Map<String, Object> claims = jwtProvider.validationTokenWithThrow(refreshToken);
+        long userId = parseUserId(claims.get("userId"));
+
+        refreshTokenService.delete(userId);
+    }
+
+    private User authenticateUser(String email, String password) {
+        User user = userService.getUserByEmail(email)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.INVALID_CREDENTIALS));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new CustomException(CustomErrorCode.INVALID_CREDENTIALS);
+        }
+        return user;
+    }
+
+    private Map<String, Object> createAccessClaims(UserResponse userDto) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("email", userDto.getEmail());
         claims.put("userId", userDto.getId());
         claims.put("role", userDto.getCompanyRole());
-
-        // JWT ID 생성
-        String tokenId = UUID.randomUUID().toString();
-        claims.put("jti", tokenId);
-
-        // 액세스 / 리프레시 토큰 발급
-        TokenDto accessToken = jwtTokenHelper.issueAccessToken(claims);
-        TokenDto refreshToken = jwtTokenHelper.issueRefreshToken(claims);
-
-        // Redis에 Refresh Token 저장
-        // refreshToken.getExpiredAt()이 LocalDateTime이면 Duration 계산 필요
-        long expireSeconds = java.time.Duration.between(
-            java.time.LocalDateTime.now(),
-            refreshToken.getExpiredAt()
-        ).getSeconds();
-
-        refreshTokenService.save(user.getId(), refreshToken.getToken(), expireSeconds);
-
-        // 응답 반환
-        return LoginResponse.builder()
-            .accessToken("Bearer " + accessToken.getToken())
-            .refreshToken("Bearer " + refreshToken.getToken())
-            .build();
+        return claims;
     }
 
-    public LoginResponse reIssueToken(String refreshToken) {
-        log.info("리프레시 토큰으로 액세스 재발급 시도");
+    private Map<String, Object> createRefreshClaims(UserResponse userDto) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("email", userDto.getEmail());
+        claims.put("userId", userDto.getId());
+        return claims;
+    }
 
-        // Bearer 접두사 제거
-        refreshToken = getRefreshTokenWithoutBearer(refreshToken);
+    private void saveRefreshToken(Long userId, JwtDto refreshToken) {
+        refreshTokenService.save(
+            userId,
+            refreshToken.getToken(),
+            calcExpireSeconds(refreshToken.getExpiredAt())
+        );
+    }
 
-        // Refresh Token 검증
-        Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-
-        // 클레임에서 사용자 정보 추출
-        Long userId = ((Integer) claims.get("userId")).longValue(); // int -> long
-
-        // Redis에서 저장된 토큰 확인
-        if (!refreshTokenService.isValid(userId, refreshToken)) {
-            refreshTokenService.delete(userId); // 혹시라도 남아있으면 삭제
+    private void verifyAndRotateRefreshToken(long userId, String oldToken) {
+        if (!refreshTokenService.isValid(userId, oldToken)) {
+            refreshTokenService.delete(userId);
             throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
-
-        // 기존 토큰 삭제 (Token Rotation)
         refreshTokenService.delete(userId);
+    }
 
-        // 새로운 토큰 ID 발급 및 claims 갱신
-        String newTokenId = UUID.randomUUID().toString();
-        claims.put("jti", newTokenId);
+    private void validateRefreshTokenType(Map<String, Object> claims) {
+        String tokenType = (String) claims.get("tokenType");
+        if (!"refresh".equals(tokenType)) {
+            throw new CustomException(CustomErrorCode.INVALID_REFRESH_TOKEN_TYPE);
+        }
+    }
 
-        // 새 Access, Refresh 토큰 발급
-        TokenDto newAccessToken = jwtTokenHelper.issueAccessToken(claims);
-        TokenDto newRefreshToken = jwtTokenHelper.issueRefreshToken(claims);
+    private long parseUserId(Object raw) {
+        if (raw instanceof Integer) return ((Integer) raw).longValue();
+        if (raw instanceof Long)    return (Long) raw;
+        if (raw instanceof String)  return Long.parseLong((String) raw);
+        throw new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
+    }
 
-        // Redis에 새 리프레시 토큰 저장
-        long expireSeconds = Duration.between(
-            LocalDateTime.now(),
-            newRefreshToken.getExpiredAt()
-        ).getSeconds();
-        refreshTokenService.save(userId, newRefreshToken.getToken(), expireSeconds);
+    private long calcExpireSeconds(LocalDateTime expiresAt) {
+        long seconds = Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
+        return Math.max(seconds, 1);
+    }
 
+    private LoginResponse buildLoginResponse(JwtDto accessToken, JwtDto refreshToken) {
         return LoginResponse.builder()
-            .accessToken("Bearer " + newAccessToken.getToken())
-            .refreshToken("Bearer " + newRefreshToken.getToken())
+            .accessToken(JwtProvider.withBearer(accessToken.getToken()))
+            .refreshToken(JwtProvider.withBearer(refreshToken.getToken()))
             .build();
     }
-
-    public void deleteToken(String refreshToken){
-        refreshToken = getRefreshTokenWithoutBearer(refreshToken);
-
-        // 토큰 검증 및 클레임 추출
-        Map<String, Object> claims = jwtTokenHelper.validationTokenWithThrow(refreshToken);
-        Object rawUserId = claims.get("userId");
-
-        long userId;
-
-        try {
-            if (rawUserId instanceof Integer i) {
-                userId = i.longValue();
-            } else if (rawUserId instanceof Long l) {
-                userId = l;
-            } else if (rawUserId instanceof String s) {
-                userId = Long.parseLong(s);
-            } else {
-                log.error("지원하지 않는 userId 타입: {}", rawUserId);
-                throw  new CustomException(CustomErrorCode.INVALID_USERID_TYPE);
-            }
-        } catch (Exception e) {
-            log.error("JWT userId 파싱 실패: {}", rawUserId, e);
-            throw  new CustomException(CustomErrorCode.INVALID_TOKEN);
-        }
-        // Redis에서 해당 사용자 토큰 삭제
-        refreshTokenService.delete(userId);
-
-
-    }
-
-    private String getRefreshTokenWithoutBearer(String refreshToken) {
-        if (refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
-        }
-        return refreshToken;
-    }
-
 }

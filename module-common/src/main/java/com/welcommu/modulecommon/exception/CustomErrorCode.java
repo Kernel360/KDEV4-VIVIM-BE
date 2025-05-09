@@ -21,6 +21,8 @@ public enum CustomErrorCode {
     INVALID_TOKEN("T001", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN("T002", "토큰이 만료되었습니다."),
     INVALID_USERID_TYPE("T003", "유효하지 않은 userId 타입입니다."),
+    INVALID_CREDENTIALS("T004", "이메일 또는 비밀번호가 일치하지 않습니다."),
+    INVALID_REFRESH_TOKEN_TYPE("T005", "리프레시 토큰만 사용할 수 있습니다."),
 
     // project
     NOT_FOUND_PROJECT("P001", "프로젝트를 찾을 수 없습니다."),
@@ -37,8 +39,9 @@ public enum CustomErrorCode {
     // project progress
     NOT_FOUND_PROGRESS("PG001", "프로젝트 단계를 찾을 수 없습니다."),
     MISMATCH_PROJECT_PROGRESS("PG002", "프로젝트와 일치하지 않는 단계입니다."),
-    DUPLICATE_PROGRESS_NAME("PG003", "중복되는 프로젝트명입니다."),
-    DUPLICATE_PROGRESS_POSITION("PG004", "중복되는 포지션입니다."),
+    INVALID_PROGRESS_REQUEST("PG003", "프로젝트 단계 위치 값이 음수거나 값이 없습니다."),
+    DUPLICATE_PROGRESS_NAME("PG004", "중복되는 프로젝트명입니다."),
+    MISSING_TARGET_INDEX("PG005", "이동할 대상 인덱스가 누락되었습니다."),
 
     // approval
     NOT_FOUND_APPROVAL_PROPOSAL("AP001", "승인요청을 찾을 수 없습니다."),
@@ -57,7 +60,11 @@ public enum CustomErrorCode {
 
     // admin inquiry
     NOT_FOUND_INQUIRY("I001", "문의를 찾을 수 없습니다."),
-    NOT_FOUND_INQUIRY_COMMENT("I002", "답변을 찾을 수 없습니다.");
+    NOT_FOUND_INQUIRY_COMMENT("I002", "답변을 찾을 수 없습니다."),
+
+    // Concurrency
+    CONCURRENT_UPDATE("CO001", "다른 사용자가 먼저 저장했습니다. 다시 시도해주세요.");
+
     private final String code;
     private final String errorMessage;
 
