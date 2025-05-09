@@ -15,6 +15,7 @@ import com.welcommu.moduleservice.user.dto.UserSnapshot;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -107,7 +108,7 @@ public class UserServiceImpl implements UserService{
 
     }
 
-    public void deleteUser(Long id,Long actorId ) {
+    public void deleteUser(Long id,Long actorId) {
         User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_USER));
         userAuditService.deleteAuditLog(UserSnapshot.from(user),actorId);
         userRepository.deleteById(id);
@@ -118,7 +119,7 @@ public class UserServiceImpl implements UserService{
         if (user.isPresent()) {
             User existingUser = user.get();
             existingUser.setIsDeleted(true);
-            existingUser.setDeletedAt(java.time.LocalDateTime.now());
+            existingUser.setDeletedAt(LocalDateTime.now());
             userRepository.save(existingUser);
         } else {
             throw new CustomException(NOT_FOUND_USER);

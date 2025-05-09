@@ -68,4 +68,6 @@ class ProjectServiceTest {
         verify(progressRepository, times(6)).save(any(ProjectProgress.class)); // 초기 6단계 저장
         verify(projectUserRepository).saveAll(mockUsers);
     }
+
+
 }

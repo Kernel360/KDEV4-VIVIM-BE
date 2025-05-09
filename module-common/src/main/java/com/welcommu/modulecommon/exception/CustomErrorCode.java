@@ -60,7 +60,10 @@ public enum CustomErrorCode {
 
     // admin inquiry
     NOT_FOUND_INQUIRY("I001", "문의를 찾을 수 없습니다."),
-    NOT_FOUND_INQUIRY_COMMENT("I002", "답변을 찾을 수 없습니다.");
+    NOT_FOUND_INQUIRY_COMMENT("I002", "답변을 찾을 수 없습니다."),
+
+    // Concurrency
+    CONCURRENT_UPDATE("CO001", "다른 사용자가 먼저 저장했습니다. 다시 시도해주세요.");
 
     private final String code;
     private final String errorMessage;
