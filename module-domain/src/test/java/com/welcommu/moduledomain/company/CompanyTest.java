@@ -11,7 +11,7 @@ class CompanyTest {
             .name("준서산업")
             .businessNumber("11111111")
             .address("경기도 괌명시")
-            .phone("010=1111=1111")
+            .phone("010-1111-1111")
             .email("pjs9177@naver.com")
             .companyRole(CompanyRole.ADMIN)
             .build();
