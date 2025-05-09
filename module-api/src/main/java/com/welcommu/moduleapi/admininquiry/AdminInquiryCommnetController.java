@@ -61,10 +61,10 @@ public class AdminInquiryCommnetController {
             adminInquiryCommentService.getAdminInquiryCommentList(admininquiryId));
     }
 
-    @PatchMapping("/api/admininquiry/{admininquiryId}/comment/delete")
-    @Operation(summary = "관리자가 문의를 삭제합니다.")
-    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long admininquiryId) {
-        adminInquiryCommentService.deleteAdminInquiryComment(admininquiryId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "문의가 삭제 되었습니다."));
+    @PatchMapping("/api/admininquiry/{admininquiryId}/comment/{commentId}/delete")
+    @Operation(summary = "관리자가 답변를 삭제합니다.")
+    public ResponseEntity<ApiResponse> deletePost(@PathVariable Long commentId) {
+        adminInquiryCommentService.deleteAdminInquiryComment(commentId);
+        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "답변이 삭제 되었습니다."));
     }
 }

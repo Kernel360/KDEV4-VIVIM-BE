@@ -50,7 +50,7 @@ public class AdminInquiryController {
         adminInquiryService.modifyAdminInquiry(admininquiryId, userDetails.getUser(),
             adminInquiryRequest);
         return ResponseEntity.ok()
-            .body(new ApiResponse(HttpStatus.OK.value(), "관리자 문의가 생성 되었습니다."));
+            .body(new ApiResponse(HttpStatus.OK.value(), "관리자 문의가 수정 되었습니다."));
     }
 
     @GetMapping("/api/admininquiry")
@@ -91,7 +91,8 @@ public class AdminInquiryController {
     @Operation(summary = "관리자가 문의를 삭제합니다.")
     public ResponseEntity<ApiResponse> deletePost(@PathVariable Long admininquiryId) {
         adminInquiryService.deleteAdminInquiry(admininquiryId);
-        return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "문의가 삭제 되었습니다."));
+        return ResponseEntity.ok()
+            .body(new ApiResponse(HttpStatus.OK.value(), "관리자 문의가 삭제 되었습니다."));
     }
 }
 
