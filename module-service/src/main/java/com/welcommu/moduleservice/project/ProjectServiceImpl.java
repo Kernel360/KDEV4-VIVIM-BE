@@ -175,6 +175,19 @@ public class ProjectServiceImpl implements ProjectService {
         return stats;
     }
 
+
+    public List<ProjectSnapshot> getNonCompletedProjectsOrderedByEndDate() {
+        // 삭제되지 않았고, 완료되지 않은 프로젝트를 조회하고 마감일 순으로 정렬
+        List<Project> projects = projectRepository.findNonCompletedProjectsOrderedByEndDate();
+
+        // Project 리스트를 ProjectSnapshot 리스트로 변환
+        List<ProjectSnapshot> snapshots = projects.stream()
+            .map(ProjectSnapshot::from)  // Project 객체를 ProjectSnapshot DTO로 변환
+            .collect(Collectors.toList()); // 리스트로 수집
+
+        return snapshots;
+    }
+
     @Transactional
     public void modifyProject(Long projectId, ProjectModifyRequest dto, Long modifierId) {
         Project existingProject = projectRepository.findById(projectId)

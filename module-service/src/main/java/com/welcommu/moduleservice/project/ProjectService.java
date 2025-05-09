@@ -10,6 +10,7 @@ import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
 import com.welcommu.moduleservice.project.dto.ProjectMonthlyStats;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
@@ -49,5 +50,8 @@ public interface ProjectService {
     DashboardProgressCountResponse getDashboardProgressCount();
 
     void increaseCurrentProgress(Long projectId);
+
     List<ProjectMonthlyStats> getMonthlyProjectStats();
+
+    List<ProjectSnapshot> getNonCompletedProjectsOrderedByEndDate();
 }

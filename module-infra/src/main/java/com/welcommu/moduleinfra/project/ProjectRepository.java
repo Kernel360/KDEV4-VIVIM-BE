@@ -15,4 +15,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long>, Project
 
     List<Project> findByCreatedAtBetweenAndIsDeletedFalse(LocalDateTime startDate, LocalDateTime endDate);
 
+    @Query("SELECT p FROM Project p " +
+        "WHERE p.isDeleted = false " +                 // 삭제되지 않은 프로젝트
+        "AND p.projectStatus != 'COMPLETED'" +
+        "ORDER BY p.endDate ASC")          // 완료되지 않은 프로젝트
+    List<Project> findNonCompletedProjectsOrderedByEndDate();
+
 }
