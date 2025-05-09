@@ -45,8 +45,8 @@ public class Company {
     private Boolean isDeleted;
     private String coOwner;
 
-//    @Version
-//    private Long version;
+    @Version
+    private Long version;
 
     @Enumerated(EnumType.STRING)
     private CompanyRole companyRole;

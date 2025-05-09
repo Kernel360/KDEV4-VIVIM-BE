@@ -3,14 +3,11 @@ package com.welcommu.moduleservice.company;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.welcommu.moduleapi.ModuleApiApplication;
-import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduleinfra.company.CompanyRepository;
-import com.welcommu.moduleservice.company.dto.CompanyModifyRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
