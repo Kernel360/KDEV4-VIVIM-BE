@@ -14,9 +14,9 @@ spring:
       sentinel:
         master: mymaster
         nodes:
-          - 172.31.42.105:26379
-          - 172.31.42.106:26379
-          - 172.31.42.107:26379
+          - ${REDIS_S1}:26379
+          - ${REDIS_S2}:26379
+          - ${REDIS_S3}:26379
 
   jpa:
     hibernate:
