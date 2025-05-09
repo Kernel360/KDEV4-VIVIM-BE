@@ -31,21 +31,27 @@ import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectMonthlyStats;
 import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements ProjectService {
@@ -125,6 +131,50 @@ public class ProjectServiceImpl implements ProjectService {
         checkUserPermission(user, projectId);
         return project;
 
+    }
+
+    public List<ProjectMonthlyStats> getMonthlyProjectStats() {
+        LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
+        LocalDateTime now = LocalDateTime.now();
+
+        // 레포지토리에서 해당 기간 내의 프로젝트를 모두 조회
+        List<Project> projects = projectRepository.findByCreatedAtBetweenAndIsDeletedFalse(sixMonthsAgo, now);
+
+        // 월별 통계 계산
+        Map<String, Long> totalProjectsMap = new HashMap<>();
+        Map<String, Long> completedProjectsMap = new HashMap<>();
+
+        for (Project project : projects) {
+            String month = project.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+
+            // 총 프로젝트 수 카운트
+            totalProjectsMap.put(month, totalProjectsMap.getOrDefault(month, 0L) + 1);
+
+            // 완료된 프로젝트 수 카운트
+            if (project.getProjectStatus() == ProjectStatus.COMPLETED) {
+                completedProjectsMap.put(month, completedProjectsMap.getOrDefault(month, 0L) + 1);
+            }
+        }
+
+        List<ProjectMonthlyStats> stats = new ArrayList<>();
+        for (String month : totalProjectsMap.keySet()) {
+            Long totalProjects = totalProjectsMap.get(month);
+            Long completedProjects = completedProjectsMap.getOrDefault(month, 0L);
+            stats.add(new ProjectMonthlyStats(month, totalProjects, completedProjects));
+        }
+
+        return stats;
+    }
+
+
+    public List<ProjectSnapshot> getNonCompletedProjectsOrderedByEndDate() {
+        List<Project> projects = projectRepository.findNonCompletedProjectsOrderedByEndDate();
+
+        List<ProjectSnapshot> snapshots = projects.stream()
+            .map(ProjectSnapshot::from)
+            .collect(Collectors.toList());
+
+        return snapshots;
     }
 
     @Transactional
