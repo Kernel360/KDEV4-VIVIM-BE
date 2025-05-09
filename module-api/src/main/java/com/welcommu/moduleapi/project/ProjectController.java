@@ -12,6 +12,7 @@ import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectMonthlyStats;
 import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
@@ -65,6 +66,11 @@ public class ProjectController {
     ) {
         Project project = projectService.getProject(userDetails.getUser(), projectId);
         return ResponseEntity.ok(project);
+    }
+
+    @GetMapping("/projects/stats/monthly")
+    public List<ProjectMonthlyStats> getMonthlyProjectStats() {
+        return projectService.getMonthlyProjectStats();
     }
 
     @PutMapping("/{projectId}")
