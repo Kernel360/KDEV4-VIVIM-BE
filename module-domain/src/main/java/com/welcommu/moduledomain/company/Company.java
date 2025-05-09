@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,9 @@ public class Company {
     private LocalDateTime deletedAt;
     private Boolean isDeleted;
     private String coOwner;
+
+//    @Version
+//    private Long version;
 
     @Enumerated(EnumType.STRING)
     private CompanyRole companyRole;
