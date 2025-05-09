@@ -1,7 +1,7 @@
 package com.welcommu.moduleinfra.project;
 
-import com.welcommu.moduledomain.ProjectCompany.ProjectCompany;
 import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.projectCompany.ProjectCompany;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 

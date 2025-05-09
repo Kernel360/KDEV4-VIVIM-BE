@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProgressModifyRequest {
+public class ProgressNameModifyRequest {
 
     private String name;
 }

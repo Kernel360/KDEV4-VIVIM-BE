@@ -11,8 +11,12 @@ spring:
 
   data:
     redis:
-      host: redis-dev
-      port: 6379
+      sentinel:
+        master: mymaster
+        nodes:
+          - ${REDIS_S1}:26379
+          - ${REDIS_S2}:26379
+          - ${REDIS_S3}:26379
 
   jpa:
     hibernate:
@@ -39,3 +43,8 @@ management:
     web:
       exposure:
         include: health
+
+jwt:
+  access-token-ttl: ${ACCESS_TOKEN_TTL}
+  refresh-token-ttl: ${REFRESH_TOKEN_TTL}
+

@@ -1,4 +1,4 @@
-package com.welcommu.moduledomain.ProjectCompany;
+package com.welcommu.moduledomain.projectCompany;
 
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.project.Project;

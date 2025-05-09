@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.exception.dto;
+package com.welcommu.modulecommon.dto;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;

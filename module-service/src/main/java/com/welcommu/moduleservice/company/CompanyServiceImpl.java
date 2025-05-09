@@ -15,6 +15,7 @@ import com.welcommu.moduleservice.user.dto.UserResponse;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -56,23 +57,28 @@ public class CompanyServiceImpl implements CompanyService {
             .collect(Collectors.toList());
     }
 
+    @Transactional
     public Company modifyCompany(Long id, CompanyModifyRequest request, Long modifierId) {
         Company existingCompany = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
+        try{
+            // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
+            CompanySnapshot beforeSnapshot = CompanySnapshot.from(existingCompany);
+            request.modifyCompany(existingCompany);
+            Company savedCompany =  companyRepository.saveAndFlush(existingCompany);
 
-        // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
-        CompanySnapshot beforeSnapshot = CompanySnapshot.from(existingCompany);
+            // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
+            CompanySnapshot afterSnapshot = CompanySnapshot.from(savedCompany);
 
-        request.modifyCompany(existingCompany);
-        Company savedCompany =  companyRepository.save(existingCompany);
+            // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
+            companyAuditLog.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
 
-        // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
-        CompanySnapshot afterSnapshot = CompanySnapshot.from(savedCompany);
+            return savedCompany;
+        } catch (OptimisticLockingFailureException e) {
+            throw new CustomException(CustomErrorCode.CONCURRENT_UPDATE);
+        }
 
-        // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
-        companyAuditLog.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
 
-        return savedCompany;
     }
 
     public void deleteCompany(Long id, Long deleterId) {
@@ -88,6 +94,7 @@ public class CompanyServiceImpl implements CompanyService {
             .map(CompanyResponse::from);
     }
 
+    @Transactional
     @Override
     public void softDeleteCompany(Long id, Long deleterId) {
         Company existingCompany = companyRepository.findById(id)

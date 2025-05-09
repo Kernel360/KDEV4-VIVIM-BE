@@ -1,4 +1,4 @@
-package com.welcommu.modulecommon.token.dto;
+package com.welcommu.modulecommon.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDto {
+public class JwtDto {
 
     private String token;
     private LocalDateTime expiredAt;

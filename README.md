@@ -104,7 +104,9 @@ https://www.vivim.co.kr
 
 ## 🛠️ 프로젝트 아키텍처
 
-![Image](https://github.com/user-attachments/assets/b1e951d8-290d-441e-9287-babe0091a5f8)
+![Image](https://github.com/user-attachments/assets/3c729e9c-a929-42a9-a1b4-f187f767628e)
+
+
 <br />
 
 ## 🗂️ 기술 문서
