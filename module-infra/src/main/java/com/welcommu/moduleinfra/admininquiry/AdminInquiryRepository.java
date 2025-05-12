@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AdminInquiryRepository extends JpaRepository<AdminInquiry, Long> {
+public interface AdminInquiryRepository extends JpaRepository<AdminInquiry, Long>,
+    AdminInquiryRepositoryCustom {
 
     List<AdminInquiry> findAllByDeletedAtIsNull();
 
