@@ -2,6 +2,7 @@ package com.welcommu.moduleapi.admininquiry;
 
 
 import com.welcommu.modulecommon.dto.ApiResponse;
+import com.welcommu.moduledomain.admininquiry.AdminInquiryStatus;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduleservice.admininquiry.AdminInquiryService;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryDetailResponse;
@@ -9,8 +10,12 @@ import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryListResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -52,6 +58,24 @@ public class AdminInquiryController {
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.OK.value(), "관리자 문의가 수정 되었습니다."));
     }
+
+    @GetMapping("/api/admininquiry/search")
+    public ResponseEntity<Page<AdminInquiryListResponse>> searchAdminInquiryList(
+        @RequestParam(required = false) String title,
+        @RequestParam(required = false) String creatorName,
+        @RequestParam(required = false) LocalDate startDate,
+        @RequestParam(required = false) LocalDate endDate,
+        @RequestParam(required = false) AdminInquiryStatus status,
+        @PageableDefault(size = 10)
+        Pageable pageable
+    ) {
+
+        Page<AdminInquiryListResponse> page =
+            adminInquiryService.searchAdminInquiries(title, creatorName, startDate, endDate, status,
+                pageable);
+        return ResponseEntity.ok(page);
+    }
+
 
     @GetMapping("/api/admininquiry")
     @Operation(summary = "관리자가 모든 관리자 문의를 전체 조회 합니다.")

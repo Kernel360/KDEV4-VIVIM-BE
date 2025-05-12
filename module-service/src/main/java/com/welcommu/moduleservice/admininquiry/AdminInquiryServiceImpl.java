@@ -12,10 +12,14 @@ import com.welcommu.moduleinfra.project.ProjectRepository;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryDetailResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryListResponse;
 import com.welcommu.moduleservice.admininquiry.dto.AdminInquiryRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +78,26 @@ public class AdminInquiryServiceImpl implements AdminInquiryService {
             .stream()
             .map(AdminInquiryListResponse::from)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<AdminInquiryListResponse> searchAdminInquiries(String title, String creatorName,
+        LocalDate startDate, LocalDate endDate, AdminInquiryStatus status,
+        Pageable pageable) {
+
+        LocalDateTime startDateTime = null;
+        if (startDate != null) {
+            startDateTime = startDate.atTime(LocalTime.MIN);
+        }
+
+        LocalDateTime endDateTime = null;
+        if (endDate != null) {
+            endDateTime = endDate.atTime(LocalTime.MAX);
+        }
+
+        return adminInquiryRepository.searchByConditions(title, creatorName,
+                status, startDateTime, endDateTime, pageable)
+            .map(AdminInquiryListResponse::from);
     }
 
     @Override
