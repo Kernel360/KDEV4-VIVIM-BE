@@ -49,6 +49,7 @@ public class AuditLogController {
 
     @GetMapping("/searchCursor")
     public ResponseEntity<LogsWithCursor<AuditLogResponse>> search(
+        @RequestParam(required = false) Integer page,
         @RequestParam(required = false) ActionType actionType,
         @RequestParam(required = false) TargetType targetType,
         @RequestParam(required = false) String startDate,
@@ -58,10 +59,18 @@ public class AuditLogController {
         @RequestParam(required = false) Long cursorId,
         @RequestParam(defaultValue = "10") int size
     ) {
-        LogsWithCursor<AuditLogResponse> result = auditLogSearchService.searchLogs(
-            actionType, targetType, startDate, endDate, userId,
-            cursorLoggedAt, cursorId, size
-        );
+        LogsWithCursor<AuditLogResponse> result;
+        if (page != null) {
+            result = auditLogSearchService.searchLogsByPage(
+                actionType, targetType, startDate, endDate, userId,
+                page, size
+            );
+        } else {
+            result = auditLogSearchService.searchLogs(
+                actionType, targetType, startDate, endDate, userId,
+                cursorLoggedAt, cursorId, size
+            );
+        }
         return ResponseEntity.ok(result);
     }
 
