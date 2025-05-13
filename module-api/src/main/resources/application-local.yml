@@ -42,3 +42,6 @@ server:
 jwt:
   access-token-ttl: ${ACCESS_TOKEN_TTL}
   refresh-token-ttl: ${REFRESH_TOKEN_TTL}
+
+gmail:
+  appkey: ${GMAIL_APPKEY}
