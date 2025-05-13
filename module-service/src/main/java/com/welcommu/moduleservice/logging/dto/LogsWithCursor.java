@@ -11,13 +11,6 @@ import lombok.Getter;
 public class LogsWithCursor<T> {
     private final List<T> logs;
     private final Cursor next;
-    private int currentPage;   // 추가
-    private int totalPages;    // 추가
-
-//    @Getter
-//    @AllArgsConstructor
-//    public static class Cursor {
-//        private final String loggedAt;
-//        private final Long id;
-//    }
+    private int currentPage;
+    private int totalPages;
 }
