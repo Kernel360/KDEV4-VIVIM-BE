@@ -18,7 +18,7 @@ class PasswordResetServiceTest {
     @Test
     public void testSend() {
         SimpleMailMessage msg = new SimpleMailMessage();
-        msg.setTo("pjs9177@naver.com");
+        msg.setTo("--");
         msg.setSubject("테스트 메일");
         msg.setText("Gmail SMTP 설정 확인 중입니다.");
         mailSender.send(msg);
