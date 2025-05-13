@@ -26,7 +26,8 @@ logging:
   level:
     org.springframework.security: DEBUG
   execution-time:
-    enabled: true
+    enabled: false
+
 
 server:
   port: 443
