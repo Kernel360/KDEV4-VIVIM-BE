@@ -104,7 +104,8 @@ public class AuthController {
     @PostMapping("/logout")
     @Operation(summary = "로그아웃", description = "쿠키에 담긴 Refresh Token을 만료 처리합니다.")
     public ResponseEntity<ApiResponse> logout(
-        HttpServletRequest request
+        HttpServletRequest request,
+        HttpServletResponse response
     ) {
         // 1) 쿠키에서 refreshToken 꺼내기
         String rawToken = Optional.ofNullable(request.getCookies())
@@ -116,7 +117,6 @@ public class AuthController {
             .orElse(null);
 
         if (rawToken != null) {
-            // 2) "Bearer " 제거
             String refreshToken = JwtProvider.withoutBearer(rawToken);
             try {
                 authService.deleteToken(refreshToken);
@@ -125,7 +125,20 @@ public class AuthController {
             }
         }
 
+        // 2) 클라이언트 쿠키 만료 처리
+        deleteCookie(response, "refreshToken");
+        deleteCookie(response, "accessToken");  // AT 쿠키도 동일하게 처리
+
         return ResponseEntity.ok()
             .body(new ApiResponse(HttpStatus.OK.value(), "로그아웃을 성공했습니다."));
+    }
+
+    private void deleteCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setPath("/");          // 쿠키가 설정된 path와 동일하게
+        cookie.setHttpOnly(true);     // 필요에 따라
+        cookie.setMaxAge(0);          // 즉시 만료
+        // cookie.setSecure(true);    // HTTPS 전용이면 활성화
+        response.addCookie(cookie);
     }
 }
