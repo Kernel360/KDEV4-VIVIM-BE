@@ -4,14 +4,13 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
-import com.welcommu.moduleservice.user.PasswordResetService;
+import com.welcommu.moduleservice.user.PasswordResetServiceImpl;
 import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private final PasswordResetService resetService;
+    private final PasswordResetServiceImpl resetService;
 
     @PostMapping
     @Operation(summary = "유저를 생성합니다")
