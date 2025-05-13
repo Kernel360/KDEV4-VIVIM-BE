@@ -2,13 +2,17 @@ package com.welcommu.moduleservice.logging.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class LogsWithCursor<T> {
     private final List<T> logs;
-    private final Cursor nextCursor;
+    private final Cursor next;
+    private int currentPage;   // 추가
+    private int totalPages;    // 추가
 
 //    @Getter
 //    @AllArgsConstructor
