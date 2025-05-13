@@ -27,6 +27,7 @@ https://www.vivim.co.kr
 - 프로젝트 참여자 초대 및 권한 설정
 - 업무 진행률 시각화 및 대시보드 제공
 - 감사 로그(Audit Log)를 통한 주요 활동 이력 기록
+- 알림 기능을 통한 업무 관리
 
 
 <br />
@@ -37,6 +38,9 @@ https://www.vivim.co.kr
    - 프로젝트 생성 / 수정 / 삭제
    - 프로젝트별 진행 단계 생성 / 수정 / 삭제
    - 각 단계별 업무 목록 등록 및 승인 요청
+  
+- ###  알림
+    - 프로젝트 생성 / 수정 / 삭제에 따른 알림 기능을 구현
 
 - ### 회사 및 직원 관리
    - 회사 생성 / 수정 / 삭제
@@ -48,10 +52,22 @@ https://www.vivim.co.kr
 - ### 감사 및 모니터링
    - 관리자 전용 감사 로그(Audit Log)를 통한 모든 핵심 액션 추적
 
-### 📌 BE - CI/ CD
-1. **Jenkins**
-    - Jenkins 활용하여 CI/CD 를 구축함
+### 📌 Infra
 
+1. **Jenkins**
+    - Jenkins 활용하여 CI/CD 를 구축
+
+2. **sonarQube**
+    - sonarQube를 활용하여 소스코드 정적 분석을 진행
+
+3. **AWS LoadBalancer**
+    - AWS LoadBalancer를 사용하여 2대의 운영서버에 요청을 분산
+   
+4. **무중단 배포**
+   - 롤링 배포를 적용하여 서버 버전 교체 시에도 중단 되지 않음
+
+5. **Redis Sentinel**
+    - 운영 서버에 Redis Sentinel을 구축하여 고가용성 및 운영 서버간 캐시 동기화를 구현
 ---
 
 ### 📌 기타 기능
@@ -65,6 +81,8 @@ https://www.vivim.co.kr
 <div>
 
 <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=black">
+<img src="https://img.shields.io/badge/vercel-000000?style=for-the-badge&logo=vercel&logoColor=white">
+
 
 
 
@@ -79,6 +97,10 @@ https://www.vivim.co.kr
 <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=black">
 <img src="https://img.shields.io/badge/MySql-4479A1?style=for-the-badge&logo=mysql&logoColor=black">
 <img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=black">
+<img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=Grafana&logoColor=black">
+<img src="https://img.shields.io/badge/k6-7D64FF?style=for-the-badge&logo=k6&logoColor=black">
+
+
 
 </div>
 
@@ -91,6 +113,7 @@ https://www.vivim.co.kr
 <img src="https://img.shields.io/badge/Amazon ECR-527FFF?style=for-the-badge&logo=Amazonrds&logoColor=white">
 <img src="https://img.shields.io/badge/Amazon CLOUDEWATCH-FF4F8B?style=for-the-badge&logo=Amazoncloudwatch&logoColor=white">
 <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+<img src="https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=SonarQube&logoColor=white">
 
 
 ### Tools
@@ -106,6 +129,9 @@ https://www.vivim.co.kr
 
 ![Image](https://github.com/user-attachments/assets/3c729e9c-a929-42a9-a1b4-f187f767628e)
 
+## 🛠️ CI / CD 파이프라인
+
+![Image](https://github.com/user-attachments/assets/00ff56f3-56b8-4d44-b8ac-7d85d441d41f)
 
 <br />
 
@@ -122,8 +148,8 @@ https://www.vivim.co.kr
 
 ## 💁‍♂️ 프로젝트 팀원
 
-| 이름  | 역할           | 담당 업무                                                              |
-|-----|--------------|--------------------------------------------------------------------|
-| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축<br/> User, Company, Project API 개발 <br/> SpringSecurity |
-| 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link API 개발<br/>                      |
-| 송어진 | 백엔드 개발자      | Project Approval, Notification API 개발 <br/> SpringSecurity                          |
+| 이름  | 역할           | 담당 업무                                                                            |
+|-----|--------------|----------------------------------------------------------------------------------|
+| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축, 무중단 배포 구축 <br/> User, Company, Project API 개발 <br/> SpringSecurity |
+| 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link API 개발<br/>                                    |
+| 송어진 | 백엔드 개발자      | Project Approval, Notification API 개발 <br/> SpringSecurity                       |
