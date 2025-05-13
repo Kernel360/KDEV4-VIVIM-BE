@@ -29,4 +29,14 @@ public interface AuditLogSearchService {
         Long cursorId,
         int size
     );
+
+    LogsWithCursor<AuditLogResponse> searchLogsByPage(
+        ActionType actionType,
+        TargetType targetType,
+        String startDate,
+        String endDate,
+        Long userId,
+        int page,
+        int size
+    );
 }
