@@ -2,6 +2,7 @@ package com.welcommu.moduleservice.projectProgess;
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
+import com.welcommu.moduledomain.approval.ApprovalProposal;
 import com.welcommu.moduledomain.approval.ApprovalProposalStatus;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
@@ -20,6 +21,7 @@ import com.welcommu.moduleservice.projectProgess.dto.ProgressPositionModifyReque
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class ProjectProgressService {
     private final ProjectUserRepository projectUserRepository;
     private final ApprovalProposalRepository proposalRepository;
 
+    @Transactional
     public void createProgress(User user, Long projectId, ProgressCreateRequest request) {
         Project project = findProject(projectId);
         checkUserPermission(user, projectId);
@@ -43,6 +46,7 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
+    @Transactional
     public void modifyProgressName(User user, Long projectId, Long progressId,
         ProgressNameModifyRequest request) {
 
@@ -57,6 +61,7 @@ public class ProjectProgressService {
         progressRepository.save(projectProgress);
     }
 
+    @Transactional
     public void modifyProgressPosition(User user, Long projectId, Long progressId,
         ProgressPositionModifyRequest request) {
 
@@ -99,13 +104,6 @@ public class ProjectProgressService {
         progressRepository.delete(projectProgress);
     }
 
-    public ProgressListResponse getProgressList(Long projectId) {
-        Project project = findProject(projectId);
-        List<ProjectProgress> progressList = progressRepository.findByProject(project);
-
-        return ProgressListResponse.of(progressList);
-    }
-
     // 각 단계별 totalApprovalCount, approvedApprovalCount, progressRate를 조회해서 progressList로 주는 역할
     public ProgressApprovalStatusResponse getProgressApprovalStatus(Long projectId) {
         Project project = findProject(projectId);
@@ -133,6 +131,15 @@ public class ProjectProgressService {
         return new ProgressApprovalStatusResponse(progressApprovalStatuses);
     }
 
+    public ProgressListResponse getProgressList(Long projectId) {
+        Project project = findProject(projectId);
+        List<ProjectProgress> progressList = progressRepository.findByProject(project);
+
+        return ProgressListResponse.of(progressList);
+    }
+
+    // 완료된 프로젝트 진행 단계 계산
+    @Transactional
     public ProgressApprovalStatusOverallResponse calculateOverallProgress(Long projectId) {
         ProgressApprovalStatusResponse progressStatus = getProgressApprovalStatus(projectId);
         List<ProgressApprovalStatusResponse.ProgressApprovalStatus> progresses = progressStatus.getProgressList();
@@ -158,6 +165,25 @@ public class ProjectProgressService {
             .currentStageProgressRate(currentStageProgressRate)
             .overallProgressRate(overallProgressRate)
             .build();
+    }
+
+    // 진행단계별 완료된 승인요청 비율
+    public int calculateFinalApprovedRate(Long progressId) {
+        ProjectProgress projectProgress = progressRepository.findById(progressId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ProjectProgress ID: " + progressId));
+
+        List<ApprovalProposal> proposals = proposalRepository.findByProjectProgress(projectProgress);
+
+        if (proposals.isEmpty()) {
+            return 0;
+        }
+
+        long totalCount = proposals.size();
+        long finalApprovedCount = proposals.stream()
+            .filter(proposal -> proposal.getProposalStatus() == ApprovalProposalStatus.FINAL_APPROVED)
+            .count();
+
+        return (int) ((finalApprovedCount * 100) / totalCount);
     }
 
     private ProjectProgress checkIsMatchedProject(Long projectId, Long progressId) {

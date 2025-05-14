@@ -49,6 +49,7 @@ public class ProjectProgress {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private boolean isDeleted;
+    private boolean isCompleted;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
