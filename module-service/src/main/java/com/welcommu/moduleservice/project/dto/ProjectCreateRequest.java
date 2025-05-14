@@ -48,7 +48,7 @@ public class ProjectCreateRequest {
             .description(description)
             .startDate(startDate)
             .endDate(endDate)
-            .currentProgress(DefaultProjectProgress.REQUIREMENTS)
+            .currentProgress(String.valueOf(DefaultProjectProgress.요구사항정의))
             .projectFee(projectFee)
             .projectStatus(ProjectStatus.PROGRESS)
             .createdAt(LocalDateTime.now())
