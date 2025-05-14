@@ -70,4 +70,8 @@ public class ProjectProgress {
     public void setProject(Project project) {
         this.project = project;
     }
+
+    public void setIsCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
+    }
 }

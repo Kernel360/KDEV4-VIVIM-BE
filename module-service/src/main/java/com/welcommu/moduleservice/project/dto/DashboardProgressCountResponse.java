@@ -1,7 +1,6 @@
 package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
-import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,25 +19,25 @@ public class DashboardProgressCountResponse {
 
     public DashboardProgressCountResponse(List<Project> projects) {
         for (Project project : projects) {
-            DefaultProjectProgress progress = project.getCurrentProgress();
+            String progress = project.getCurrentProgress();
             if (progress != null) {
                 switch (progress) {
-                    case REQUIREMENTS:
+                    case "REQUIREMENTS":
                         requirementCount++;
                         break;
-                    case WIREFRAME:
+                    case "WIREFRAME":
                         wireframeCount++;
                         break;
-                    case DESIGN:
+                    case "DESIGN":
                         designCount++;
                         break;
-                    case PUBLISHING:
+                    case "PUBLISHING":
                         publishCount++;
                         break;
-                    case DEVELOPMENT:
+                    case "DEVELOPMENT":
                         developCount++;
                         break;
-                    case INSPECTION:
+                    case "INSPECTION":
                         inspectionCount++;
                         break;
                 }

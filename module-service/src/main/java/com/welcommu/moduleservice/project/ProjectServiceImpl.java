@@ -4,12 +4,12 @@ import static com.welcommu.modulecommon.exception.CustomErrorCode.NOT_FOUND_COMP
 
 import com.welcommu.modulecommon.exception.CustomErrorCode;
 import com.welcommu.modulecommon.exception.CustomException;
-import com.welcommu.moduledomain.projectCompany.ProjectCompany;
 import com.welcommu.moduledomain.company.Company;
 import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.notification.NotificationType;
 import com.welcommu.moduledomain.project.Project;
 import com.welcommu.moduledomain.project.ProjectStatus;
+import com.welcommu.moduledomain.projectCompany.ProjectCompany;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import com.welcommu.moduledomain.projectprogress.ProjectProgress;
@@ -138,7 +138,8 @@ public class ProjectServiceImpl implements ProjectService {
         LocalDateTime now = LocalDateTime.now();
 
         // 레포지토리에서 해당 기간 내의 프로젝트를 모두 조회
-        List<Project> projects = projectRepository.findByCreatedAtBetweenAndIsDeletedFalse(sixMonthsAgo, now);
+        List<Project> projects = projectRepository.findByCreatedAtBetweenAndIsDeletedFalse(
+            sixMonthsAgo, now);
 
         // 월별 통계 계산
         Map<String, Long> totalProjectsMap = new HashMap<>();
@@ -405,19 +406,26 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROJECT));
-
-        DefaultProjectProgress currentProgress = project.getCurrentProgress();
-
-        DefaultProjectProgress nextProgress = currentProgress.nextStep();
-
-        project.setCurrentProgress(nextProgress);
-
-        if (nextProgress == DefaultProjectProgress.INSPECTION) {
-            project.setProjectStatus(ProjectStatus.INSPECTION);
+        String currentProgressName = project.getCurrentProgress();
+        ProjectProgress currentProgress = progressRepository.findByNameAndProjectId(
+            currentProgressName,
+            projectId);
+        currentProgress.setIsCompleted(true);
+        progressRepository.save(currentProgress);
+        log.info("단계 완료 전 {}",
+            progressRepository.findTopByProjectIdOrderByPositionDesc(projectId).getId());
+        if (currentProgress.getId()
+            .equals(
+                progressRepository.findTopByProjectIdOrderByPositionDesc(projectId).getId())) {
+            log.info("단계 완료");
+            project.setCurrentProgress("COMPLETED");
+        } else {
+            log.info("다음단계넘어감");
+            ProjectProgress nextProgress = progressRepository.findFirstByProjectIdAndIsCompletedFalseOrderByPositionAsc(
+                    projectId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
+            project.setCurrentProgress(nextProgress.getName());
         }
-        if (nextProgress == DefaultProjectProgress.COMPLETED) {
-            project.setProjectFeePaidDate();
-            project.setProjectStatus(ProjectStatus.COMPLETED);
-        }
+
     }
 }

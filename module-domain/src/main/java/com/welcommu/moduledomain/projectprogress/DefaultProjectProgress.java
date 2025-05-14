@@ -7,19 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DefaultProjectProgress {
 
-    REQUIREMENTS("요구사항 정의"),
-    WIREFRAME("화면설계"),
-    DESIGN("디자인"),
-    PUBLISHING("퍼블리싱"),
-    DEVELOPMENT("개발"),
-    INSPECTION("검수"),
-    COMPLETED("완료");
+    요구사항정의("요구사항 정의"),
+    화면설계("화면 설계"),
+    디자인("디자인"),
+    퍼블리싱("퍼블리싱"),
+    개발("개발"),
+    검수("검수"),
+    완료("완료");
 
     private final String label;
 
-    public DefaultProjectProgress nextStep() {
-        DefaultProjectProgress[] values = DefaultProjectProgress.values();
-        int nextOrdinal = this.ordinal() + 1;
-        return values[nextOrdinal];
-    }
 }

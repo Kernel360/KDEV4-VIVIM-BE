@@ -12,18 +12,20 @@ import com.welcommu.moduleinfra.approval.ApprovalProposalRepository;
 import com.welcommu.moduleinfra.project.ProjectRepository;
 import com.welcommu.moduleinfra.project.ProjectUserRepository;
 import com.welcommu.moduleinfra.projectprogress.ProjectProgressRepository;
+import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressCreateRequest;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressListResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressNameModifyRequest;
-import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressPositionModifyRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ProjectProgressService {
 
@@ -31,6 +33,7 @@ public class ProjectProgressService {
     private final ProjectProgressRepository progressRepository;
     private final ProjectUserRepository projectUserRepository;
     private final ApprovalProposalRepository proposalRepository;
+
 
     @Transactional
     public void createProgress(User user, Long projectId, ProgressCreateRequest request) {
@@ -44,14 +47,19 @@ public class ProjectProgressService {
         projectProgress.setPosition(biggestPosition + 1.0f);
 
         progressRepository.save(projectProgress);
+
+        project.setCurrentProgress(findBiggestProgress(projectId).getName());
     }
 
     @Transactional
     public void modifyProgressName(User user, Long projectId, Long progressId,
         ProgressNameModifyRequest request) {
 
-        findProject(projectId);
-        findProgress(progressId);
+        Project existingProject = findProject(projectId);
+        ProjectProgress existingProgress = findProgress(progressId);
+        if (existingProgress.getName() == existingProject.getCurrentProgress()) {
+            existingProgress.setName(request.getName());
+        }
 
         checkUserPermission(user, projectId);
         checkIsDuplicatedProgressName(projectId, request.getName());
@@ -59,13 +67,19 @@ public class ProjectProgressService {
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         projectProgress.setName(request.getName());
         progressRepository.save(projectProgress);
+
+        log.info("단계 이름 수정 전");
+        existingProject.setCurrentProgress(findBiggestProgress(projectId).getName());
+        projectRepository.save(existingProject);
+        log.info("단계 이름 수정 후");
+
     }
 
     @Transactional
     public void modifyProgressPosition(User user, Long projectId, Long progressId,
         ProgressPositionModifyRequest request) {
 
-        findProject(projectId);
+        Project existingProject = findProject(projectId);
         findProgress(progressId);
         checkUserPermission(user, projectId);
 
@@ -76,7 +90,8 @@ public class ProjectProgressService {
             throw new CustomException(CustomErrorCode.MISSING_TARGET_INDEX);
         }
 
-        List<ProjectProgress> progresses = progressRepository.findByProjectIdOrderByPosition(projectId);
+        List<ProjectProgress> progresses = progressRepository.findByProjectIdOrderByPosition(
+            projectId);
 
         float newPosition;
         if (progresses.isEmpty()) {
@@ -93,15 +108,21 @@ public class ProjectProgressService {
 
         projectProgress.setPosition(newPosition);
         progressRepository.save(projectProgress);
+        log.info("단계 이름 수정 전");
+        existingProject.setCurrentProgress(findBiggestProgress(projectId).getName());
+        projectRepository.save(existingProject);
+        log.info("단계 이름 수정 후");
     }
 
     public void deleteProgress(User user, Long projectId, Long progressId) {
 
-        findProject(projectId);
+        Project existingProject = findProject(projectId);
         checkUserPermission(user, projectId);
 
         ProjectProgress projectProgress = checkIsMatchedProject(projectId, progressId);
         progressRepository.delete(projectProgress);
+
+        existingProject.setCurrentProgress(findBiggestProgress(projectId).getName());
     }
 
     // 각 단계별 totalApprovalCount, approvedApprovalCount, progressRate를 조회해서 progressList로 주는 역할
@@ -116,7 +137,8 @@ public class ProjectProgressService {
                     Long approvedCount = proposalRepository.countByProjectProgressIdAndProposalStatus(
                         progress.getId(), ApprovalProposalStatus.FINAL_APPROVED
                     );
-                    float progressRate = (totalCount == 0) ? 0.0f : (approvedCount * 1.0f / totalCount) * 100;
+                    float progressRate =
+                        (totalCount == 0) ? 0.0f : (approvedCount * 1.0f / totalCount) * 100;
 
                     return new ProgressApprovalStatusResponse.ProgressApprovalStatus(
                         progress.getId(),
@@ -157,7 +179,8 @@ public class ProjectProgressService {
             }
         }
 
-        float overallProgressRate = ((completedStageCount + currentStageProgressRate) / totalStageCount) * 100.0f;
+        float overallProgressRate =
+            ((completedStageCount + currentStageProgressRate) / totalStageCount) * 100.0f;
 
         return ProgressApprovalStatusOverallResponse.builder()
             .totalStageCount(totalStageCount)
@@ -170,9 +193,11 @@ public class ProjectProgressService {
     // 진행단계별 완료된 승인요청 비율
     public int calculateFinalApprovedRate(Long progressId) {
         ProjectProgress projectProgress = progressRepository.findById(progressId)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ProjectProgress ID: " + progressId));
+            .orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 ProjectProgress ID: " + progressId));
 
-        List<ApprovalProposal> proposals = proposalRepository.findByProjectProgress(projectProgress);
+        List<ApprovalProposal> proposals = proposalRepository.findByProjectProgress(
+            projectProgress);
 
         if (proposals.isEmpty()) {
             return 0;
@@ -180,10 +205,17 @@ public class ProjectProgressService {
 
         long totalCount = proposals.size();
         long finalApprovedCount = proposals.stream()
-            .filter(proposal -> proposal.getProposalStatus() == ApprovalProposalStatus.FINAL_APPROVED)
+            .filter(
+                proposal -> proposal.getProposalStatus() == ApprovalProposalStatus.FINAL_APPROVED)
             .count();
 
         return (int) ((finalApprovedCount * 100) / totalCount);
+    }
+
+    private ProjectProgress findBiggestProgress(Long projectId) {
+        return progressRepository.findFirstByProjectIdAndIsCompletedFalseOrderByPositionAsc(
+                projectId)
+            .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));
     }
 
     private ProjectProgress checkIsMatchedProject(Long projectId, Long progressId) {
@@ -254,4 +286,6 @@ public class ProjectProgressService {
         return progressRepository.findMaxPositionByProjectId(projectId)
             .orElse(0.0f);
     }
+
+
 }
