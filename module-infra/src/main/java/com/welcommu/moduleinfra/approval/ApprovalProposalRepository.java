@@ -17,5 +17,5 @@ public interface ApprovalProposalRepository extends JpaRepository<ApprovalPropos
 
     Long countByProjectProgressId(Long id);
 
-    List<ApprovalProposal> findAllByOrderByCreatedAtDesc(PageRequest createdAt);
+    List<ApprovalProposal> findByProjectProgress_Project_IdInOrderByCreatedAtDesc(List<Long> projectIds, PageRequest createdAt);
 }

@@ -32,11 +32,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ProposalService {
@@ -198,8 +200,7 @@ public class ProposalService {
         }
 
         proposal.markProposalSent();
-        approvalProposalRepository.save(proposal);  // 변경된 상태 저장
-
+        approvalProposalRepository.save(proposal);
         return ProposalSendResponse.from(user, proposal);
     }
 
@@ -218,11 +219,21 @@ public class ProposalService {
         return ProposalResponseList.from(approvalProposalList);
     }
 
-    @Transactional(readOnly = true)
-    public ProposalResponseList getRecentProposals() {
-        List<ApprovalProposal> proposals = approvalProposalRepository.findAllByOrderByCreatedAtDesc(
-            PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
-        );
+    public ProposalResponseList getRecentProposals(User user) {
+        List<Long> projectIds = projectUserRepository.findByUserId(user.getId()).stream()
+            .map(pu -> pu.getProject().getId())
+            .distinct()
+            .toList();
+
+        if (projectIds.isEmpty()) {
+            return ProposalResponseList.from(List.of());
+        }
+
+        List<ApprovalProposal> proposals = approvalProposalRepository
+            .findByProjectProgress_Project_IdInOrderByCreatedAtDesc(
+                projectIds,
+                PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
+            );
 
         return ProposalResponseList.from(proposals);
     }
