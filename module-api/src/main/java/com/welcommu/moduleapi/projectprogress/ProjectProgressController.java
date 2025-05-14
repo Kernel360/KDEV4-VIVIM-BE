@@ -2,6 +2,7 @@ package com.welcommu.moduleapi.projectprogress;
 
 import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
+import com.welcommu.moduledomain.projectprogress.ProjectProgress;
 import com.welcommu.moduleservice.projectProgess.ProjectProgressService;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusOverallResponse;
 import com.welcommu.moduleservice.projectProgess.dto.ProgressApprovalStatusResponse;
@@ -115,5 +116,12 @@ public class ProjectProgressController {
         log.info("프로젝트 전체 진행률 조회 완료: projectId={}, overallProgressRate={}", projectId,
             response.getOverallProgressRate());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{progressId}/approval-rate")
+    @Operation(summary = "프로젝트 진행단계별 승인요청 승인률 조회")
+    public ResponseEntity<Integer> getApprovalRate(@PathVariable Long progressId) {
+        int approvalRate = progressService.calculateFinalApprovedRate(progressId);
+        return ResponseEntity.ok(approvalRate);
     }
 }
