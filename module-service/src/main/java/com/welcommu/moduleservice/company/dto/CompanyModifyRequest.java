@@ -16,6 +16,7 @@ public class CompanyModifyRequest {
     private String coOwner;
     private String businessNumber;
     private CompanyRole companyRole;
+    private Long version;
 
     public Company modifyCompany(Company company) {
         company.setName(this.name);
