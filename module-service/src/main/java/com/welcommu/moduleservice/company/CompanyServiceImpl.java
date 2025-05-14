@@ -59,26 +59,30 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Transactional
     public Company modifyCompany(Long id, CompanyModifyRequest request, Long modifierId) {
-        Company existingCompany = companyRepository.findById(id)
+        // 1) DB에서 현재 엔티티 조회
+        Company existing = companyRepository.findById(id)
             .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_COMPANY));
-        try{
-            // auditLog 기록을 위해 수정 전 데이터로 구성된 객체를 생성
-            CompanySnapshot beforeSnapshot = CompanySnapshot.from(existingCompany);
-            request.modifyCompany(existingCompany);
-            Company savedCompany =  companyRepository.saveAndFlush(existingCompany);
 
-            // auditLog 기록을 위해 수정 후 데이터로 구성된 객체를 생성
-            CompanySnapshot afterSnapshot = CompanySnapshot.from(savedCompany);
-
-            // auditLog 기록을 위해 수정 전, 후 객체를 바탕으로 audit_log 기록
-            companyAuditLog.modifyAuditLog(beforeSnapshot, afterSnapshot, modifierId);
-
-            return savedCompany;
-        } catch (OptimisticLockingFailureException e) {
+        // 2) “클라이언트가 본 버전” vs “DB 실제 버전” 비교
+        if (!existing.getVersion().equals(request.getVersion())) {
+            // UI에서 본 데이터가 DB에서 이미 갱신된 상태니까 충돌 처리
             throw new CustomException(CustomErrorCode.CONCURRENT_UPDATE);
         }
 
+        // 3) 변경 전 스냅샷
+        CompanySnapshot before = CompanySnapshot.from(existing);
 
+        // 4) 실제 필드 수정
+        request.modifyCompany(existing);
+
+        // 5) 저장(이때 JPA가 버전을 +1 자동증가)
+        Company saved = companyRepository.saveAndFlush(existing);
+
+        // 6) 변경 후 스냅샷 및 감사로그
+        CompanySnapshot after = CompanySnapshot.from(saved);
+        companyAuditLog.modifyAuditLog(before, after, modifierId);
+
+        return saved;
     }
 
     public void deleteCompany(Long id, Long deleterId) {

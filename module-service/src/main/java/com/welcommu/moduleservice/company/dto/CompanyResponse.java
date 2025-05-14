@@ -20,6 +20,7 @@ public class CompanyResponse {
     private CompanyRole companyRole;
     private String coOwner;
     private Boolean isDeleted;
+    private Long version;
 
 
     // Company 엔티티를 DTO로 변환하는 메서드
@@ -33,7 +34,8 @@ public class CompanyResponse {
             company.getEmail(),
             company.getCompanyRole(),
             company.getCoOwner(),
-            company.getIsDeleted()
+            company.getIsDeleted(),
+            company.getVersion()
         );
     }
 }
