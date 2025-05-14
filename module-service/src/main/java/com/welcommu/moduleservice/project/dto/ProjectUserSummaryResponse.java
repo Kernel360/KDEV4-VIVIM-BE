@@ -1,6 +1,7 @@
 package com.welcommu.moduleservice.project.dto;
 
 import com.welcommu.moduledomain.project.Project;
+import com.welcommu.moduledomain.project.ProjectStatus;
 import com.welcommu.moduledomain.projectUser.ProjectUser;
 import com.welcommu.moduledomain.projectUser.ProjectUserManageRole;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class ProjectUserSummaryResponse {
     private boolean isDeleted;
     private LocalDateTime deletedAt;
     private ProjectUserManageRole myRole;
+    private ProjectStatus projectStatus;
 
     public static ProjectUserSummaryResponse of(Project project, ProjectUser projectUser) {
         return new ProjectUserSummaryResponse(
@@ -29,7 +31,8 @@ public class ProjectUserSummaryResponse {
             project.getEndDate(),
             project.getIsDeleted(),
             project.getDeletedAt(),
-            projectUser.getProjectUserManageRole()
+            projectUser.getProjectUserManageRole(),
+            project.getProjectStatus()
         );
     }
 }

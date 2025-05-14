@@ -14,6 +14,8 @@ public class UserResponse {
     private String phone;
     private String companyName;
     private String companyRole;
+    private Boolean isDeleted;;
+
 
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -22,7 +24,8 @@ public class UserResponse {
             user.getEmail(),
             user.getPhone(),
             user.getCompany() != null ? user.getCompany().getName() : null,
-            user.getCompany() != null ? user.getCompany().getCompanyRole().toString() : null
+            user.getCompany() != null ? user.getCompany().getCompanyRole().toString() : null,
+            user.getIsDeleted()
         );
     }
 }

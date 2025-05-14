@@ -12,6 +12,8 @@ import com.welcommu.moduleservice.project.dto.ProjectCompanyResponse;
 import com.welcommu.moduleservice.project.dto.ProjectCreateRequest;
 import com.welcommu.moduleservice.project.dto.ProjectDeleteRequest;
 import com.welcommu.moduleservice.project.dto.ProjectModifyRequest;
+import com.welcommu.moduleservice.project.dto.ProjectMonthlyStats;
+import com.welcommu.moduleservice.project.dto.ProjectSnapshot;
 import com.welcommu.moduleservice.project.dto.ProjectSummaryWithRoleDto;
 import com.welcommu.moduleservice.project.dto.ProjectUserResponse;
 import com.welcommu.moduleservice.project.dto.ProjectUserSummaryResponse;
@@ -65,6 +67,18 @@ public class ProjectController {
     ) {
         Project project = projectService.getProject(userDetails.getUser(), projectId);
         return ResponseEntity.ok(project);
+    }
+
+    @GetMapping("/projects/stats/monthly")
+    @Operation(summary = "최근 6개월별 생성된 프로젝트 수, 완료된 프로젝트 수 리스트 반환")
+    public List<ProjectMonthlyStats> getMonthlyProjectStats() {
+        return projectService.getMonthlyProjectStats();
+    }
+
+    @GetMapping("/non-completed/sorted")
+    @Operation(summary = "마감일 순으로 정렬된 프로젝트 리스트 반환")
+    public List<ProjectSnapshot> getNonCompletedProjectsOrderedByEndDate() {
+        return projectService.getNonCompletedProjectsOrderedByEndDate();
     }
 
     @PutMapping("/{projectId}")

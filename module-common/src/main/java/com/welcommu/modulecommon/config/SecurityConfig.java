@@ -3,6 +3,7 @@ package com.welcommu.modulecommon.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.welcommu.modulecommon.filter.JwtAuthenticationFilter;
 import com.welcommu.modulecommon.token.JwtProvider;
+import jakarta.servlet.DispatcherType;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/*").permitAll()
                 .requestMatchers("/api/auth/refresh-token").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users/request-reset").permitAll()
+                .requestMatchers(HttpMethod.PUT,  "/api/users/confirm-reset").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

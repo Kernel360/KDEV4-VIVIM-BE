@@ -4,12 +4,14 @@ import com.welcommu.modulecommon.dto.ApiResponse;
 import com.welcommu.moduledomain.auth.AuthUserDetailsImpl;
 import com.welcommu.moduledomain.company.CompanyRole;
 import com.welcommu.moduledomain.user.User;
+import com.welcommu.moduleservice.user.PasswordResetServiceImpl;
 import com.welcommu.moduleservice.user.UserService;
 import com.welcommu.moduleservice.user.dto.UserModifyRequest;
 import com.welcommu.moduleservice.user.dto.UserRequest;
 import com.welcommu.moduleservice.user.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,7 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +36,7 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final PasswordResetServiceImpl resetService;
 
     @PostMapping
     @Operation(summary = "유저를 생성합니다")
@@ -145,5 +150,36 @@ public class UserController {
     public ResponseEntity<ApiResponse> softDeleteUser(@PathVariable Long id) {
         userService.softDeleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/request-reset")
+    public ResponseEntity<?> requestReset(@RequestParam String email){
+        try {
+            resetService.requestReset(email);
+            return ResponseEntity.ok(Map.of("message", "인증번호 발송 완료"));
+        } catch (UsernameNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", ex.getMessage()));
+        } catch (MailSendException ex) {
+            log.error("메일 발송 실패", ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/confirm-reset")
+    public ResponseEntity<?> confirmReset(
+        @RequestParam String email,
+        @RequestParam String code,
+        @RequestParam String newPassword
+    ) {
+        boolean ok = resetService.confirmReset(email, code, newPassword);
+        if (ok) {
+            return ResponseEntity.ok(Map.of("message", "비밀번호 변경 완료"));
+        } else {
+            return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", "인증번호가 올바르지 않거나 만료되었습니다."));
+        }
     }
 }

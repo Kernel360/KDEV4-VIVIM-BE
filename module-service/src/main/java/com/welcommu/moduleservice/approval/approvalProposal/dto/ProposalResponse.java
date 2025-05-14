@@ -19,6 +19,7 @@ public class ProposalResponse {
     private LocalDateTime createdAt;
     private UserResponse creator;
     private ProgressResponse progress;
+    private Long projectId;
 
     public static ProposalResponse of(ApprovalProposal approvalProposal) {
         return ProposalResponse.builder()
@@ -29,6 +30,7 @@ public class ProposalResponse {
             .createdAt(approvalProposal.getCreatedAt())
             .creator(UserResponse.from(approvalProposal.getUser()))
             .progress(ProgressResponse.from(approvalProposal.getProjectProgress()))
+            .projectId(approvalProposal.getProjectProgress().getProject().getId())
             .build();
     }
 }

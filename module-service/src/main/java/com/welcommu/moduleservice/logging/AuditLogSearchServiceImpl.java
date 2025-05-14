@@ -13,7 +13,9 @@ import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -57,34 +59,101 @@ public class AuditLogSearchServiceImpl implements AuditLogSearchService{
         Long cursorId,
         int size
     ) {
-        // (A) start/end 파싱
+        // (A) 파싱
         LocalDateTime start = startDate != null
             ? LocalDate.parse(startDate).atStartOfDay() : null;
         LocalDateTime end = endDate != null
             ? LocalDate.parse(endDate).atTime(LocalTime.MAX) : null;
 
-        // (B) 1단계: ID만 조회
+        // (B) ID만 커서로 조회
         List<Long> ids = auditLogRepository.findIdsWithCursor(
             actionType, targetType, start, end, userId,
             cursorLoggedAt, cursorId, size
         );
         if (ids.isEmpty()) {
-            return new LogsWithCursor<>(List.of(), null);
+            return LogsWithCursor.<AuditLogResponse>builder()
+                .logs(List.of())
+                .next(null)
+                .currentPage(1)
+                .totalPages(1)
+                .build();
         }
 
-        // (C) 2단계: Fetch Join 으로 상세까지 한 번에 로드
+        // (C) 상세 fetch
         List<AuditLog> entities = auditLogRepository.findWithDetailsByIds(ids);
-
-        // (D) DTO 변환 + nextCursor 계산
         List<AuditLogResponse> dtos = entities.stream()
             .map(AuditLogResponse::from)
             .toList();
 
-        AuditLogResponse last = dtos.get(dtos.size() - 1);
-        Cursor next = new Cursor(
-            last.getLoggedAt().toString(), last.getId()
+        // (D) 페이지 번호 계산
+        long totalCount = auditLogRepository.countByFilters(
+            actionType, targetType, start, end, userId
         );
-        return new LogsWithCursor<>(dtos, next);
+        int totalPages = (int) Math.ceil((double) totalCount / size);
 
+        long beforeCount = 0;
+        if (cursorLoggedAt != null && cursorId != null) {
+            beforeCount = auditLogRepository.countBeforeCursor(
+                actionType, targetType, start, end, userId,
+                cursorLoggedAt, cursorId
+            );
+        }
+        int currentPage = (int)(beforeCount / size) + 1;
+
+        // (E) next cursor
+        AuditLogResponse last = dtos.get(dtos.size() - 1);
+        Cursor next = new Cursor(last.getLoggedAt().toString(), last.getId());
+
+        return LogsWithCursor.<AuditLogResponse>builder()
+            .logs(dtos)
+            .next(next)
+            .currentPage(currentPage)
+            .totalPages(totalPages)
+            .build();
+    }
+
+    public LogsWithCursor<AuditLogResponse> searchLogsByPage(
+        ActionType actionType,
+        TargetType targetType,
+        String startDate,
+        String endDate,
+        Long userId,
+        int page,
+        int size
+    ) {
+        // 날짜 파싱 (cursor 모드와 동일)
+        LocalDateTime start = startDate != null
+            ? LocalDate.parse(startDate).atStartOfDay() : null;
+        LocalDateTime end = endDate != null
+            ? LocalDate.parse(endDate).atTime(LocalTime.MAX) : null;
+
+        // 1) 필터+페이지 요청으로 ID만 뽑기
+        Pageable pageable = PageRequest.of(page - 1, size,
+            Sort.by("loggedAt").descending().and(Sort.by("id").descending())
+        );
+        List<Long> ids = auditLogRepository.findIdsByFilters(
+            actionType, targetType, start, end, userId, pageable
+        );
+        if (ids.isEmpty()) {
+            return new LogsWithCursor<>(List.of(), null, page, 0);
+        }
+
+        // 2) 상세 fetch
+        List<AuditLog> entities = auditLogRepository.findWithDetailsByIds(ids);
+        List<AuditLogResponse> dtos = entities.stream()
+            .map(AuditLogResponse::from)
+            .toList();
+
+        // 3) 카운트로 totalPages 계산
+        long totalCount = auditLogRepository.countByFilters(
+            actionType, targetType, start, end, userId
+        );
+        int totalPages = (int)Math.ceil((double)totalCount / size);
+
+        // 4) next cursor는 마지막 아이템
+        AuditLogResponse last = dtos.get(dtos.size() - 1);
+        Cursor next = new Cursor(last.getLoggedAt().toString(), last.getId());
+
+        return new LogsWithCursor<>(dtos, next, page, totalPages);
     }
 }
