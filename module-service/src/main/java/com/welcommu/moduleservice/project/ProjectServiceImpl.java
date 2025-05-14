@@ -412,15 +412,11 @@ public class ProjectServiceImpl implements ProjectService {
             projectId);
         currentProgress.setIsCompleted(true);
         progressRepository.save(currentProgress);
-        log.info("단계 완료 전 {}",
-            progressRepository.findTopByProjectIdOrderByPositionDesc(projectId).getId());
         if (currentProgress.getId()
             .equals(
                 progressRepository.findTopByProjectIdOrderByPositionDesc(projectId).getId())) {
-            log.info("단계 완료");
             project.setCurrentProgress("COMPLETED");
         } else {
-            log.info("다음단계넘어감");
             ProjectProgress nextProgress = progressRepository.findFirstByProjectIdAndIsCompletedFalseOrderByPositionAsc(
                     projectId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.NOT_FOUND_PROGRESS));

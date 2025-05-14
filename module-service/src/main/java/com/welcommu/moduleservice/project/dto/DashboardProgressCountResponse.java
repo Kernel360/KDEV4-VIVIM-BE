@@ -22,22 +22,22 @@ public class DashboardProgressCountResponse {
             String progress = project.getCurrentProgress();
             if (progress != null) {
                 switch (progress) {
-                    case "REQUIREMENTS":
+                    case "요구사항 정의":
                         requirementCount++;
                         break;
-                    case "WIREFRAME":
+                    case "화면설계":
                         wireframeCount++;
                         break;
-                    case "DESIGN":
+                    case "디자인":
                         designCount++;
                         break;
-                    case "PUBLISHING":
+                    case "배포":
                         publishCount++;
                         break;
-                    case "DEVELOPMENT":
+                    case "개발":
                         developCount++;
                         break;
-                    case "INSPECTION":
+                    case "검수":
                         inspectionCount++;
                         break;
                 }

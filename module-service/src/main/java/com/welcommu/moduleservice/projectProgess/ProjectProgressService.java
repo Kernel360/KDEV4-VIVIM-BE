@@ -68,10 +68,8 @@ public class ProjectProgressService {
         projectProgress.setName(request.getName());
         progressRepository.save(projectProgress);
 
-        log.info("단계 이름 수정 전");
         existingProject.setCurrentProgress(findBiggestProgress(projectId).getName());
         projectRepository.save(existingProject);
-        log.info("단계 이름 수정 후");
 
     }
 
@@ -108,10 +106,8 @@ public class ProjectProgressService {
 
         projectProgress.setPosition(newPosition);
         progressRepository.save(projectProgress);
-        log.info("단계 이름 수정 전");
         existingProject.setCurrentProgress(findBiggestProgress(projectId).getName());
         projectRepository.save(existingProject);
-        log.info("단계 이름 수정 후");
     }
 
     public void deleteProgress(User user, Long projectId, Long progressId) {
