@@ -219,21 +219,21 @@ public class ProposalService {
         return ProposalResponseList.from(approvalProposalList);
     }
 
+    @Transactional(readOnly = true)
     public ProposalResponseList getRecentProposals(User user) {
-        List<Long> projectIds = projectUserRepository.findByUserId(user.getId()).stream()
+        // 1. 내가 속한 프로젝트 ID 조회
+        List<Long> myProjectIds = projectUserRepository.findByUserId(user.getId()).stream()
             .map(pu -> pu.getProject().getId())
             .distinct()
             .toList();
 
-        if (projectIds.isEmpty()) {
+        if (myProjectIds.isEmpty()) {
             return ProposalResponseList.from(List.of());
         }
 
+        // 2. recent proposals 조회 (projectId filtering + createdAt desc + limit 5)
         List<ApprovalProposal> proposals = approvalProposalRepository
-            .findByProjectProgress_Project_IdInOrderByCreatedAtDesc(
-                projectIds,
-                PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
-            );
+            .findRecentProposalsByProjectIds(myProjectIds, PageRequest.of(0, 5));
 
         return ProposalResponseList.from(proposals);
     }
