@@ -97,8 +97,18 @@ public class ApprovalProposalController {
     }
 
     @GetMapping("/approval/recent")
-    public ResponseEntity<ProposalResponseList> getUserRecentProposals(@AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
-        ProposalResponseList responseList = proposalService.getRecentProposals(userDetails.getUser());
+    public ResponseEntity<ProposalResponseList> getUserRecentProposals(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        ProposalResponseList responseList = proposalService.getRecentProposals(
+            userDetails.getUser());
+        return ResponseEntity.ok(responseList);
+    }
+
+    @GetMapping("/approval/admin/recent")
+    public ResponseEntity<ProposalResponseList> getAdminRecentProposals(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        ProposalResponseList responseList = proposalService.getAdminRecentProposals(
+            userDetails.getUser());
         return ResponseEntity.ok(responseList);
     }
 
