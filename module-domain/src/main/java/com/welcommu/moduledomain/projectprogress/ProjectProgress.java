@@ -49,6 +49,7 @@ public class ProjectProgress {
     private LocalDateTime modifiedAt;
     private LocalDateTime deletedAt;
     private boolean isDeleted;
+    private boolean isCompleted;
 
     @ManyToOne
     @JoinColumn(name = "project_id")
@@ -68,5 +69,9 @@ public class ProjectProgress {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public void setIsCompleted(boolean isCompleted) {
+        this.isCompleted = isCompleted;
     }
 }

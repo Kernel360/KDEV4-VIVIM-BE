@@ -19,7 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -70,7 +69,8 @@ public class ProjectProgressController {
         @RequestBody ProgressPositionModifyRequest request
     ) {
 
-        progressService.modifyProgressPosition(userDetails.getUser(), projectId, progressId, request);
+        progressService.modifyProgressPosition(userDetails.getUser(), projectId, progressId,
+            request);
         return ResponseEntity.ok().body(new ApiResponse(HttpStatus.OK.value(), "프로젝트 단계 수정 성공"));
     }
 
@@ -100,20 +100,30 @@ public class ProjectProgressController {
     public ResponseEntity<ProgressApprovalStatusResponse> getProgressApprovalStatus(
         @PathVariable Long projectId
     ) {
-        ProgressApprovalStatusResponse response = progressService.getProgressApprovalStatus(projectId);
+        ProgressApprovalStatusResponse response = progressService.getProgressApprovalStatus(
+            projectId);
         log.info("프로젝트 단계별 승인요청 진척도 조회 완료: projectId={}, count={}", projectId,
             response.getProgressList().size());
         return ResponseEntity.ok(response);
     }
+    
 
     @GetMapping("/{projectId}/progress/overall-progress")
     @Operation(summary = "프로젝트 전체 진행률 조회")
     public ResponseEntity<ProgressApprovalStatusOverallResponse> getOverallProgress(
         @PathVariable Long projectId
     ) {
-        ProgressApprovalStatusOverallResponse response = progressService.calculateOverallProgress(projectId);
+        ProgressApprovalStatusOverallResponse response = progressService.calculateOverallProgress(
+            projectId);
         log.info("프로젝트 전체 진행률 조회 완료: projectId={}, overallProgressRate={}", projectId,
             response.getOverallProgressRate());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{progressId}/approval-rate")
+    @Operation(summary = "프로젝트 진행단계별 승인요청 승인률 조회")
+    public ResponseEntity<Integer> getApprovalRate(@PathVariable Long progressId) {
+        int approvalRate = progressService.calculateFinalApprovedRate(progressId);
+        return ResponseEntity.ok(approvalRate);
     }
 }
