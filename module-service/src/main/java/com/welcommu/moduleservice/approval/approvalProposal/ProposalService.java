@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -237,6 +236,16 @@ public class ProposalService {
 
         return ProposalResponseList.from(proposals);
     }
+
+    @Transactional(readOnly = true)
+    public ProposalResponseList getAdminRecentProposals(User user) {
+
+        List<ApprovalProposal> proposals = approvalProposalRepository
+            .findTop5ByOrderByCreatedAtDesc();
+
+        return ProposalResponseList.from(proposals);
+    }
+
 
     /**
      * 승인요청 상태 관련 로직
