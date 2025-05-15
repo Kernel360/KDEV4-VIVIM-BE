@@ -32,11 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ProposalService {
@@ -198,8 +199,7 @@ public class ProposalService {
         }
 
         proposal.markProposalSent();
-        approvalProposalRepository.save(proposal);  // 변경된 상태 저장
-
+        approvalProposalRepository.save(proposal);
         return ProposalSendResponse.from(user, proposal);
     }
 
@@ -219,13 +219,33 @@ public class ProposalService {
     }
 
     @Transactional(readOnly = true)
-    public ProposalResponseList getRecentProposals() {
-        List<ApprovalProposal> proposals = approvalProposalRepository.findAllByOrderByCreatedAtDesc(
-            PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "createdAt"))
-        );
+    public ProposalResponseList getRecentProposals(User user) {
+        // 1. 내가 속한 프로젝트 ID 조회
+        List<Long> myProjectIds = projectUserRepository.findByUserId(user.getId()).stream()
+            .map(pu -> pu.getProject().getId())
+            .distinct()
+            .toList();
+
+        if (myProjectIds.isEmpty()) {
+            return ProposalResponseList.from(List.of());
+        }
+
+        // 2. recent proposals 조회 (projectId filtering + createdAt desc + limit 5)
+        List<ApprovalProposal> proposals = approvalProposalRepository
+            .findRecentProposalsByProjectIds(myProjectIds, PageRequest.of(0, 5));
 
         return ProposalResponseList.from(proposals);
     }
+
+    @Transactional(readOnly = true)
+    public ProposalResponseList getAdminRecentProposals(User user) {
+
+        List<ApprovalProposal> proposals = approvalProposalRepository
+            .findTop5ByOrderByCreatedAtDesc();
+
+        return ProposalResponseList.from(proposals);
+    }
+
 
     /**
      * 승인요청 상태 관련 로직

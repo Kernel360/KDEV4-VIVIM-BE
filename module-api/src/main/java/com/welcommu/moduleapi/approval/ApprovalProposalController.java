@@ -96,11 +96,20 @@ public class ApprovalProposalController {
             .body(response);
     }
 
-    @GetMapping("/proposals/recent")
-    @Operation(summary = "최근 작성된 승인요청 5개 조회")
-    public ResponseEntity<ProposalResponseList> getRecentProposals() {
-        ProposalResponseList response = proposalService.getRecentProposals();
-        return ResponseEntity.ok(response);
+    @GetMapping("/approval/recent")
+    public ResponseEntity<ProposalResponseList> getUserRecentProposals(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        ProposalResponseList responseList = proposalService.getRecentProposals(
+            userDetails.getUser());
+        return ResponseEntity.ok(responseList);
+    }
+
+    @GetMapping("/approval/admin/recent")
+    public ResponseEntity<ProposalResponseList> getAdminRecentProposals(
+        @AuthenticationPrincipal AuthUserDetailsImpl userDetails) {
+        ProposalResponseList responseList = proposalService.getAdminRecentProposals(
+            userDetails.getUser());
+        return ResponseEntity.ok(responseList);
     }
 
     @GetMapping("/approval/{approvalId}/status")
