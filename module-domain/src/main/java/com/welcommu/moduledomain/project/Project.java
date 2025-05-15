@@ -1,6 +1,5 @@
 package com.welcommu.moduledomain.project;
 
-import com.welcommu.moduledomain.projectprogress.DefaultProjectProgress;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -53,9 +52,8 @@ public class Project {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "current_progress", nullable = false)
-    private DefaultProjectProgress currentProgress;
+    @Column(name = "current_progress")
+    private String currentProgress;
 
     @Column(name = "project_fee")
     private Integer projectFee;
@@ -103,7 +101,7 @@ public class Project {
         this.projectFee = projectFee;
     }
 
-    public void setCurrentProgress(DefaultProjectProgress currentProgress) {
+    public void setCurrentProgress(String currentProgress) {
         this.currentProgress = currentProgress;
     }
 
