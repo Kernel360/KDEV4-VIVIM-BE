@@ -94,6 +94,7 @@ https://www.vivim.co.kr
 <div>
 <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=black">
 <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=black">
+
 <img src="https://img.shields.io/badge/MySql-4479A1?style=for-the-badge&logo=mysql&logoColor=black">
 <img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=black">
 <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=Grafana&logoColor=black">
@@ -147,8 +148,8 @@ https://www.vivim.co.kr
 
 ## 💁‍♂️ 프로젝트 팀원
 
-| 이름  | 역할           | 담당 업무                                                                            |
-|-----|--------------|----------------------------------------------------------------------------------|
-| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축, 무중단 배포 구축 <br/> User, Company, Project API 개발 <br/> SpringSecurity |
-| 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link API 개발<br/>                                    |
-| 송어진 | 백엔드 개발자      | Project Approval, Notification API 개발 <br/> SpringSecurity                       |
+| 이름  | 역할           | 담당 업무                                                                                         |
+|-----|--------------|-----------------------------------------------------------------------------------------------|
+| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축, 무중단 배포 구축 <br/> User, Company, Project API 개발 <br/> SpringSecurity, Spring SMTP |
+| 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link, Notification  API 개발<br/>                                  |
+| 송어진 | 백엔드 개발자      | Project Approval API 개발 <br/> SpringSecurity                                                  |
