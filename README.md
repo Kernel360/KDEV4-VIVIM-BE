@@ -12,7 +12,7 @@
 </div>
 
 ## 🎬 시연 영상
-![Image](https://github.com/user-attachments/assets/e5110644-3b90-4de9-9167-8e629cee1826)
+[![Watch the video](https://img.youtube.com/vi/CIVFgraIZxE/0.jpg)](https://www.youtube.com/watch?v=CIVFgraIZxE)
 
 ## 배포 링크
 https://www.vivim.co.kr
