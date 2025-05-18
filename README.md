@@ -72,7 +72,10 @@ https://www.vivim.co.kr
 ### 📌 기타 기능
 1. **사용자 인증 및 권한 관리**
     - JWT 기반 로그인 및 권한 부여.
-
+2. **이벤트 발생시 실시간 알림**
+    - SSE를 활용하여 실시간 알림을 구현함.
+3. **메일 전송**
+   - SMTP를 활용하여 메일 전송 기능을 구현
 
 ## ⚙ 기술 스택
 
@@ -137,7 +140,7 @@ https://www.vivim.co.kr
 
 ## 🗂️ 기술 문서
 
-👉 **API 명세서** : [바로가기](https://dev.vivim.co.kr/swagger-ui/index.html)
+👉 **API 명세서** : [바로가기](https://vivim.porogramr.site/swagger-ui/index.html)
 
 👉 **기능 명세서** : [바로가기](-)
 
@@ -148,8 +151,8 @@ https://www.vivim.co.kr
 
 ## 💁‍♂️ 프로젝트 팀원
 
-| 이름  | 역할           | 담당 업무                                                                                         |
-|-----|--------------|-----------------------------------------------------------------------------------------------|
-| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축, 무중단 배포 구축 <br/> User, Company, Project API 개발 <br/> SpringSecurity, Spring SMTP |
-| 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link, Notification  API 개발<br/>                                  |
-| 송어진 | 백엔드 개발자      | Project Approval API 개발 <br/> SpringSecurity                                                  |
+| 이름  | 역할           | 담당 업무                                                                                                   |
+|-----|--------------|---------------------------------------------------------------------------------------------------------|
+| 박준서 | 백엔드 개발자 (팀장) | 백엔드 CI/CD 구축, 무중단 배포 구축 <br/> User, Company, Project, AuditLog API 개발 <br/> SpringSecurity, Spring SMTP |
+| 김찬호 | 백엔드 개발자      | Project Post, Comment, File, Link, Notification  API 개발<br/>                                            |
+| 송어진 | 백엔드 개발자      | Project Approval API 개발 <br/> SpringSecurity                                                            |
