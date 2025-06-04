@@ -72,7 +72,7 @@ public class AdminInquiryController {
 
         Page<AdminInquiryListResponse> page =
             adminInquiryService.searchAdminInquiries(title, creatorName, startDate, endDate, status,
-                pageable);
+                 pageable);
         return ResponseEntity.ok(page);
     }
 
